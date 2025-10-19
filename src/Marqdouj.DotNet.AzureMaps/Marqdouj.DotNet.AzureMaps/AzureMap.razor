@@ -1,0 +1,198 @@
+﻿@using Marqdouj.DotNet.AzureMaps.Map
+@using Marqdouj.DotNet.AzureMaps.Map.Controls
+@using Marqdouj.DotNet.AzureMaps.Map.Events
+@using Marqdouj.DotNet.AzureMaps.Map.Options
+@using Microsoft.Extensions.Logging
+@using Microsoft.Extensions.Options
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject IOptions<MapConfiguration> Configuration
+@inject ILogger<AzureMap> Logger
+
+<div id="@Id" class="@Class" style="@divStyle">
+    @if (hasInvalidMessage)
+    {
+        <p>@validateMessage</p>
+        <p>@issuesMessage</p>
+    }
+</div>
+
+@code {
+    private MapConfiguration config => Configuration.Value;
+    private bool hasInvalidMessage => !string.IsNullOrWhiteSpace(validateMessage) || !string.IsNullOrWhiteSpace(issuesMessage);
+    private string? validateMessage => config.IsValid ? "" : $"Invalid configuration for map: {config.ValidationMessage}";
+    private string? issuesMessage;
+    private string? divStyle => $"height:{divHeight};width:{divWidth};{Style}";
+    private string divHeight => string.IsNullOrWhiteSpace(Height) ? "300px" : Height;
+    private string divWidth => string.IsNullOrWhiteSpace(Width) ? "300px" : Width;
+
+    private DotNetObjectReference<AzureMap>? dotNetRef;
+    private MapFactory? mapFactory;
+
+    #region Parameters
+
+    /// <summary>
+    /// css class for the map container.
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// Azure Map controls, i.e. Style, Zoom, etc.
+    /// These controls are added when the map is initialized.
+    /// You can also add/remove controls manually
+    /// any time after OnMapEventReady is invoked.
+    /// </summary>
+    [Parameter]
+    public IEnumerable<MapControl>? Controls { get; set; }
+
+    /// <summary>
+    /// Subscribed Map Events.
+    /// </summary>
+    [Parameter]
+    public IEnumerable<MapEventType>? Events { get; set; }
+
+    /// <summary>
+    /// css height for the map container.
+    /// appended to the 'Style' parameter.
+    /// default 300px
+    /// </summary>
+    [Parameter]
+    public string? Height { get; set; }
+
+    /// <summary>
+    /// css width for the map container.
+    /// appended to the 'Style' parameter.
+    /// default 300px
+    /// </summary>
+    [Parameter]
+    public string? Width { get; set; }
+
+    /// <summary>
+    /// css style for the map container.
+    /// </summary>
+    [Parameter]
+    public string? Style { get; set; }
+
+    /// <summary>
+    /// map container Id.
+    /// </summary>
+    [Parameter, EditorRequired]
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Overrides the default map options.
+    /// </summary>
+    [Parameter]
+    public MapOptions? Options { get; set; }
+
+    #endregion
+
+    #region Component
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (!string.IsNullOrWhiteSpace(validateMessage))
+            {
+                Logger.LogError("Invalid map configuration: {ValidationMessage}", config.ValidationMessage);
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(Id))
+            {
+                issuesMessage = "Map Id is missing.";
+                Logger.LogError(issuesMessage);
+                StateHasChanged();
+                return;
+            }
+
+            dotNetRef = DotNetObjectReference.Create(this);
+            mapFactory = new MapFactory(JSRuntime, Id);
+
+            await mapFactory.AddMap(
+                dotNetRef,
+                config,
+                Options,
+                Events,
+                Controls);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        dotNetRef?.Dispose();
+
+        if (mapFactory != null)
+        {
+            try
+            {
+                await mapFactory.RemoveMap();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+    }
+
+    #endregion
+
+    #region JSInterop
+
+    [Parameter]
+    public EventCallback<MapEventArgs> OnMapEvent { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventConfigArgs> OnMapEventConfig { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventDataArgs> OnMapEventData { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventErrorArgs> OnMapEventError { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventMouseArgs> OnMapEventMouse { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventArgs> OnMapEventReady { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventSourceArgs> OnMapEventSource { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventStyleArgs> OnMapEventStyle { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventTouchArgs> OnMapEventTouch { get; set; }
+
+    [JSInvokable]
+    public async Task NotifyMapEvent(MapEventArgs e) => await OnMapEvent.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventConfig(MapEventConfigArgs e) => await OnMapEventConfig.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventData(MapEventDataArgs e) => await OnMapEventData.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventError(MapEventErrorArgs e) => await OnMapEventError.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventMouse(MapEventMouseArgs e) => await OnMapEventMouse.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventReady(MapEventArgs e) => await OnMapEventReady.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventSource(MapEventSourceArgs e) => await OnMapEventSource.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventStyle(MapEventStyleArgs e) => await OnMapEventStyle.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventTouch(MapEventTouchArgs e) => await OnMapEventTouch.InvokeAsync(e);
+
+    #endregion
+}

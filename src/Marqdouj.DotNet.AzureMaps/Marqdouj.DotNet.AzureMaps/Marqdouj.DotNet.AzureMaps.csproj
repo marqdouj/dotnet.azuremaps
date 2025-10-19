@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PackageIcon>DMNuGet.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>10.0.0-Preview-1.0</Version>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Blazor implemenation of the Azure Maps SDK</Title>
+    <PackageProjectUrl>https://github.com/marqdouj/dotnet.azuremaps</PackageProjectUrl>
+    <PackageTags>Blazor JSInterop Map Azure</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Authors>Douglas Marquardt</Authors>
+    <Copyright>© Douglas Marquardt. All rights reserved.</Copyright>
+    <Description>Provides basic Azure Maps SDK functionality via Blazor/JSInterop</Description>
+  </PropertyGroup>
+
+  <Target Name="RemoveTSGenFiles" AfterTargets="GetTypeScriptOutputForPublishing">
+    <ItemGroup>
+      <Content Remove="tsgen\**" />
+      <None Include="tsgen\**">
+        <Pack>False</Pack>
+      </None>
+    </ItemGroup>
+  </Target>
+  
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="call npm install" />
+    <Exec Command="call npm run build:prod --stats-error-details" />
+  </Target>
+	
+  <ItemGroup>
+    <Content Remove="package-lock.json" />
+    <Content Remove="package.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\DMNuGet.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="package-lock.json" />
+    <None Include="package.json" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0-rc.2.25502.107" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="tsconfig.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <Pack>False</Pack>
+    </Content>
+  </ItemGroup>
+
+</Project>
