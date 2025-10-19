@@ -8,6 +8,14 @@
             <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
             <FluentNavLink Href="map-basic" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Basic Map</FluentNavLink>
             <FluentNavLink Href="map-custom" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Custom Map</FluentNavLink>
+            <FluentNavGroup Title="Layers" Icon="@(new Icons.Regular.Size20.LayerDiagonal())">
+                @foreach (var layer in Enum.GetValues<MapLayerType>())
+                {
+                    var name = layer.ToString();
+                    var text = $"map-layer-{name.ToLower()}";
+                    <FluentNavLink Href="@text" Icon="@(new Icons.Regular.Size20.Layer())" IconColor="Color.Accent">@name</FluentNavLink>
+                }
+            </FluentNavGroup>
         </FluentNavMenu>
     </nav>
 </div>

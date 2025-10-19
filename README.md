@@ -5,7 +5,7 @@
 ## Summary
 A Blazor implementation of the Azure Maps Web SDK. 
 It provides a set of components and services to easily integrate Azure Maps into Blazor applications.
-
+The component is configured to allow for multiple Azure maps on the same page.
 ## Prerequisites
 - [Azure Maps account](https://learn.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app#create-an-azure-maps-account).
 If you don't have an azure account, you can create a [free account](https://azure.microsoft.com).
