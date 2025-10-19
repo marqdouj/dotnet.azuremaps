@@ -12,6 +12,12 @@
         @ChildContent
         <FluentStack>
             <a href="@HRefCode" target="_blank">Source Code</a>
+            @{
+                if (!string.IsNullOrWhiteSpace(HRefDocs))
+                {
+                    <a href="@HRefDocs" target="_blank">Azure Docs</a>
+                }
+            }
         </FluentStack>
     </FluentStack>
 </FluentCard>
@@ -39,6 +45,9 @@
 
     [Parameter, EditorRequired]
     public string HRefCode { get; set; }
+
+    [Parameter]
+    public string? HRefDocs { get; set; }
 
     [Parameter, EditorRequired]
     public string Subject { get; set; }

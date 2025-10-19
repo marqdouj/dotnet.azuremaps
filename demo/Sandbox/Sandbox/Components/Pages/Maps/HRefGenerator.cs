@@ -4,6 +4,7 @@
     {
         AzureMaps,
         Sandbox,
+        AzureDocs,
     }
 
     internal static class HRefGenerator
@@ -14,6 +15,9 @@
 
             switch (source)
             {
+                case HRefCodeSource.AzureDocs:
+                    url = "https://learn.microsoft.com/en-us/azure/azure-maps";
+                    break;
                 case HRefCodeSource.AzureMaps:
                     url = "https://github.com/marqdouj/dotnet.azuremaps/blob/master/src/Marqdouj.DotNet.AzureMaps/Marqdouj.DotNet.AzureMaps";
                     break;

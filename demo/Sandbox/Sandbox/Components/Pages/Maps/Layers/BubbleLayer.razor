@@ -3,12 +3,14 @@
 @inject IJSRuntime JSRuntime
 @inject ILogger<BubbleLayer> Logger
 @inject IToastService ToastService
+@inject IAzureMapsXmlService XmlService
 
 <PageTitle>@subject</PageTitle>
 
 <FluentLayout>
     <PageHeader Header="@subject"
                 HRefCode="@hRefCode"
+                HRefDocs="@hRefDocs"
                 Subject="@subject">
         <FluentStack Orientation="Orientation.Vertical">
             <FluentLabel>
@@ -17,7 +19,20 @@
         </FluentStack>
     </PageHeader>
 
-    <ComingSoon/>
+    <FluentToolbar>
+        <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="5"/>
+        <FluentButton IconStart="@(new Icons.Regular.Size20.Layer())" Title="Create Layer" OnClick="@CreateLayer" />
+    </FluentToolbar>
+
+    <FluentStack Orientation="Orientation.Vertical">
+        <AzureMap Id="@mapId"
+                  Height="@mapHeight"
+                  Width="@mapWidth"
+                  Controls="@MapHelpers.GetDefaultControls()"
+                  OnMapEventReady="@OnMapEventReady"
+                  Options="@options" />
+    </FluentStack>
 </FluentLayout>
 
 <FluentOverlay @bind-Visible="@overlay"
@@ -33,14 +48,31 @@
 
 
 @code {
-    private const string mapId = "BubbleLayer";
+    private const string layerType = "Bubble";
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("Layers/BubbleLayer.razor");
-    private readonly string subject = "Bubble Layer";
+    private readonly string hRefDocs = HRefCodeSource.AzureDocs.CodeUrl("map-add-bubble-layer");
+    private readonly string subject = $"{layerType} Layer";
+    private const string mapId = $"map{layerType}Layer";
+    private const string sourceId = $"my{layerType}Source";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
     private MapOptions? options;
     private MapInterop? mapInterop;
+    private BubbleLayerUIModel? uiModel;
+    private readonly BubbleLayerDef layerDef = new()
+    {
+        Id = $"my{mapId}Layer",
+        SourceId = sourceId,
+        Before = "labels",
+
+    };
+    private readonly List<Position> coordinates = [
+        new Position(-73.985708, 40.75773),
+        new Position(-73.985600, 40.76542),
+        new Position(-73.985550, 40.77900),
+        new Position(-73.975550, 40.74859),
+        new Position(-73.968900, 40.78859)];
 
     protected override void OnInitialized()
     {
@@ -57,6 +89,9 @@
                 Style = MapStyle.Road_Shaded_Relief
             },
         };
+
+        uiModel = new(XmlService);
+        uiModel.Source = layerDef;
     }
 
     private async Task OnMapEventReady(MapEventArgs e)
@@ -78,6 +113,53 @@
         try
         {
             await mapInterop!.Configuration.SetMapOptions(options!);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task CreateLayer()
+    {
+        try
+        {
+            if (mapInterop is null) return;
+
+            await RemoveLayer();
+
+            await mapInterop.Map.CreateDatasource(uiModel!.GetDataSource()!);
+            await mapInterop.Layers.CreateLayer(uiModel.Source!);
+
+            var feature = new MapFeatureDef(new MultiPoint(coordinates))
+            {
+                Properties = new Properties
+                {
+                    { "title", "my bubble layer" },
+                    { "demo", true },
+                }
+            };
+
+            await mapInterop.Layers.AddMapFeature(feature, uiModel.Source!.SourceId!);
+            await mapInterop.ZoomTo(new Position(-73.985550, 40.77900), 11);
+            ToastService.Success($"{layerType} layer was created.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task RemoveLayer()
+    {
+        try
+        {
+            if (mapInterop is null) return;
+
+            await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
+            await mapInterop.Map.ClearDatasource(uiModel.Source!.SourceId!);
         }
         catch (Exception ex)
         {

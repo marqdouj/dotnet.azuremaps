@@ -3,6 +3,7 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Sandbox;
 using Sandbox.AzureMaps;
 using Sandbox.Components;
+using Sandbox.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,9 @@ builder.Services.AddScoped<SandboxMaps>();
 
 //Marqdouj.DotNet.Web.Components
 builder.Services.AddScoped<IGeolocationService, GeolocationService>();
+
+//Resolves XML Comments for Marqdouj.DotNet.AzureMaps
+builder.Services.AddScoped<IAzureMapsXmlService, AzureMapsXmlService>();
 
 var app = builder.Build();
 

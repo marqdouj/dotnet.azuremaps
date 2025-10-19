@@ -9,6 +9,7 @@
 <FluentLayout>
     <PageHeader Header="@subject"
                 HRefCode="@hRefCode"
+                HRefDocs="@hRefDocs"
                 Subject="@subject">
         <FluentStack Orientation="Orientation.Vertical">
             <FluentLabel>
@@ -33,9 +34,12 @@
 
 
 @code {
-    private const string mapId = "ImageLayer";
+    private const string layerType = "Image";
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("Layers/ImageLayer.razor");
-    private readonly string subject = "Image Layer";
+    private readonly string hRefDocs = HRefCodeSource.AzureDocs.CodeUrl("map-add-image-layer");
+    private readonly string subject = $"{layerType} Layer";
+    private const string mapId = $"map{layerType}Layer";
+    private const string sourceId = $"my{layerType}Source";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
