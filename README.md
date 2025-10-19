@@ -1,5 +1,7 @@
 # DotNet.AzureMaps
 
+> NOTE: This is a new repository and is released as a Preview version.
+
 ## Summary
 A Blazor implementation of the Azure Maps Web SDK. 
 It provides a set of components and services to easily integrate Azure Maps into Blazor applications.
@@ -10,7 +12,7 @@ If you don't have an azure account, you can create a [free Azure account](https:
 
 ## Demo
 Demo on how to use this library is found 
-[here](https://github.com/marqdouj/dotnet.azuremaps/tree/master/src/Sandbox)
+[here](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/Sandbox)
 
 ## Customization
 If there is some functionality not yet supported or you need to customize existing support
