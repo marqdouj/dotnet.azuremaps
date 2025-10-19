@@ -14,10 +14,10 @@ If you don't have an azure account, you can create a [free account](https://azur
 Demo on how to use this library is found 
 [here](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/Sandbox)
 
-## Customization
+## Customization (JS Interop)
 If there is some functionality not yet supported or you need to customize existing support
 you can use your own custom [Blazor JS Interop](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/).
-An example on how to do this will be added to the demo in the near future.
+An example of one of the methods to do this is in the demo.
 
 ## Setup
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.

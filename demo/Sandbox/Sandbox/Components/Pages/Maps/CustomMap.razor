@@ -1,0 +1,147 @@
+﻿@page "/map-custom"
+@using Sandbox.AzureMaps
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+@inject ILogger<BasicMap> Logger
+@inject IToastService ToastService
+@inject SandboxMaps SandboxMaps
+
+<PageTitle>Custom Map</PageTitle>
+
+<FluentLayout>
+    <PageHeader Header="@subject"
+                HRefCode="@hRefCode"
+                Subject="@subject">
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentLabel>
+                The map is initialized to a specific camera position (Seattle, WA).
+            </FluentLabel>
+        </FluentStack>
+    </PageHeader>
+
+    <FluentToolbar>
+        <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="5" />
+        <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.Map())" Title="Check for map access using JS Interop" OnClick="@CheckForMap" />
+        <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.DesignIdeas())" Title="Add Controls" OnClick="@AddControls" />
+        <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ClearFormatting())" Title="Remove Controls" OnClick="@RemoveControls" />
+    </FluentToolbar>
+
+    <FluentStack Orientation="Orientation.Vertical">
+        <AzureMap Id="@mapId"
+                  Height="@mapHeight"
+                  Width="@mapWidth"
+                  OnMapEventReady="@OnMapEventReady"
+                  Options="@options" />
+    </FluentStack>
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+               Transparent="false">
+    <FluentProgressRing />
+</FluentOverlay>
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+
+
+@code {
+    private const string mapId = "CustomMap";
+    private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("CustomMap.razor");
+    private readonly string subject = "Custom Map (JS Interop)";
+    private string mapHeight = "400px";
+    private string mapWidth = "100%";
+    private bool overlay;
+    private MapOptions? options;
+    private MapInterop? mapInterop;
+
+    protected override void OnInitialized()
+    {
+        // Initialize map options with a specific camera position and style
+        options = new MapOptions
+        {
+            Camera = new CameraOptions
+            {
+                Center = new Position(-122.33, 47.6), // (Seattle, WA)
+                Zoom = 10
+            },
+            Style = new StyleOptions
+            {
+                Style = MapStyle.Road_Shaded_Relief
+            },
+        };
+    }
+
+    private async Task OnMapEventReady(MapEventArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            mapInterop = new MapInterop(JSRuntime, mapId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            await mapInterop!.Configuration.SetMapOptions(options!);
+            _= await SandboxMaps.RemoveControls(mapId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task CheckForMap()
+    {
+        try
+        {
+            var exists = await SandboxMaps.MapExists(mapId);
+            ToastService.Info($"Check for map access: {exists}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task AddControls()
+    {
+        try
+        {
+            var msg = await SandboxMaps.AddControls(mapId);
+            ToastService.Info(msg);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task RemoveControls()
+    {
+        try
+        {
+            var msg = await SandboxMaps.RemoveControls(mapId);
+            ToastService.Info(msg);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+}

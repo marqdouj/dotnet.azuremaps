@@ -14,4 +14,8 @@
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.13.0" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.13.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sandbox.AzureMaps\Sandbox.AzureMaps.csproj" />
+  </ItemGroup>
 </Project>
