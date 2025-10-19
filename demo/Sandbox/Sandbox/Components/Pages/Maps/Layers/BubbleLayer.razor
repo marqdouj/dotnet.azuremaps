@@ -57,7 +57,7 @@
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
-    private MapOptions? options;
+    private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
     private readonly BubbleLayerDef layerDef = new()
     {
@@ -66,19 +66,6 @@
         Before = "labels",
 
     };
-
-    protected override void OnInitialized()
-    {
-        // Initialize map options with a specific camera position
-        options = new MapOptions
-        {
-            Camera = new CameraOptions
-            {
-                Center = new Position(-122.33, 47.6), // (Seattle, WA)
-                Zoom = 10
-            }
-        };
-    }
 
     private async Task OnMapEventReady(MapEventArgs e)
     {

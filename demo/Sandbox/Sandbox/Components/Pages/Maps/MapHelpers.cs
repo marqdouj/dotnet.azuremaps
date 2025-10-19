@@ -1,9 +1,24 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
+using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
+using Marqdouj.DotNet.AzureMaps.Map.Options;
 
 namespace Sandbox.Components.Pages.Maps
 {
     internal static class MapHelpers
     {
+        public static MapOptions GetDefaultMapOptions()
+        {
+            // Initialize map options with a specific camera position
+            return new MapOptions
+            {
+                Camera = new CameraOptions
+                {
+                    Center = new Position(-122.33, 47.6), // (Seattle, WA)
+                    Zoom = 10.5
+                }
+            };
+        }
+
         public static List<MapControl> GetDefaultControls()
         {
             var controls = new List<MapControl>()
