@@ -3,7 +3,7 @@
 @inject IJSRuntime JSRuntime
 @inject ILogger<BubbleLayer> Logger
 @inject IToastService ToastService
-@inject IAzureMapsXmlService XmlService
+@inject IDataService DataSerice
 
 <PageTitle>@subject</PageTitle>
 
@@ -59,7 +59,6 @@
     private bool overlay;
     private MapOptions? options;
     private MapInterop? mapInterop;
-    private BubbleLayerUIModel? uiModel;
     private readonly BubbleLayerDef layerDef = new()
     {
         Id = $"my{mapId}Layer",
@@ -67,31 +66,18 @@
         Before = "labels",
 
     };
-    private readonly List<Position> coordinates = [
-        new Position(-73.985708, 40.75773),
-        new Position(-73.985600, 40.76542),
-        new Position(-73.985550, 40.77900),
-        new Position(-73.975550, 40.74859),
-        new Position(-73.968900, 40.78859)];
 
     protected override void OnInitialized()
     {
-        // Initialize map options with a specific camera position and style
+        // Initialize map options with a specific camera position
         options = new MapOptions
         {
             Camera = new CameraOptions
             {
                 Center = new Position(-122.33, 47.6), // (Seattle, WA)
                 Zoom = 10
-            },
-            Style = new StyleOptions
-            {
-                Style = MapStyle.Road_Shaded_Relief
-            },
+            }
         };
-
-        uiModel = new(XmlService);
-        uiModel.Source = layerDef;
     }
 
     private async Task OnMapEventReady(MapEventArgs e)
@@ -129,10 +115,10 @@
 
             await RemoveLayer();
 
-            await mapInterop.Map.CreateDatasource(uiModel!.GetDataSource()!);
-            await mapInterop.Layers.CreateLayer(uiModel.Source!);
+            await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
-            var feature = new MapFeatureDef(new MultiPoint(coordinates))
+            var feature = new MapFeatureDef(new MultiPoint(await DataSerice.GetBubbleLayerData()))
             {
                 Properties = new Properties
                 {
@@ -141,7 +127,7 @@
                 }
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, uiModel.Source!.SourceId!);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId!);
             await mapInterop.ZoomTo(new Position(-73.985550, 40.77900), 11);
             ToastService.Success($"{layerType} layer was created.");
         }
@@ -158,8 +144,8 @@
         {
             if (mapInterop is null) return;
 
-            await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
-            await mapInterop.Map.ClearDatasource(uiModel.Source!.SourceId!);
+            await mapInterop.Layers.RemoveLayer(layerDef.Id!);
+            await mapInterop.Map.ClearDatasource(layerDef.SourceId!);
         }
         catch (Exception ex)
         {
