@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <ResourcePreloader />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["Sandbox.styles.css"]" />
+    @* Azure Maps SDK *@
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/3/atlas.min.css" type="text/css">
+    <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/3/atlas.min.js"></script>
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <Routes />
+    <ReconnectModal />
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+
+    @* Add the script required for Marqdouj.DotNet.AzureMaps *@
+    <script src="./_content/Marqdouj.DotNet.AzureMaps/marqdouj-azuremaps.js"></script>
+
+    @* Add the script required for Anonymous authentication (if applicable) *@
+    @* <script type="text/javascript">
+        marqdoujAzureMaps.MapFactory.getAuthTokenCallback = (resolve, reject, map) => {
+            DotNet.invokeMethodAsync('Sandbox', 'GetAccessToken')
+            .then(function (response) {
+                return response;
+            }).then(function (token) {
+                resolve(token);
+            });
+        };
+    </script> *@
+</body>
+
+</html>
+

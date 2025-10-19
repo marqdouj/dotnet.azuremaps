@@ -1,0 +1,45 @@
+﻿<FluentHeader Style="margin-bottom:5px;">
+    @Header
+    <FluentSpacer Width="10" />
+    <FluentCheckbox @bind-Value="@showNarrative">@showHideNarrative</FluentCheckbox>
+</FluentHeader>
+
+<FluentCard Class="@narrativeClass" MinimalStyle="true" Height="auto" Style="margin-bottom:5px;">
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentLabel Typo="Typography.Subject">
+            This page demonstrates a <span class="subject">@Subject</span>.
+        </FluentLabel>
+        @ChildContent
+        <FluentStack>
+            <a href="@HRefCode" target="_blank">Source Code</a>
+        </FluentStack>
+    </FluentStack>
+</FluentCard>
+
+<style>
+    .hidden {
+        display: none;
+    }
+
+    .subject {
+        font-weight: 500;
+    }
+</style>
+
+@code {
+    private bool showNarrative = true;
+    private string narrativeClass => showNarrative ? "" : "hidden";
+    private string showHideNarrative => showNarrative ? "Hide Info" : "Show Info";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Header { get; set; }
+
+    [Parameter, EditorRequired]
+    public string HRefCode { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Subject { get; set; }
+}

@@ -5,14 +5,14 @@ namespace Marqdouj.DotNet.AzureMaps
 {
     public static class Extensions
     {
-        public static IServiceCollection AddMarqdoujAzureMaps(this IServiceCollection services, Action<MapConfiguration> config)
+        public static MapConfiguration AddMarqdoujAzureMaps(this IServiceCollection services, Action<MapConfiguration> config)
         {
             services
                 .AddOptions<MapConfiguration>()
                 .Configure(config)
                 .Validate(c => c.IsValid, config.InValidMessage());
 
-            return services;
+            return config.GetConfiguration();  
         }
 
         private static string InValidMessage(this Action<MapConfiguration> config)
