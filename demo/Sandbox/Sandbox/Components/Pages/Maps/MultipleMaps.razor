@@ -1,0 +1,147 @@
+﻿@page "/map-multi"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+@inject ILogger<MultipleMaps> Logger
+@inject IToastService ToastService
+
+<PageTitle>Multiple Maps</PageTitle>
+
+<FluentLayout>
+    <PageHeader Header="@subject"
+                HRefCode="@hRefCode"
+                Subject="@subject">
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentLabel>
+                This example demonstrates adding more than one Azure Map component to a page.
+                <br />
+                Two maps are created that are independent of each other and
+                contain their own distinct configurations.
+            </FluentLabel>
+        </FluentStack>
+    </PageHeader>
+
+    <FluentStack>
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentToolbar>
+                <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMapA" />
+            </FluentToolbar>
+            <AzureMap Id="@mapIdA"
+                      Height="@mapHeight"
+                      Width="@mapWidth"
+                      Controls="@controlsA"
+                      OnMapEventReady="@OnMapEventReadyA"
+                      Options="@optionsA" />
+        </FluentStack>
+
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentToolbar>
+                <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMapB" />
+            </FluentToolbar>
+            <AzureMap Id="@mapIdB"
+                      Height="@mapHeight"
+                      Width="@mapWidth"
+                      Controls="@controlsB"
+                      OnMapEventReady="@OnMapEventReadyB"
+                      Options="@optionsB" />
+        </FluentStack>
+    </FluentStack>
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+               Transparent="false">
+    <FluentProgressRing />
+</FluentOverlay>
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+
+
+@code {
+    private const string mapIdA = "BasicMapA";
+    private const string mapIdB = "BasicMapB";
+    private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("MultipleMaps.razor");
+    private readonly string subject = "Multiple Maps";
+    private string mapHeight = "400px";
+    private string mapWidth = "100%";
+    private bool overlay;
+    private MapOptions optionsA = MapHelpers.GetDefaultMapOptions();
+    private MapOptions optionsB = MapHelpers.GetDefaultMapOptions();
+    private MapInterop? mapInteropA;
+    private MapInterop? mapInteropB;
+    private List<MapControl>? controlsA;
+    private List<MapControl>? controlsB;
+
+    protected override void OnInitialized()
+    {
+        optionsB.Style = new StyleOptions
+        {
+            Style = MapStyle.Night
+        };
+
+        //Use default controls for map A
+        controlsA = MapHelpers.GetDefaultControls();
+
+        //Customize controls for map B
+        controlsB = MapHelpers.GetDefaultControls();
+        (controlsB.First(e => e is StyleControl) as StyleControl)?.Options = new StyleControlOptions { Layout = StyleControlLayout.List };
+
+
+    }
+
+    private async Task OnMapEventReadyA(MapEventArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            mapInteropA = new MapInterop(JSRuntime, mapIdA);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventReadyB(MapEventArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            mapInteropB = new MapInterop(JSRuntime, mapIdB);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMapA()
+    {
+        try
+        {
+            await mapInteropA!.Configuration.SetMapOptions(optionsA!);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMapB()
+    {
+        try
+        {
+            await mapInteropB!.Configuration.SetMapOptions(optionsB!);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+}
