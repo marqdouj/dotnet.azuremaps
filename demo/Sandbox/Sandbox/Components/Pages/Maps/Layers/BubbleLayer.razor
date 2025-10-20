@@ -132,7 +132,7 @@
             };
 
             await mapInterop.Layers.AddMapFeature(feature, uiModel.Source!.SourceId!);
-            await mapInterop.ZoomTo(new Position(-73.985550, 40.77900), 11);
+            await mapInterop.Configuration.ZoomTo(new Position(-73.985550, 40.77900), 11);
             ToastService.Success($"{layerType} layer was created.");
             activeTab = LayerContentTab.Map;
         }

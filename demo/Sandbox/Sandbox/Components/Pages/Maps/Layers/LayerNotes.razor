@@ -18,7 +18,17 @@
 
 	<FluentTabs>
 		<FluentTab Label="Bubble Layer">
-			<ComingSoon Height="@height" Width="@width"/>
+			<FluentCard>
+				<CodeText>
+					var layerDef = new BubbleLayerDef() { Id = "myLayerId", SourceId = "mySourceId"};<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					var featureDef = new MapFeatureDef(new MultiPoint(await DataSerice.GetBubbleLayerData()));<br />
+					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-73.985550, 40.77900), 11);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="HeatMap Layer">
 			<ComingSoon Height="@height" Width="@width" />
