@@ -1,5 +1,6 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
 using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
+using Marqdouj.DotNet.AzureMaps.Map.Options;
 using Marqdouj.DotNet.Web.Components.UI;
 
 namespace Sandbox.UI
@@ -17,7 +18,7 @@ namespace Sandbox.UI
 
         protected LayerUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
         {
-            sourceOptionsUI = new(xmlService);
+            sourceOptionsUI = new(xmlService) { Source = new DataSourceOptions()};
             Id.ReadOnly = true;
             SourceId.ReadOnly = true;
         }
