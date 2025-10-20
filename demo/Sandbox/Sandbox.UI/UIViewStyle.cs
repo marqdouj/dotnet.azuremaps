@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Components.Pages.Maps.UI
+﻿namespace Sandbox.UI
 {
     public enum UIViewStyle
     {

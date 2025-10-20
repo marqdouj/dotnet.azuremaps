@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Sandbox.AzureMaps/Sandbox.AzureMaps.csproj" Id="99d3a0f3-b11a-401c-843c-c0f147446c61" />
+  <Project Path="Sandbox.UI/Sandbox.UI.csproj" Id="f01a3335-fd7e-45b2-91bb-4fb6898c6237" />
   <Project Path="Sandbox/Sandbox.csproj" />
 </Solution>

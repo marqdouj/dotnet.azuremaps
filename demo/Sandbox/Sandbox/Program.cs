@@ -3,8 +3,8 @@ using Microsoft.FluentUI.AspNetCore.Components;
 using Sandbox;
 using Sandbox.AzureMaps;
 using Sandbox.Components;
-using Sandbox.Components.Pages.Maps.UI;
 using Sandbox.Services;
+using Sandbox.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 

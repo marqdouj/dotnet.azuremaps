@@ -1,6 +1,6 @@
 ﻿using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.Components.Pages.Maps.UI
+namespace Sandbox.UI
 {
     public class XmlUIModel<T> : UIModel<T> where T : class
     {

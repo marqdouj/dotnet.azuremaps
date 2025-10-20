@@ -1,7 +1,7 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.Components.Pages.Maps.UI
+namespace Sandbox.UI
 {
     public abstract class LayerOptionsUIModel<T> : XmlUIModel<T> where T : LayerOptions
     {

@@ -1,7 +1,7 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.Components.Pages.Maps.UI.BubbleLayer
+namespace Sandbox.UI
 {
     public class BubbleLayerUIModel(IAzureMapsXmlService? xmlService) 
         : LayerUIModel<BubbleLayerDef>(xmlService), ICloneable

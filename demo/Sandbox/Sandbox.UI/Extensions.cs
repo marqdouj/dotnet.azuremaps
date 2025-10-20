@@ -1,6 +1,6 @@
 ﻿using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.Components.Pages.Maps.UI
+namespace Sandbox.UI
 {
     internal static class Extensions
     {

@@ -1,6 +1,7 @@
 ﻿using LoxSmoke.DocXml;
+using Microsoft.Extensions.Logging;
 
-namespace Sandbox.Components.Pages.Maps.UI
+namespace Sandbox.UI
 {
     public interface IAzureMapsXmlService 
     {
@@ -10,7 +11,7 @@ namespace Sandbox.Components.Pages.Maps.UI
         Dictionary<string, string?> GetSummary<T>();
     }
 
-    internal sealed class AzureMapsXmlService : IAzureMapsXmlService
+    public sealed class AzureMapsXmlService : IAzureMapsXmlService
     {
         private readonly string assemblyName = "Marqdouj.DotNet.AzureMaps";
         private readonly DocXmlReader? reader;

@@ -1,7 +1,7 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Options;
 using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.Components.Pages.Maps.UI
+namespace Sandbox.UI
 {
     public class DataSourceOptionsUIModel : XmlUIModel<DataSourceOptions>
     {
