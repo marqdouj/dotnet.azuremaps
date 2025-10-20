@@ -1,11 +1,29 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
 using Marqdouj.DotNet.AzureMaps.Map.Options;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace Sandbox.Components.Pages.Maps
 {
     internal static class MapHelpers
     {
+        public static DialogParameters GetLayerDialogParameters()
+        {
+            DialogParameters parameters = new()
+            {
+                Title = $"Layer Settings",
+                PrimaryAction = "OK",
+                PrimaryActionEnabled = true,
+                SecondaryAction = "Cancel",
+                Width = "60%",
+                TrapFocus = true,
+                Modal = false,
+                PreventScroll = true
+            };
+
+            return parameters;
+        }
+
         public static MapOptions GetDefaultMapOptions()
         {
             // Initialize map options with a specific camera position

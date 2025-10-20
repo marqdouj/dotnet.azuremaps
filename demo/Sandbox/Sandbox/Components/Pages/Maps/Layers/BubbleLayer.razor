@@ -6,6 +6,7 @@
 @inject ILogger<BubbleLayer> Logger
 @inject IToastService ToastService
 @inject IDataService DataSerice
+@inject IDialogService DialogService
 @inject IAzureMapsXmlService XmlService
 
 <PageTitle>@subject</PageTitle>
@@ -15,11 +16,7 @@
                 HRefCode="@hRefCode"
                 HRefDocs="@hRefDocs"
                 Subject="@subject">
-        <FluentStack Orientation="Orientation.Vertical">
-            <FluentLabel>
-                The map is initialized to a specific camera position (Seattle, WA), with some common map controls.
-            </FluentLabel>
-        </FluentStack>
+        <LayerHeaderContent />
     </PageHeader>
 
     <FluentToolbar>
@@ -69,21 +66,18 @@
     private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
     private BubbleLayerUIModel? uiModel;
-    private readonly BubbleLayerDef layerDef = new()
-    {
-        Id = $"my{mapId}Layer",
-        SourceId = sourceId,
-        Before = "labels",
-
-    };
 
     protected override void OnInitialized()
     {
         uiModel = new(XmlService);
-        uiModel.Source = layerDef;
+        uiModel.Source = new()
+        {
+            Id = $"my{mapId}Layer",
+            SourceId = sourceId,
+        };
     }
 
-	private async Task OnMapEventReady(MapEventArgs e)
+    private async Task OnMapEventReady(MapEventArgs e)
     {
         try
         {
@@ -116,10 +110,27 @@
         {
             if (mapInterop is null) return;
 
+            var uiModelclone = (BubbleLayerUIModel)uiModel!.Clone();
+            uiModelclone.ViewStyle = UIViewStyle.Grid;
+
+            var parameters = MapHelpers.GetLayerDialogParameters();
+            IDialogReference dialog = await DialogService.ShowDialogAsync<BubbleLayerUI>(uiModelclone, parameters);
+            DialogResult? result = await dialog.Result;
+
+            if (!result.Cancelled && result.Data != null)
+            {
+                var update = (BubbleLayerUIModel)result.Data;
+                uiModel = update;
+            }
+            else
+            {
+                return;
+            }
+
             await RemoveLayer();
 
-            await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Map.CreateDatasource(uiModel.GetDataSource()!);
+            await mapInterop.Layers.CreateLayer(uiModel.Source!);
 
             var feature = new MapFeatureDef(new MultiPoint(await DataSerice.GetBubbleLayerData()))
             {
@@ -130,9 +141,7 @@
                 }
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId!);
-
-
+            await mapInterop.Layers.AddMapFeature(feature, uiModel.Source!.SourceId!);
             await mapInterop.ZoomTo(new Position(-73.985550, 40.77900), 11);
             ToastService.Success($"{layerType} layer was created.");
             activeTab = LayerContentTab.Map;
@@ -150,8 +159,8 @@
         {
             if (mapInterop is null) return;
 
-            await mapInterop.Layers.RemoveLayer(layerDef.Id!);
-            await mapInterop.Map.ClearDatasource(layerDef.SourceId!);
+            await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
+            await mapInterop.Map.ClearDatasource(uiModel.Source.SourceId!);
         }
         catch (Exception ex)
         {
