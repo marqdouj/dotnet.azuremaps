@@ -23,5 +23,8 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-1.1
+- `MapInterop`. Added `Configuration.ZoomTo(Position center, double zoomLevel)`.
+
 ### 10.0.0-rc-1.0
 - Initial release with basic map functionality.
