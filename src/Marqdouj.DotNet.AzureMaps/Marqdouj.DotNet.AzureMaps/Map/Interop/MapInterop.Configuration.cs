@@ -1,4 +1,5 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Options;
+﻿using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
+using Marqdouj.DotNet.AzureMaps.Map.Options;
 using Microsoft.JSInterop;
 using System.Runtime.CompilerServices;
 
@@ -68,6 +69,15 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async ValueTask SetUserInteraction(UserInteractionOptions options)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, options);
+        }
+
+        public async ValueTask ZoomTo(Position center, double zoomLevel)
+        {
+            var camera = await GetCamera();
+            var options = camera.ToCameraOptions();
+            options.Center = center;
+            options.Zoom = zoomLevel;
+            await SetCamera(options);
         }
 
         private static string GetMapInteropMethod([CallerMemberName] string name = "")
