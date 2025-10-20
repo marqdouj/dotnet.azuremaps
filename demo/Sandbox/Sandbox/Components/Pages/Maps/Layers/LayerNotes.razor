@@ -1,0 +1,51 @@
+﻿@page "/map-layer-notes"
+
+<PageTitle>Layer Notes</PageTitle>
+
+<FluentLayout>
+	<FluentHeader>
+		Layer Notes
+	</FluentHeader>
+
+	<FluentLabel Typo="Typography.Subject">
+		The layer pages in this group rely heavily on a custom UI.
+		The UI is not required to add a layer to the map.
+		<br />
+		Here are a some examples of adding a layer to a map without the UI.
+		<br />
+		The examples use a 'Data Service' to simulate querying the layer data from an API.
+	</FluentLabel>
+
+	<FluentTabs>
+		<FluentTab Label="Bubble Layer">
+			<ComingSoon Height="@height" Width="@width"/>
+		</FluentTab>
+		<FluentTab Label="HeatMap Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+		<FluentTab Label="Image Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+		<FluentTab Label="Line Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+		<FluentTab Label="Polygon Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+		<FluentTab Label="Polygon Extrusion Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+		<FluentTab Label="Symbol Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+		<FluentTab Label="Tile Layer">
+			<ComingSoon Height="@height" Width="@width" />
+		</FluentTab>
+	</FluentTabs>
+
+</FluentLayout>
+
+@code {
+	private const string height = "400px";
+	private const string width = "100%";
+}

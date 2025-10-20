@@ -10,6 +10,7 @@
             <FluentNavLink Href="map-custom" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Custom Map</FluentNavLink>
             <FluentNavLink Href="map-multi" Icon="@(new Icons.Regular.Size20.Multiplier2x())" IconColor="Color.Accent">Multiple Maps</FluentNavLink>
             <FluentNavGroup Title="Layers" Icon="@(new Icons.Regular.Size20.LayerDiagonal())">
+                <FluentNavLink Href="map-layer-notes" Icon="@(new Icons.Regular.Size20.Document())" IconColor="Color.Accent">Notes</FluentNavLink>
                 @foreach (var layer in Enum.GetValues<MapLayerType>())
                 {
                     var name = layer.ToString();
