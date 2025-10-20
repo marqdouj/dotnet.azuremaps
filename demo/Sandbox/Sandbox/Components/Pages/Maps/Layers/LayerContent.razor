@@ -5,7 +5,9 @@
         </FluentCard>
     </FluentTab>
     <FluentTab Id="@idSettings" Label="Settings" Style="padding-bottom:3px;">
-        @SettingsContent
+		<FluentCard MinimalStyle="true" AreaRestricted="false" Style="padding:1px;">
+			@SettingsContent
+		</FluentCard>
     </FluentTab>
 </FluentTabs>
 

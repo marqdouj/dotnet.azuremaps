@@ -11,14 +11,23 @@
                 HRefCode="@hRefCode"
                 HRefDocs="@hRefDocs"
                 Subject="@subject">
-        <FluentStack Orientation="Orientation.Vertical">
-            <FluentLabel>
-                The map is initialized to a specific camera position (Seattle, WA), with some common map controls.
-            </FluentLabel>
-        </FluentStack>
+        <LayerHeaderContent />
     </PageHeader>
 
-    <ComingSoon/>
+    <FluentToolbar>
+        <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="5"/>
+        <FluentButton IconStart="@(new Icons.Regular.Size20.Layer())" Title="Create Layer" OnClick="@CreateLayer" />
+    </FluentToolbar>
+
+    <LayerContent ActiveTab="@activeTab">
+        <MapContent>
+            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+        </MapContent>
+        <SettingsContent>
+            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+        </SettingsContent>
+    </LayerContent>
 </FluentLayout>
 
 <FluentOverlay @bind-Visible="@overlay"
@@ -39,10 +48,11 @@
     private readonly string hRefDocs = HRefCodeSource.AzureDocs.CodeUrl("map-add-heat-map-layer");
     private readonly string subject = $"{layerType} Layer";
     private const string mapId = $"map{layerType}Layer";
-    private const string sourceId = $"my{layerType}Source";
+    private const string sourceId = $"map{layerType}Source";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
+    private LayerContentTab activeTab;
     private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
 
@@ -65,6 +75,19 @@
         try
         {
             await mapInterop!.Configuration.SetMapOptions(options!);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task CreateLayer()
+    {
+        try
+        {
+            ToastService.Info("Coming Soon...");
         }
         catch (Exception ex)
         {
