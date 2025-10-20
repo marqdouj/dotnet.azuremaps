@@ -1,8 +1,8 @@
 ﻿using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.UI
+namespace Sandbox.Components.Pages.Maps.UI
 {
-    internal class XmlUIModel<T> : UIModel<T> where T : class
+    public class XmlUIModel<T> : UIModel<T> where T : class
     {
         protected private static Dictionary<string, string?> xmlDisplay = [];
         protected private static bool xmlWasNotSet = true;

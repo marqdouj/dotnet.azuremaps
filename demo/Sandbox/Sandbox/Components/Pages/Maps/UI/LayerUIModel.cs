@@ -2,17 +2,17 @@
 using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.UI
+namespace Sandbox.Components.Pages.Maps.UI
 {
-    internal interface ILayerUIModel
+    public interface ILayerUIModel
     {
         DataSourceOptionsUIModel? SourceOptionsUI { get; }
+        UIViewStyle ViewStyle { get; set; }
         DataSourceDef? GetDataSource();
     }
 
-    internal abstract class LayerUIModel<T> : XmlUIModel<T>, ILayerUIModel where T : MapLayerDef
+    public abstract class LayerUIModel<T> : XmlUIModel<T>, ILayerUIModel where T : MapLayerDef
     {
-        protected private static bool xmlSubWasNotSet = true;
         private readonly DataSourceOptionsUIModel sourceOptionsUI;
 
         protected LayerUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
@@ -20,18 +20,9 @@ namespace Sandbox.UI
             sourceOptionsUI = new(xmlService);
             Id.ReadOnly = true;
             SourceId.ReadOnly = true;
-
-            if (xmlSubWasNotSet)
-            {
-                if (xmlService == null) return;
-                xmlSubWasNotSet = false;
-
-                var xml = xmlService?.GetSummary<MapLayerDef>() ?? [];
-                foreach (var item in xml)
-                    xmlDisplay.Add(item.Key, item.Value);
-            }
         }
 
+        public UIViewStyle ViewStyle { get; set; }
         public DataSourceOptionsUIModel? SourceOptionsUI => sourceOptionsUI;
         public DataSourceDef? GetDataSource() => Source?.GetDataSource(SourceOptionsUI?.Source);
 

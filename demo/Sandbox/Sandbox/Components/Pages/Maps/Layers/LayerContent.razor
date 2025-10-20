@@ -1,0 +1,35 @@
+﻿<FluentTabs Width="100%" @bind-ActiveTabId="@activeTab">
+    <FluentTab Id="@idMap" Label="Map" Style="padding-bottom:3px;">
+        <FluentCard MinimalStyle="true" AreaRestricted="false" Style="padding:1px;">
+            @MapContent
+        </FluentCard>
+    </FluentTab>
+    <FluentTab Id="@idSettings" Label="Settings" Style="padding-bottom:3px;">
+        @SettingsContent
+    </FluentTab>
+</FluentTabs>
+
+@code {
+	private readonly string idMap = Guid.Empty.ToCssId();
+	private readonly string idSettings = Guid.Empty.ToCssId();
+	private string? activeTab;
+
+	protected override void OnInitialized()
+	{
+		activeTab = idMap;
+	}
+
+	[Parameter]
+	public LayerContentTab ActiveTab { get; set; }
+
+	[Parameter, EditorRequired]
+	public RenderFragment MapContent { get; set; }
+
+	[Parameter, EditorRequired]
+	public RenderFragment SettingsContent { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		activeTab = ActiveTab == LayerContentTab.Map ? idMap : idSettings;
+	}
+}

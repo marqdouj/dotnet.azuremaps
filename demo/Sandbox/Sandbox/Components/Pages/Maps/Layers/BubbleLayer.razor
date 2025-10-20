@@ -1,9 +1,12 @@
 ﻿@page "/map-layer-bubble"
+@using Sandbox.Components.Pages.Maps.UI
+@using Sandbox.Components.Pages.Maps.UI.BubbleLayer
 @rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
 @inject ILogger<BubbleLayer> Logger
 @inject IToastService ToastService
 @inject IDataService DataSerice
+@inject IAzureMapsXmlService XmlService
 
 <PageTitle>@subject</PageTitle>
 
@@ -25,14 +28,19 @@
         <FluentButton IconStart="@(new Icons.Regular.Size20.Layer())" Title="Create Layer" OnClick="@CreateLayer" />
     </FluentToolbar>
 
-    <FluentStack Orientation="Orientation.Vertical">
-        <AzureMap Id="@mapId"
-                  Height="@mapHeight"
-                  Width="@mapWidth"
-                  Controls="@MapHelpers.GetDefaultControls()"
-                  OnMapEventReady="@OnMapEventReady"
-                  Options="@options" />
-    </FluentStack>
+    <LayerContent ActiveTab="@activeTab">
+        <MapContent>
+            <AzureMap Id="@mapId"
+                      Height="@mapHeight"
+                      Width="@mapWidth"
+                      Controls="@MapHelpers.GetDefaultControls()"
+                      OnMapEventReady="@OnMapEventReady"
+                      Options="@options" />
+        </MapContent>
+        <SettingsContent>
+            <BubbleLayerUI Content="@uiModel" Height="@mapHeight" Width="@mapWidth" />
+        </SettingsContent>
+    </LayerContent>
 </FluentLayout>
 
 <FluentOverlay @bind-Visible="@overlay"
@@ -57,8 +65,10 @@
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
+    private LayerContentTab activeTab;
     private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
+    private BubbleLayerUIModel? uiModel;
     private readonly BubbleLayerDef layerDef = new()
     {
         Id = $"my{mapId}Layer",
@@ -67,7 +77,13 @@
 
     };
 
-    private async Task OnMapEventReady(MapEventArgs e)
+    protected override void OnInitialized()
+    {
+        uiModel = new(XmlService);
+        uiModel.Source = layerDef;
+    }
+
+	private async Task OnMapEventReady(MapEventArgs e)
     {
         try
         {
@@ -115,8 +131,11 @@
             };
 
             await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId!);
+
+
             await mapInterop.ZoomTo(new Position(-73.985550, 40.77900), 11);
             ToastService.Success($"{layerType} layer was created.");
+            activeTab = LayerContentTab.Map;
         }
         catch (Exception ex)
         {

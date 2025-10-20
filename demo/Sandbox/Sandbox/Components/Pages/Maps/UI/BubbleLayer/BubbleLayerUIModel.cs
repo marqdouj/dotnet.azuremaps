@@ -1,9 +1,9 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.UI
+namespace Sandbox.Components.Pages.Maps.UI.BubbleLayer
 {
-    internal class BubbleLayerUIModel(IAzureMapsXmlService? xmlService) 
+    public class BubbleLayerUIModel(IAzureMapsXmlService? xmlService) 
         : LayerUIModel<BubbleLayerDef>(xmlService), ICloneable
     {
         private readonly BubbleLayerOptionsUIModel options = new(xmlService);
@@ -39,7 +39,7 @@ namespace Sandbox.UI
         public BubbleLayerOptionsUIModel Options => options;
     }
 
-    internal class BubbleLayerOptionsUIModel : SourceLayerOptionsUIModel<BubbleLayerOptions>
+    public class BubbleLayerOptionsUIModel : SourceLayerOptionsUIModel<BubbleLayerOptions>
     {
         internal BubbleLayerOptionsUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
         {

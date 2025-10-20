@@ -1,40 +1,14 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 using Marqdouj.DotNet.Web.Components.UI;
 
-namespace Sandbox.UI
+namespace Sandbox.Components.Pages.Maps.UI
 {
-    internal abstract class LayerOptionsUIModel<T> : XmlUIModel<T> where T : LayerOptions
+    public abstract class LayerOptionsUIModel<T> : XmlUIModel<T> where T : LayerOptions
     {
-        protected private static bool xmlSubWasNotSet = true;
-
         protected internal LayerOptionsUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
         {
             MaxZoom?.SetBindMinMax(0, 24);
             MinZoom?.SetBindMinMax(0, 24);
-
-            if (xmlSubWasNotSet)
-            {
-                if (xmlService == null) return;
-                xmlSubWasNotSet = false;
-
-                var xml = xmlService?.GetSummary<LayerOptions>() ?? [];
-                foreach (var item in xml)
-                    xmlDisplay.Add(item.Key, item.Value);
-
-                if (typeof(T).IsSubclassOf(typeof(SourceLayerOptions)))
-                {
-                    xml = xmlService?.GetSummary<SourceLayerOptions>() ?? [];
-                    foreach (var item in xml)
-                        xmlDisplay.Add(item.Key, item.Value);
-                }
-
-                if (typeof(T).IsSubclassOf(typeof(MediaLayerOptions)))
-                {
-                    xml = xmlService?.GetSummary<MediaLayerOptions>() ?? [];
-                    foreach (var item in xml)
-                        xmlDisplay.Add(item.Key, item.Value);
-                }
-            }
         }
 
         public IUIModelValue? MaxZoom => GetItem(nameof(LayerOptions.MaxZoom));
@@ -42,7 +16,7 @@ namespace Sandbox.UI
         public IUIModelValue? Visible => GetItem(nameof(LayerOptions.Visible));
     }
 
-    internal abstract class MediaLayerOptionsUIModel<T> : LayerOptionsUIModel<T> where T : MediaLayerOptions
+    public abstract class MediaLayerOptionsUIModel<T> : LayerOptionsUIModel<T> where T : MediaLayerOptions
     {
         protected internal MediaLayerOptionsUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
         {
@@ -64,7 +38,7 @@ namespace Sandbox.UI
         public IUIModelValue? Saturation => GetItem(nameof(MediaLayerOptions.Saturation));
     }
 
-    internal abstract class SourceLayerOptionsUIModel<T> : LayerOptionsUIModel<T> where T : SourceLayerOptions
+    public abstract class SourceLayerOptionsUIModel<T> : LayerOptionsUIModel<T> where T : SourceLayerOptions
     {
         protected internal SourceLayerOptionsUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
         {

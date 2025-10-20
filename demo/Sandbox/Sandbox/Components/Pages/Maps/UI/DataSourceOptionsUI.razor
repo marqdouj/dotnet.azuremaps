@@ -1,0 +1,53 @@
+﻿@implements IDialogContentComponent<ILayerUIModel>
+
+@if (viewStyle == UIViewStyle.DataGrid)
+{
+    <div style="@divValuesStyle">
+        <UIValuesGrid Items="@options.ToUIList()" />
+    </div>
+}
+@if (viewStyle == UIViewStyle.Grid)
+{
+    <FluentStack Orientation="Orientation.Vertical" Width="@Width" Height="@Height">
+        <FluentLabel Typo="Typography.Subject">
+            <span class="note-span">NOTE: </span> Not all settings are displayed.
+        </FluentLabel>
+
+        <FluentGrid>
+            <UIText Model="@options.Buffer" ReadOnly="@options.Buffer!.IsReadOnly(ReadOnly)" FieldType="TextFieldType.Number" />
+        </FluentGrid>
+    </FluentStack>
+}
+
+<style>
+    .note-span {
+        font-weight: 500;
+    }
+</style>
+
+@code {
+    private List<Option<string?>> bools = UIExtensions.GetBoolLookup(true);
+    private UIViewStyle viewStyle => Dialog != null ? Content.ViewStyle : ViewStyle;
+    private DataSourceOptionsUIModel options => Content.SourceOptionsUI!;
+    private string height => string.IsNullOrWhiteSpace(Height) ? "100%" : Height;
+    private string width => string.IsNullOrWhiteSpace(Width) ? "100%" : Width;
+    private string divValuesStyle => $"height:{height};width:{width};overflow-y:auto";
+
+    [Parameter, EditorRequired]
+    public ILayerUIModel Content { get; set; }
+
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set; }
+
+    [Parameter]
+    public string? Height { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public UIViewStyle ViewStyle { get; set; }
+
+    [Parameter]
+    public string? Width { get; set; }
+}
