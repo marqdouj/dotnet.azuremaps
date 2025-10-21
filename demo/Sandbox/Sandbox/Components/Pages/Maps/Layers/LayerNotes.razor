@@ -20,7 +20,7 @@
 		<FluentTab Label="Bubble Layer">
 			<FluentCard>
 				<CodeText>
-					var layerDef = new BubbleLayerDef() { Id = "myLayerId", SourceId = "mySourceId"};<br />
+					var layerDef = new BubbleLayerDef();<br />
 					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
 					var featureDef = new MapFeatureDef(new MultiPoint(await DataSerice.GetBubbleLayerData()));<br />
