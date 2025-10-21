@@ -23,7 +23,13 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
-### 10.0.0-rc-1.1
+### 10.0.0-rc-2.0
+- `MapLayerDef`. Initialize Id and SourceId with an internally generated valid Css Id.
+  This negates the mandatory assignment of these Ids when creating a LayerDef.
+- `AzureMap`. Initialize Id with an internally generated valid Css Id.
+  This negates the mandatory assignment of the Id when adding the component to the page.
+
+### 10.0.0-rc-1.3
 - `MapInterop`. Added `Configuration.ZoomTo(Position center, double zoomLevel)`.
 
 ### 10.0.0-rc-1.0
