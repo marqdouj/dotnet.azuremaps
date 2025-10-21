@@ -69,14 +69,15 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
 
         /// <summary>
         /// Custom Id for the layer (Optional).
+        /// Default is an internally generated valid Css Id.
         /// </summary>
-        public string? Id { get; set; }
+        public string Id { get; set; } = MapExtensions.GetRandomCssId();
 
         /// <summary>
         /// The id of the data source which the layer will render (if applicable).
+        /// Default is an internally generated valid Css Id.
         /// </summary>
-        public string? SourceId { get; set; }
-
+        public string SourceId { get; set; } = MapExtensions.GetRandomCssId();
         /// <summary>
         /// The Url for the data source to fetch the data from (If applicable).
         /// </summary>

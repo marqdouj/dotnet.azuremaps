@@ -78,8 +78,8 @@
     /// <summary>
     /// map container Id.
     /// </summary>
-    [Parameter, EditorRequired]
-    public string Id { get; set; } = string.Empty;
+    [Parameter]
+    public string Id { get; set; } = MapExtensions.GetRandomCssId();
 
     /// <summary>
     /// Overrides the default map options.

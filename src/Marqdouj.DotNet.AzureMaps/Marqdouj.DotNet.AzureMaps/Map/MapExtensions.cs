@@ -8,6 +8,15 @@ namespace Marqdouj.DotNet.AzureMaps.Map
         internal const string LIBRARY_NAME = "marqdoujAzureMaps";
 
         /// <summary>
+        /// Generates a valid Css Id using a new Guid.
+        /// </summary>
+        /// <returns></returns>
+        internal static string GetRandomCssId()
+        {
+            return $"g_{Guid.NewGuid()}";
+        }
+
+        /// <summary>
         /// Merges the default (Configuration) options with the user (Parameter) options
         /// </summary>
         internal static MapOptions Merge(this MapConfiguration config, MapOptions? user)

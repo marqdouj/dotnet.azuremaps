@@ -5,7 +5,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
     public class MapEventArgs
     {
         [JsonInclude]
-        public string? MapId { get; internal set; }
+        public string MapId { get; internal set; } = "";
 
         [JsonIgnore]
         public MapEventType? Type { get; internal set; }
