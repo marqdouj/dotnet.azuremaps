@@ -25,8 +25,7 @@
             <FluentToolbar>
                 <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMapA" />
             </FluentToolbar>
-            <AzureMap Id="@mapIdA"
-                      Height="@mapHeight"
+            <AzureMap Height="@mapHeight"
                       Width="@mapWidth"
                       Controls="@controlsA"
                       OnMapEventReady="@OnMapEventReadyA"
@@ -37,8 +36,7 @@
             <FluentToolbar>
                 <FluentButton Disabled="@overlay" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMapB" />
             </FluentToolbar>
-            <AzureMap Id="@mapIdB"
-                      Height="@mapHeight"
+            <AzureMap Height="@mapHeight"
                       Width="@mapWidth"
                       Controls="@controlsB"
                       OnMapEventReady="@OnMapEventReadyB"
@@ -53,8 +51,6 @@
 </FluentOverlay>
 
 @code {
-    private const string mapIdA = "BasicMapA";
-    private const string mapIdB = "BasicMapB";
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("MultipleMaps.razor");
     private readonly string subject = "Multiple Maps";
     private string mapHeight = "400px";
@@ -80,8 +76,6 @@
         //Customize controls for map B
         controlsB = MapHelpers.GetDefaultControls();
         (controlsB.First(e => e is StyleControl) as StyleControl)?.Options = new StyleControlOptions { Layout = StyleControlLayout.List };
-
-
     }
 
     private async Task OnMapEventReadyA(MapEventArgs e)
@@ -89,7 +83,7 @@
         try
         {
             await Task.CompletedTask;
-            mapInteropA = new MapInterop(JSRuntime, mapIdA);
+            mapInteropA = new MapInterop(JSRuntime, e.MapId);
         }
         catch (Exception ex)
         {
@@ -103,7 +97,7 @@
         try
         {
             await Task.CompletedTask;
-            mapInteropB = new MapInterop(JSRuntime, mapIdB);
+            mapInteropB = new MapInterop(JSRuntime, e.MapId);
         }
         catch (Exception ex)
         {

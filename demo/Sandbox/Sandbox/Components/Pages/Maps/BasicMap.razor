@@ -22,8 +22,7 @@
     </FluentToolbar>
 
     <FluentStack Orientation="Orientation.Vertical">
-        <AzureMap Id="@mapId"
-                  Height="@mapHeight"
+        <AzureMap Height="@mapHeight"
                   Width="@mapWidth"
                   Controls="@MapHelpers.GetDefaultControls()"
                   OnMapEventReady="@OnMapEventReady"
@@ -37,38 +36,20 @@
 </FluentOverlay>
 
 @code {
-    private const string mapId = "BasicMap";
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("BasicMap.razor");
     private readonly string subject = "Basic Map";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
-    private MapOptions? options;
+    private MapOptions? options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
-
-    protected override void OnInitialized()
-    {
-        // Initialize map options with a specific camera position and style
-        options = new MapOptions
-        {
-            Camera = new CameraOptions
-            {
-                Center = new Position(-122.33, 47.6), // (Seattle, WA)
-                Zoom = 10
-            },
-            Style = new StyleOptions
-            {
-                Style = MapStyle.Road_Shaded_Relief
-            },
-        };
-    }
 
     private async Task OnMapEventReady(MapEventArgs e)
     {
         try
         {
             await Task.CompletedTask;
-            mapInterop = new MapInterop(JSRuntime, mapId);
+            mapInterop = new MapInterop(JSRuntime, e.MapId);
         }
         catch (Exception ex)
         {

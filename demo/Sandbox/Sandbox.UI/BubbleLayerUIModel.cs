@@ -3,10 +3,15 @@ using Marqdouj.DotNet.Web.Components.UI;
 
 namespace Sandbox.UI
 {
-    public class BubbleLayerUIModel(IAzureMapsXmlService? xmlService) 
-        : LayerUIModel<BubbleLayerDef>(xmlService), ICloneable
+    public class BubbleLayerUIModel : LayerUIModel<BubbleLayerDef>, ICloneable
     {
-        private readonly BubbleLayerOptionsUIModel options = new(xmlService);
+        private readonly BubbleLayerOptionsUIModel options;
+
+        public BubbleLayerUIModel(IAzureMapsXmlService? xmlService) : base(xmlService)
+        {
+            options = new(xmlService);
+            Source = new();
+        }
 
         public override BubbleLayerDef? Source 
         { 

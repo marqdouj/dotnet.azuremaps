@@ -25,8 +25,7 @@
 
     <LayerContent ActiveTab="@activeTab">
         <MapContent>
-            <AzureMap Id="@mapId"
-                      Height="@mapHeight"
+            <AzureMap Height="@mapHeight"
                       Width="@mapWidth"
                       Controls="@MapHelpers.GetDefaultControls()"
                       OnMapEventReady="@OnMapEventReady"
@@ -45,7 +44,6 @@
 
 @code {
     private const string layerType = "Bubble";
-    private const string mapId = $"map{layerType}";
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("Layers/BubbleLayer.razor");
     private readonly string hRefDocs = HRefCodeSource.AzureDocs.CodeUrl("map-add-bubble-layer");
     private readonly string subject = $"{layerType} Layer";
@@ -60,11 +58,6 @@
     protected override void OnInitialized()
     {
         uiModel = new(XmlService);
-        uiModel.Source = new()
-        {
-            Id = $"{mapId}Layer",
-            SourceId = $"{mapId}Source",
-        };
     }
 
     private async Task OnMapEventReady(MapEventArgs e)
@@ -72,7 +65,7 @@
         try
         {
             await Task.CompletedTask;
-            mapInterop = new MapInterop(JSRuntime, mapId);
+            mapInterop = new MapInterop(JSRuntime, e.MapId);
         }
         catch (Exception ex)
         {
