@@ -7,7 +7,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         [JsonIgnore]
         public override MapLayerType Type => MapLayerType.Bubble;
 
-        public BubbleLayerOptions? Options { get; set; }
+        public BubbleLayerOptions? Options { get; set; } = new();
 
         public object Clone()
         {

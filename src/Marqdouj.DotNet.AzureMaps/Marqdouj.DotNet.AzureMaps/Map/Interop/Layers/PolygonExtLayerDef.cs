@@ -7,7 +7,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
     {
         [JsonIgnore]
         public override MapLayerType Type => MapLayerType.PolygonExtrusion;
-        public PolygonExtLayerOptions? Options { get; set; }
+        public PolygonExtLayerOptions? Options { get; set; } = new();
 
         public object Clone()
         {

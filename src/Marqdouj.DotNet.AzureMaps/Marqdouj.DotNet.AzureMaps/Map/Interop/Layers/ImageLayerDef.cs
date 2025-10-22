@@ -8,7 +8,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
     {
         [JsonIgnore]
         public override MapLayerType Type => MapLayerType.Image;
-        public ImageLayerOptions? Options { get; set; }
+        public ImageLayerOptions? Options { get; set; } = new();
 
         public object Clone()
         {

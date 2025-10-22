@@ -7,7 +7,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         [JsonIgnore]
         public override MapLayerType Type => MapLayerType.HeatMap;
 
-        public HeatMapLayerOptions? Options { get; set; }
+        public HeatMapLayerOptions? Options { get; set; } = new();
 
         public object Clone()
         {
