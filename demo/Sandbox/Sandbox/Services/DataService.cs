@@ -9,6 +9,7 @@ namespace Sandbox.Services
         Task<string> GetHeatMapLayerUrl();
         Task<ImageLayerData> GetImageLayerData();
         Task<List<Position>> GetLineLayerData();
+        Task<List<List<Position>>> GetPolygonExtLayerData();
     }
 
     /// <summary>
@@ -67,6 +68,27 @@ namespace Sandbox.Services
 
             return coordinates;
         }
+        public async Task<List<List<Position>>> GetPolygonExtLayerData()
+        {
+            await Task.CompletedTask;
+
+            List<List<Position>> coordinates =
+            [[
+                new Position(-73.95838379859924, 40.80027995478159),
+                new Position(-73.98154735565186, 40.76845986171129),
+                new Position(-73.98124694824219, 40.767761062136955),
+                new Position(-73.97361874580382, 40.76461637311633),
+                new Position(-73.97306084632874, 40.76512830937617),
+                new Position(-73.97259950637817, 40.76490890860481),
+                new Position(-73.9494466781616,  40.79658450499243),
+                new Position(-73.94966125488281, 40.79708807289436),
+                new Position(-73.95781517028809, 40.80052360358227),
+                new Position(-73.95838379859924, 40.80027995478159)
+             ]];
+
+            return coordinates;
+        }
+
     }
 
     public class ImageLayerData()

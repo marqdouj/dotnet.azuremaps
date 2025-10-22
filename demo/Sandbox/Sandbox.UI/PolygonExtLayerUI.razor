@@ -1,0 +1,107 @@
+﻿@implements IDialogContentComponent<PolygonExtLayerUIModel>
+
+@if (viewStyle == UIViewStyle.DataGrid)
+{
+    <FluentTabs>
+        <FluentTab Label="Layer">
+            <div style="@divValuesStyle">
+                <UIValuesGrid Items="@options.ToUIList()" />
+            </div>
+        </FluentTab>
+        <FluentTab Label="DataSource">
+            <DataSourceOptionsUI Content="@Content"
+                                 ReadOnly="@ReadOnly"
+                                 Height="@height"
+                                 Width="@Width"
+                                 ViewStyle="UIViewStyle.DataGrid" />
+        </FluentTab>
+    </FluentTabs>
+}
+@if (viewStyle == UIViewStyle.Grid)
+{
+    <FluentStack Orientation="Orientation.Vertical" Width="@Width">
+        <FluentLabel Typo="Typography.Subject">
+            <span class="note-span">NOTE: </span> Not all settings are displayed.
+        </FluentLabel>
+
+        <FluentTabs>
+            <FluentTab Label="Layer">
+                <FluentGrid>
+                    <FluentGridItem>
+                        <UIText Model="@options.Base" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@Content.Before" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIColor Model="@options.FillColor" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+                    
+                    <FluentGridItem>
+                        <UIText Model="@options.FillOpacity" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.FillPattern" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.Height" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+                    
+                    <FluentGridItem>
+                        <PixelUI Model="@options.TranslateUI" Display="@options.Translate" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+                    
+                    <FluentGridItem>
+                        <UISelect Model="@options.TranslateAnchor" Items="@anchors" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+                    
+                    <FluentGridItem>
+                        <UISelect Model="@options.VerticalGradient" Items="@bools" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentTab>
+            <FluentTab Label="DataSource">
+                <DataSourceOptionsUI Content="@Content" ReadOnly="@ReadOnly" ViewStyle="UIViewStyle.Grid" />
+            </FluentTab>
+        </FluentTabs>
+
+    </FluentStack>
+}
+
+<style>
+    .note-span {
+        font-weight: 500;
+    }
+</style>
+
+@code {
+    private List<Option<string?>> bools = UIExtensions.GetBoolLookup(true);
+    private List<Option<string>> anchors = UIExtensions.GetEnumLookup<TranslateAnchor>(true);
+    private PolygonExtrusionLayerOptionsUIModel options => Content.Options;
+    private UIViewStyle viewStyle => Dialog != null ? Content.ViewStyle : ViewStyle;
+    private string height => string.IsNullOrWhiteSpace(Height) ? "100%" : Height;
+    private string width => string.IsNullOrWhiteSpace(Width) ? "100%" : Width;
+    private string divValuesStyle => $"height:{height};width:{width};overflow-y:auto";
+
+    [Parameter, EditorRequired]
+    public PolygonExtLayerUIModel Content { get; set; }
+
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set; }
+
+    [Parameter]
+    public string? Height { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public UIViewStyle ViewStyle { get; set; }
+
+    [Parameter]
+    public string? Width { get; set; }
+}

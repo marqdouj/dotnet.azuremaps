@@ -56,23 +56,37 @@
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Line Layer">
-			<CodeText>
-				var layerDef = new LineLayerDef();<br />
-				layerDef.Options!.StrokeColor = HtmlColorName.Blue.ToString();<br />
-				layerDef.Options.StrokeWidth = 5;<br />
-				await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
-				await mapInterop.Layers.CreateLayer(layerDef);<br />
-				var featureDef = new MapFeatureDef(new LineString(await DataSerice.GetLineLayerData()));<br />
-				await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
-				//Optional<br />
-				await mapInterop.Configuration.ZoomTo(new Position(-122.18822, 47.63208), 10);
-			</CodeText>
+			<FluentCard>
+				<CodeText>
+					var layerDef = new LineLayerDef();<br />
+					layerDef.Options!.StrokeColor = HtmlColorName.Blue.ToString();<br />
+					layerDef.Options.StrokeWidth = 5;<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					var featureDef = new MapFeatureDef(new LineString(await DataSerice.GetLineLayerData()));<br />
+					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-122.18822, 47.63208), 10);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Polygon Layer">
 			<ComingSoon Height="@height" Width="@width" />
 		</FluentTab>
 		<FluentTab Label="Polygon Extrusion Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<FluentCard>
+				<CodeText>
+					var layerDef = new PolygonExtLayerDef();<br />
+					layerDef.Options!.FillOpacity = 0.7;<br />
+					layerDef.Options!.Height = 500;<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					var featureDef = new MapFeatureDef(new Polygon(await DataSerice.GetPolygonExtLayerData()));<br />
+					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-73.985708, 40.75773), 12);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Symbol Layer">
 			<ComingSoon Height="@height" Width="@width" />
