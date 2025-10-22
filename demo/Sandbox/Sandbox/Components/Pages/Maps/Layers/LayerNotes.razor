@@ -31,7 +31,17 @@
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="HeatMap Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<FluentCard>
+				<CodeText>
+					var layerDef = new HeatMapLayerDef();<br />
+					var ds = layerDef.GetDataSource();<br />
+					ds.Url = await DataSerice.GetHeatMapLayerUrl();<br />
+					await mapInterop.Map.CreateDatasource(ds);<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Image Layer">
 			<ComingSoon Height="@height" Width="@width" />
