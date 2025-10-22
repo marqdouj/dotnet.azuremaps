@@ -25,6 +25,7 @@
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
 					var featureDef = new MapFeatureDef(new MultiPoint(await DataSerice.GetBubbleLayerData()));<br />
 					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-73.985550, 40.77900), 11);
 				</CodeText>
@@ -38,6 +39,7 @@
 					ds.Url = await DataSerice.GetHeatMapLayerUrl();<br />
 					await mapInterop.Map.CreateDatasource(ds);<br />
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
 				</CodeText>
@@ -50,6 +52,7 @@
 					var layerDef = new ImageLayerDef() { Options = new() { Url = data.Url, Coordinates = data.Coordinates } };<br />
 					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
 				</CodeText>
@@ -65,6 +68,7 @@
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
 					var featureDef = new MapFeatureDef(new LineString(await DataSerice.GetLineLayerData()));<br />
 					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-122.18822, 47.63208), 10);
 				</CodeText>
@@ -79,6 +83,7 @@
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
 					var featureDef = new MapFeatureDef(new Polygon(await DataSerice.GetPolygonLayerData()));<br />
 					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-73.98235, 40.76799), 10);
 				</CodeText>
@@ -94,6 +99,7 @@
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
 					var featureDef = new MapFeatureDef(new Polygon(await DataSerice.GetPolygonExtLayerData()));<br />
 					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-73.985708, 40.75773), 12);
 				</CodeText>
@@ -107,13 +113,31 @@
 					await mapInterop.Layers.CreateLayer(layerDef);<br />
 					var featureDef = new MapFeatureDef(new Point(new Position(-122.33, 47.6)));<br />
 					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					<br />
 					//Optional<br />
 					await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 12);
 				</CodeText>
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Tile Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<FluentCard>
+				<CodeText>
+					var layerDef = new TileLayerDef();<br />
+					layerDef.Options!.TileUrl = await DataSerice.GetTileLayerUrl();<br />
+					<br />
+					//Optional<br />
+					layerDef.Options.Opacity = 0.8;<br />
+					layerDef.Options.TileSize = 256;<br />
+					layerDef.Options.MinSourceZoom = 7;<br />
+					layerDef.Options.MaxSourceZoom = 17;<br />
+					<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 11);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 	</FluentTabs>
 

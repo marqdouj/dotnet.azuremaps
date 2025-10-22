@@ -1,0 +1,105 @@
+﻿@implements IDialogContentComponent<TileLayerUIModel>
+
+@if (viewStyle == UIViewStyle.DataGrid)
+{
+    <UIValuesGrid Items="@Content.ToUIList()" />
+}
+@if (viewStyle == UIViewStyle.Grid)
+{
+    <FluentStack Orientation="Orientation.Vertical" Width="@Width" Height="@Height">
+        <FluentLabel Typo="Typography.Subject">
+            <span class="note-span">NOTE: </span> Not all settings are displayed.
+        </FluentLabel>
+
+        <FluentTabs>
+            <FluentTab Label="General">
+                <FluentGrid>
+                    <FluentGridItem>
+                        <UIText Model="@Content.Before" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UISelect Model="@options.IsTMS" Items="@bools" ReadOnly="@ReadOnly" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.MinSourceZoom" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.MaxSourceZoom" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.MaxBrightness" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.TileSize" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentTab>
+            <FluentTab Label="Media">
+                <FluentGrid>
+                    <FluentGridItem>
+                        <UIText Model="@options.Contrast" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.FadeDuration" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.HueRotation" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.MaxBrightness" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.MinBrightness" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.Opacity" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+
+                    <FluentGridItem>
+                        <UIText Model="@options.Saturation" ReadOnly="@ReadOnly" FieldType="TextFieldType.Number" />
+                    </FluentGridItem>
+                </FluentGrid>
+            </FluentTab>
+        </FluentTabs>
+
+    </FluentStack>
+}
+<style>
+    .note-span {
+        font-weight: 500;
+    }
+</style>
+
+@code {
+    private List<Option<string?>> bools = UIExtensions.GetBoolLookup(true);
+    private TileLayerOptionsUIModel options => Content.Options;
+    private UIViewStyle viewStyle => Dialog != null ? Content.ViewStyle : ViewStyle;
+
+    [Parameter, EditorRequired]
+    public TileLayerUIModel Content { get; set; }
+
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set; }
+
+    [Parameter]
+    public string? Height { get; set; }
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+
+    [Parameter]
+    public UIViewStyle ViewStyle { get; set; }
+
+    [Parameter]
+    public string? Width { get; set; }
+}

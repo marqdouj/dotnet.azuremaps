@@ -11,6 +11,7 @@ namespace Sandbox.Services
         Task<List<Position>> GetLineLayerData();
         Task<List<List<Position>>> GetPolygonExtLayerData();
         Task<List<List<Position>>> GetPolygonLayerData();
+        Task<string> GetTileLayerUrl();
     }
 
     /// <summary>
@@ -104,6 +105,13 @@ namespace Sandbox.Services
              ]];
 
             return coordinates;
+        }
+
+        public async Task<string> GetTileLayerUrl()
+        {
+            await Task.CompletedTask;
+            var url = "https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png";
+            return url;
         }
     }
 

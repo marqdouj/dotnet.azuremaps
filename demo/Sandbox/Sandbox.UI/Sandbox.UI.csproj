@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="LoxSmoke.DocXml" Version="3.8.0" />
-    <PackageReference Include="Marqdouj.DotNet.AzureMaps" Version="10.0.0-rc-2.1" />
+    <PackageReference Include="Marqdouj.DotNet.AzureMaps" Version="10.0.0-rc-2.2" />
     <PackageReference Include="Marqdouj.DotNet.Web.Components.FluentUI" Version="10.0.0-Preview8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0-rc.2.25502.107" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.13.0" />
