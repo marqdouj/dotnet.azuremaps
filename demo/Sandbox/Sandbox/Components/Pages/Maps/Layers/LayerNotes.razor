@@ -71,7 +71,18 @@
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Polygon Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<FluentCard>
+				<CodeText>
+					var layerDef = new PolygonLayerDef();<br />
+					layerDef.Options!.FillOpacity = 0.7;<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					var featureDef = new MapFeatureDef(new Polygon(await DataSerice.GetPolygonLayerData()));<br />
+					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-73.98235, 40.76799), 10);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Polygon Extrusion Layer">
 			<FluentCard>

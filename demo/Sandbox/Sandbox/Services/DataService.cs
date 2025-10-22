@@ -10,6 +10,7 @@ namespace Sandbox.Services
         Task<ImageLayerData> GetImageLayerData();
         Task<List<Position>> GetLineLayerData();
         Task<List<List<Position>>> GetPolygonExtLayerData();
+        Task<List<List<Position>>> GetPolygonLayerData();
     }
 
     /// <summary>
@@ -89,6 +90,21 @@ namespace Sandbox.Services
             return coordinates;
         }
 
+        public async Task<List<List<Position>>> GetPolygonLayerData()
+        {
+            await Task.CompletedTask;
+
+            List<List<Position>> coordinates =
+            [[
+                new Position(-73.98235, 40.76799),
+                new Position(-73.95785, 40.80044),
+                new Position(-73.94928, 40.7968),
+                new Position(-73.97317, 40.76437),
+                new Position(-73.98235, 40.76799)
+             ]];
+
+            return coordinates;
+        }
     }
 
     public class ImageLayerData()
