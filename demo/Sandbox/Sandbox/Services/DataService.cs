@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
+using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 
 namespace Sandbox.Services
 {
@@ -6,6 +7,7 @@ namespace Sandbox.Services
     {
         Task<List<Position>> GetBubbleLayerData();
         Task<string> GetHeatMapLayerUrl();
+        Task<ImageLayerData> GetImageLayerData();
     }
 
     /// <summary>
@@ -32,5 +34,24 @@ namespace Sandbox.Services
             var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
             return url;
         }
+
+        public async Task<ImageLayerData> GetImageLayerData()
+        {
+            await Task.CompletedTask;
+            return new ImageLayerData();
+        }
+    }
+
+    public class ImageLayerData()
+    {
+        public string Url { get; } = "newark_nj_1922.jpg";
+
+        public ImageCoordinates Coordinates { get; set; } =
+            [
+                new Position(-74.22655, 40.773941),
+                new Position(-74.12544, 40.773941),
+                new Position(-74.12544, 40.712216),
+                new Position(-74.22655, 40.712216),
+            ];
     }
 }

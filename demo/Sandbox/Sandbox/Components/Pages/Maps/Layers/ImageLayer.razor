@@ -25,10 +25,14 @@
 
     <LayerContent ActiveTab="@activeTab">
         <MapContent>
-            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+            <AzureMap Height="@mapHeight"
+                      Width="@mapWidth"
+                      Controls="@MapHelpers.GetDefaultControls()"
+                      OnMapEventReady="@OnMapEventReady"
+                      Options="@options" />
         </MapContent>
         <SettingsContent>
-            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+            <ImageLayerUI Content="@uiModel" Height="@mapHeight" Width="@mapWidth" />
         </SettingsContent>
     </LayerContent>
 </FluentLayout>
@@ -49,6 +53,12 @@
     private LayerContentTab activeTab;
     private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
+    private ImageLayerUIModel? uiModel;
+
+    protected override void OnInitialized()
+    {
+        uiModel = new(XmlService);
+    }
 
     private async Task OnMapEventReady(MapEventArgs e)
     {
@@ -68,8 +78,7 @@
     {
         try
         {
-            ToastService.Info("Coming Soon...");
-            //await mapInterop!.Configuration.SetMapOptions(options!);
+            await mapInterop!.Configuration.SetMapOptions(options!);
         }
         catch (Exception ex)
         {
@@ -82,7 +91,52 @@
     {
         try
         {
-            ToastService.Info("Coming Soon...");
+            if (mapInterop is null) return;
+
+            var uiModelclone = (ImageLayerUIModel)uiModel!.Clone();
+            uiModelclone.ViewStyle = UIViewStyle.Grid;
+
+            var parameters = MapHelpers.GetLayerDialogParameters();
+            IDialogReference dialog = await DialogService.ShowDialogAsync<ImageLayerUI>(uiModelclone, parameters);
+            DialogResult? result = await dialog.Result;
+
+            if (!result.Cancelled && result.Data != null)
+            {
+                var update = (ImageLayerUIModel)result.Data;
+                uiModel = update;
+            }
+            else
+            {
+                return;
+            }
+
+            await RemoveLayer();
+
+            var data = await DataSerice.GetImageLayerData();
+            uiModel.Options.Url!.Value = data.Url;
+            uiModel.Options.Coordinates!.Value = data.Coordinates;
+            await mapInterop.Map.CreateDatasource(uiModel.GetDataSource()!);
+            await mapInterop.Layers.CreateLayer(uiModel.Source!);
+
+            await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
+            ToastService.Success($"{layerType} layer was created.");
+            activeTab = LayerContentTab.Map;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task RemoveLayer()
+    {
+        try
+        {
+            if (mapInterop is null) return;
+
+            await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
+            await mapInterop.Map.ClearDatasource(uiModel.Source.SourceId!);
         }
         catch (Exception ex)
         {

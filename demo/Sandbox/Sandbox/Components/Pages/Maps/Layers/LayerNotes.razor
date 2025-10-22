@@ -44,7 +44,16 @@
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Image Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<FluentCard>
+				<CodeText>
+					var data = await DataSerice.GetImageLayerData();<br />
+					var layerDef = new ImageLayerDef() { Options = new() { Url = data.Url, Coordinates = data.Coordinates } };<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Line Layer">
 			<ComingSoon Height="@height" Width="@width" />
