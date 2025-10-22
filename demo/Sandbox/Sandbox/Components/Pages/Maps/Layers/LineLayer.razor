@@ -147,7 +147,7 @@
             if (mapInterop is null) return;
 
             await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
-            await mapInterop.Map.ClearDatasource(uiModel.Source.SourceId!);
+            await mapInterop.Map.RemoveDatasource(uiModel.Source.SourceId!);
         }
         catch (Exception ex)
         {
