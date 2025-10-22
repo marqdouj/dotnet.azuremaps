@@ -3,6 +3,9 @@
 @inject IJSRuntime JSRuntime
 @inject ILogger<HeatMapLayer> Logger
 @inject IToastService ToastService
+@inject IDataService DataSerice
+@inject IDialogService DialogService
+@inject IAzureMapsXmlService XmlService
 
 <PageTitle>@subject</PageTitle>
 
@@ -22,10 +25,14 @@
 
     <LayerContent ActiveTab="@activeTab">
         <MapContent>
-            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+            <AzureMap Height="@mapHeight"
+                      Width="@mapWidth"
+                      Controls="@MapHelpers.GetDefaultControls()"
+                      OnMapEventReady="@OnMapEventReady"
+                      Options="@options" />
         </MapContent>
         <SettingsContent>
-            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+            <HeatMapLayerUI Content="@uiModel" Height="@mapHeight" Width="@mapWidth" />
         </SettingsContent>
     </LayerContent>
 </FluentLayout>
@@ -46,6 +53,12 @@
     private LayerContentTab activeTab;
     private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
+    private HeatMapLayerUIModel? uiModel;
+
+    protected override void OnInitialized()
+    {
+        uiModel = new(XmlService);
+    }
 
     private async Task OnMapEventReady(MapEventArgs e)
     {
@@ -65,8 +78,7 @@
     {
         try
         {
-            ToastService.Info("Coming Soon...");
-            //await mapInterop!.Configuration.SetMapOptions(options!);
+            await mapInterop!.Configuration.SetMapOptions(options!);
         }
         catch (Exception ex)
         {
@@ -79,7 +91,51 @@
     {
         try
         {
-            ToastService.Info("Coming Soon...");
+            if (mapInterop is null) return;
+
+            var uiModelclone = (HeatMapLayerUIModel)uiModel!.Clone();
+            uiModelclone.ViewStyle = UIViewStyle.Grid;
+
+            var parameters = MapHelpers.GetLayerDialogParameters();
+            IDialogReference dialog = await DialogService.ShowDialogAsync<HeatMapLayerUI>(uiModelclone, parameters);
+            DialogResult? result = await dialog.Result;
+
+            if (!result.Cancelled && result.Data != null)
+            {
+                var update = (HeatMapLayerUIModel)result.Data;
+                uiModel = update;
+            }
+            else
+            {
+                return;
+            }
+
+            await RemoveLayer();
+
+            var ds = uiModel.GetDataSource()!;
+            ds.Url = await DataSerice.GetHeatMapLayerUrl();
+            await mapInterop.Map.CreateDatasource(ds);
+            await mapInterop.Layers.CreateLayer(uiModel.Source!);
+
+            await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
+            ToastService.Success($"{layerType} layer was created.");
+            activeTab = LayerContentTab.Map;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task RemoveLayer()
+    {
+        try
+        {
+            if (mapInterop is null) return;
+
+            await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
+            await mapInterop.Map.ClearDatasource(uiModel.Source.SourceId!);
         }
         catch (Exception ex)
         {

@@ -5,6 +5,7 @@ namespace Sandbox.Services
     public interface IDataService
     {
         Task<List<Position>> GetBubbleLayerData();
+        Task<string> GetHeatMapLayerUrl();
     }
 
     /// <summary>
@@ -25,5 +26,11 @@ namespace Sandbox.Services
             ];
         }
 
+        public async Task<string> GetHeatMapLayerUrl()
+        {
+            await Task.CompletedTask;
+            var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
+            return url;
+        }
     }
 }
