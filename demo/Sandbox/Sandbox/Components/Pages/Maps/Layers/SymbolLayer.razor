@@ -25,10 +25,16 @@
 
     <LayerContent ActiveTab="@activeTab">
         <MapContent>
-            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+            <AzureMap Height="@mapHeight"
+                      Width="@mapWidth"
+                      Controls="@MapHelpers.GetDefaultControls()"
+                      Events="mapEvents.Items"
+                      OnMapEventReady="OnMapEventReady"
+                      OnMapEventMouse="OnMapEventMouse"
+                      Options="@options" />
         </MapContent>
         <SettingsContent>
-            <ComingSoon Height="@mapHeight" Width="@mapWidth" />
+            <SymbolLayerUI Content="@uiModel" Height="@mapHeight" Width="@mapWidth" />
         </SettingsContent>
     </LayerContent>
 </FluentLayout>
@@ -46,9 +52,18 @@
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private bool overlay;
+    private bool layerAdded;
     private LayerContentTab activeTab;
+    private readonly EnumList<MapEventType> mapEvents = new([MapEventType.Click]);
     private MapOptions options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
+    private SymbolLayerUIModel? uiModel;
+
+    protected override void OnInitialized()
+    {
+        uiModel = new(XmlService);
+        uiModel.Options.IconOptionsUI.Image!.Value = IconImage.Marker_Blue;
+    }
 
     private async Task OnMapEventReady(MapEventArgs e)
     {
@@ -63,14 +78,47 @@
             ToastService.Error(ex);
         }
     }
+    private async Task OnMapEventMouse(MapEventMouseArgs e)
+    {
+        try
+        {
+            if (mapInterop == null)
+                return;
+
+            await Task.CompletedTask;
+            switch (e.Type)
+            {
+                case MapEventType.Click:
+                    if (layerAdded)
+                    {
+                        var feature = new MapFeatureDef(new Point(e.Payload!.Position!))
+                        {
+                            Properties = new Properties
+                            {
+                                { "title", "my symbol" },
+                                { "demo", true },
+                            }
+                        };
+
+                        await mapInterop.Layers.AddMapFeature(feature, uiModel!.Source!.SourceId!);
+                    }
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
 
     private async Task ResetMap()
     {
         try
         {
-            ToastService.Info("Coming Soon...");
-            //await RemoveLayer();
-            //await mapInterop!.Configuration.SetMapOptions(options!);
+            await RemoveLayer();
+            await mapInterop!.Configuration.SetMapOptions(options!);
         }
         catch (Exception ex)
         {
@@ -83,7 +131,50 @@
     {
         try
         {
-            ToastService.Info("Coming Soon...");
+            if (mapInterop is null) return;
+
+            var uiModelclone = (SymbolLayerUIModel)uiModel!.Clone();
+            uiModelclone.ViewStyle = UIViewStyle.Grid;
+
+            var parameters = MapHelpers.GetLayerDialogParameters();
+            IDialogReference dialog = await DialogService.ShowDialogAsync<SymbolLayerUI>(uiModelclone, parameters);
+            DialogResult? result = await dialog.Result;
+
+            if (!result.Cancelled && result.Data != null)
+            {
+                var update = (SymbolLayerUIModel)result.Data;
+                uiModel = update;
+            }
+            else
+            {
+                return;
+            }
+
+            await RemoveLayer();
+
+            await mapInterop.Map.CreateDatasource(uiModel.GetDataSource()!);
+            await mapInterop.Layers.CreateLayer(uiModel.Source!);
+            layerAdded = true;
+
+            await DialogService.ShowInfoAsync("Click anywhere on the map to add a symbol.", $"{layerType} layer was created.");
+            activeTab = LayerContentTab.Map;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task RemoveLayer()
+    {
+        try
+        {
+            if (mapInterop is null) return;
+
+            await mapInterop.Layers.RemoveLayer(uiModel!.Source!.Id!);
+            await mapInterop.Map.RemoveDatasource(uiModel.Source.SourceId!);
+            layerAdded = false;
         }
         catch (Exception ex)
         {

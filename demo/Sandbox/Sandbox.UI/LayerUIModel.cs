@@ -23,7 +23,7 @@ namespace Sandbox.UI
             SourceId.ReadOnly = true;
         }
 
-        public UIViewStyle ViewStyle { get; set; }
+        public virtual UIViewStyle ViewStyle { get; set; }
         public DataSourceOptionsUIModel? SourceOptionsUI => sourceOptionsUI;
         public DataSourceDef? GetDataSource() => Source?.GetDataSource(SourceOptionsUI?.Source);
 

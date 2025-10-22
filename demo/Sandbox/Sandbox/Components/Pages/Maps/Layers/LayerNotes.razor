@@ -100,7 +100,17 @@
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Symbol Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<FluentCard>
+				<CodeText>
+					var layerDef = new SymbolLayerDef();<br />
+					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
+					await mapInterop.Layers.CreateLayer(layerDef);<br />
+					var featureDef = new MapFeatureDef(new Point(new Position(-122.33, 47.6)));<br />
+					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+					//Optional<br />
+					await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 12);
+				</CodeText>
+			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Tile Layer">
 			<ComingSoon Height="@height" Width="@width" />
