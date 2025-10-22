@@ -51,7 +51,7 @@ namespace Sandbox.UI
             Url?.NameAlias = "Image URL";
         }
 
-        public IUIModelValue? Coordinates => GetItem(nameof(ImageLayerOptions.Coordinates));
-        public IUIModelValue? Url => GetItem(nameof(ImageLayerOptions.Url));
+        public IUIModelValue Coordinates => GetItem(nameof(ImageLayerOptions.Coordinates))!;
+        public IUIModelValue Url => GetItem(nameof(ImageLayerOptions.Url))!;
     }
 }

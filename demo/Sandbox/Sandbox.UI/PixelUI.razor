@@ -1,0 +1,67 @@
+﻿<FluentGridItem>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="3">
+        <FluentLabel>
+            @Display.NameDisplay
+            @if (Display.HasDescription)
+            {
+                <FluentIcon Id="@cssId" Icon="Icons.Regular.Size16.Info" />
+                <FluentTooltip Anchor="@cssId"
+                               Delay="300"
+                               MaxWidth="250px"
+                               Position="TooltipPosition.Bottom">@Display.Description</FluentTooltip>
+            }
+        </FluentLabel>
+
+        <FluentStack Orientation="@Orientation">
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="3">
+                <FluentLabel>
+                    @Model.X!.NameDisplay
+                    @if (Model.X.HasDescription)
+                    {
+                        <FluentIcon Id="@cssLonId" Icon="Icons.Regular.Size16.Info" />
+                        <FluentTooltip Anchor="@cssLonId"
+                                       Delay="300"
+                                       MaxWidth="250px"
+                                       Position="TooltipPosition.Bottom">@Model.X.Description</FluentTooltip>
+                    }
+                </FluentLabel>
+
+                <FluentTextField TextFieldType="TextFieldType.Number" ReadOnly="@ReadOnly" @bind-Value="Model.X!.BindValue" Style="width:150px;" />
+            </FluentStack>
+
+            <FluentStack Orientation="Orientation.Vertical" VerticalGap="3">
+                <FluentLabel>
+                    @Model.Y!.NameDisplay
+                    @if (Model.Y.HasDescription)
+                    {
+                        <FluentIcon Id="@cssLatId" Icon="Icons.Regular.Size16.Info" />
+                        <FluentTooltip Anchor="@cssLatId"
+                                       Delay="300"
+                                       MaxWidth="250px"
+                                       Position="TooltipPosition.Bottom">@Model.Y.Description</FluentTooltip>
+                    }
+                </FluentLabel>
+
+                <FluentTextField TextFieldType="TextFieldType.Number" ReadOnly="@ReadOnly" @bind-Value="Model.Y!.BindValue" Style="width:150px;" />
+            </FluentStack>
+        </FluentStack>
+    </FluentStack>
+</FluentGridItem>
+
+@code {
+    private readonly string cssId = Guid.NewGuid().ToCssId();
+    private readonly string cssLonId = Guid.NewGuid().ToCssId();
+    private readonly string cssLatId = Guid.NewGuid().ToCssId();
+
+    [Parameter, EditorRequired]
+    public PixelUIModel Model { get; set; }
+
+    [Parameter, EditorRequired]
+    public IUIModelValue Display { get; set; }
+
+    [Parameter]
+    public Orientation Orientation { get; set; }
+
+    [Parameter, EditorRequired]
+    public bool ReadOnly { get; set; }
+}

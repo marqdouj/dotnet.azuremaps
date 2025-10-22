@@ -8,6 +8,7 @@ namespace Sandbox.Services
         Task<List<Position>> GetBubbleLayerData();
         Task<string> GetHeatMapLayerUrl();
         Task<ImageLayerData> GetImageLayerData();
+        Task<List<Position>> GetLineLayerData();
     }
 
     /// <summary>
@@ -39,6 +40,32 @@ namespace Sandbox.Services
         {
             await Task.CompletedTask;
             return new ImageLayerData();
+        }
+
+        public async Task<List<Position>> GetLineLayerData()
+        {
+            await Task.CompletedTask;
+
+            List<Position> coordinates = [
+                 new Position(-122.18822, 47.63208),
+                 new Position(-122.18204, 47.63196),
+                 new Position(-122.17243, 47.62976),
+                 new Position(-122.16419, 47.63023),
+                 new Position(-122.15852, 47.62942),
+                 new Position(-122.15183, 47.62988),
+                 new Position(-122.14256, 47.63451),
+                 new Position(-122.13483, 47.64041),
+                 new Position(-122.13466, 47.64422),
+                 new Position(-122.13844, 47.65440),
+                 new Position(-122.13277, 47.66515),
+                 new Position(-122.12779, 47.66712),
+                 new Position(-122.11595, 47.66712),
+                 new Position(-122.11063, 47.66735),
+                 new Position(-122.10668, 47.67035),
+                 new Position(-122.10565, 47.67498)
+            ];
+
+            return coordinates;
         }
     }
 

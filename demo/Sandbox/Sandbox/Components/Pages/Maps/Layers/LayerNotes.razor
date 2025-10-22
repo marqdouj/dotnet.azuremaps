@@ -56,7 +56,17 @@
 			</FluentCard>
 		</FluentTab>
 		<FluentTab Label="Line Layer">
-			<ComingSoon Height="@height" Width="@width" />
+			<CodeText>
+				var layerDef = new LineLayerDef();<br />
+				layerDef.Options!.StrokeColor = HtmlColorName.Blue.ToString();<br />
+				layerDef.Options.StrokeWidth = 5;<br />
+				await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
+				await mapInterop.Layers.CreateLayer(layerDef);<br />
+				var featureDef = new MapFeatureDef(new LineString(await DataSerice.GetLineLayerData()));<br />
+				await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
+				//Optional<br />
+				await mapInterop.Configuration.ZoomTo(new Position(-122.18822, 47.63208), 10);
+			</CodeText>
 		</FluentTab>
 		<FluentTab Label="Polygon Layer">
 			<ComingSoon Height="@height" Width="@width" />
