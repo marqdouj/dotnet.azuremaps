@@ -43,13 +43,13 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         /// Options used to customize the icons of the symbols.
         /// <see cref="Layers.IconOptions"/>
         /// </summary>
-        public IconOptions? IconOptions { get; set; }
+        public IconOptions? IconOptions { get; set; } = new();
 
         /// <summary>
         /// Options used to customize the text of the symbols.
         /// <see cref="Layers.TextOptions"/>
         /// </summary>
-        public TextOptions? TextOptions { get; set; }
+        public TextOptions? TextOptions { get; set; } = new();
 
         /// <summary>
         /// Specifies the label placement relative to its geometry.

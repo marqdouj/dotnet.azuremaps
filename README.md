@@ -23,6 +23,9 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-2.2
+- `SymbolLayerOptions`. Initialize Image/Text options with a new instance.
+
 ### 10.0.0-rc-2.1
 - `MapLayerDef`. Initialize MapLayerDef.Options with a new instance.
 
