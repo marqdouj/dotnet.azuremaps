@@ -8,11 +8,16 @@
     <FluentStack Orientation="Orientation.Vertical">
         @ChildContent
         <FluentStack>
-            <a href="@HRefCode" target="_blank">Source Code</a>
+            @{
+                if (!string.IsNullOrWhiteSpace(HRefCode))
+                {
+                    <a href="@HRefCode" target="_blank">@HRefCodeLabel</a>
+                }
+            }
             @{
                 if (!string.IsNullOrWhiteSpace(HRefDocs))
                 {
-                    <a href="@HRefDocs" target="_blank">Azure Docs</a>
+                    <a href="@HRefDocs" target="_blank">@HRefDocsLabel</a>
                 }
             }
         </FluentStack>
@@ -38,8 +43,14 @@
     [Parameter, EditorRequired]
     public string HRefCode { get; set; }
 
+	[Parameter]
+	public string? HRefCodeLabel { get; set; } = "Source Code";
+
     [Parameter]
     public string? HRefDocs { get; set; }
+
+    [Parameter]
+    public string? HRefDocsLabel { get; set; } = "Azure SDK Docs";
 
     [Parameter]
     public bool ShowNarrative { get; set; } = true;

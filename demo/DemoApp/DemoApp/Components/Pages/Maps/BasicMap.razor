@@ -8,7 +8,7 @@
 <PageTitle>Basic Map</PageTitle>
 
 <FluentLayout>
-	<MapPageHeader Header="@header" HRefCode="@hRefCode">
+    <MapPageHeader Header="@header" HRefCode="@hRefCode" HRefCodeLabel="@hRefCodeLabel">
 		<FluentLabel>
             This example demonstrates the basic Azure Map layers.
 			<br />
@@ -33,22 +33,11 @@
         }
     </FluentToolbar>
 
-    <FluentTabs Width="100%" @bind-ActiveTabId="@activeTab">
-        <FluentTab Id="@idMap" Label="Map">
-            <FluentCard MinimalStyle="true" AreaRestricted="false" Style="padding:1px;">
-                <AzureMap Height="@mapHeight"
-                          Width="@mapWidth"
-                          Controls="@MapHelpers.GetDefaultControls()"
-                          OnMapEventReady="@OnMapEventReady"
-                          Options="@options" />
-            </FluentCard>
-		</FluentTab>
-        <FluentTab Id="@idExample" Label="Example">
-            <FluentCard MinimalStyle="true" AreaRestricted="false" Style="padding:1px;height:400px;">
-                <MarkDownView Url="@markdownUrl" />
-            </FluentCard>
-        </FluentTab>
-    </FluentTabs>
+    <AzureMap Height="@mapHeight"
+              Width="@mapWidth"
+              Controls="@MapHelpers.GetDefaultControls()"
+              OnMapEventReady="@OnMapEventReady"
+              Options="@options" />
 
 </FluentLayout>
 
@@ -59,17 +48,14 @@
 
 @code {
     private bool overlay;
-    private readonly string hRefCode = HRefCodeSource.DemoApp.CodeUrl("BasicMap.razor");
-    private readonly string header = "Basic Map";
+    private string hRefCode => layerDef != null ? HRefCodeSource.Examples.CodeUrl($"add{layerDef.Type}Layer.md"): "";
+    private string hRefCodeLabel => layerDef != null ? $"{layerDef.Type} Layer Example" : "";
+    private readonly string header = "Basic Maps";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
     private MapOptions? options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
     private bool disabled => overlay || mapInterop == null;
-    private readonly string idMap = Guid.Empty.ToCssId();
-    private readonly string idExample = Guid.Empty.ToCssId();
-    private string? activeTab;
-    private string? markdownUrl;
     private MapLayerDef? layerDef;
 
     private async Task OnMapEventReady(MapEventArgs e)
@@ -97,8 +83,6 @@
             await ResetMap();
 
             layerDef = await mapInterop.AddBasicMapLayer(DataService, layerType);
-            markdownUrl = layerDef != null ? HRefCodeSource.Examples.CodeUrl($"add{layerDef.Type}Layer.md") : "";
-            activeTab = idMap;
             ToastService.Info($"{layerType} layer added to the map.");
         }
         catch (Exception ex)
@@ -122,7 +106,6 @@
             {
                 await mapInterop.RemoveLayer(layerDef);
                 layerDef = null;
-				markdownUrl = null;
             }
 
             await mapInterop.Configuration.SetMapOptions(options!);
