@@ -41,7 +41,11 @@ namespace Sandbox.Components.Pages.Maps
                     Center = new Position(-122.33, 47.6), // (Seattle, WA)
                     Zoom = 10.5,
                     Pitch = 0,
-                }
+                },
+                Style = new StyleOptions
+                {
+                    Style = MapStyle.Road,
+                },
             };
         }
 
