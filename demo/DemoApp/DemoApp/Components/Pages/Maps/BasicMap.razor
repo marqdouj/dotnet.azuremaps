@@ -1,0 +1,136 @@
+﻿@page "/map-basic"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+@inject ILogger<BasicMap> Logger
+@inject IToastService ToastService
+@inject IDataService DataService
+
+<PageTitle>Basic Map</PageTitle>
+
+<FluentLayout>
+	<MapPageHeader Header="@header" HRefCode="@hRefCode">
+		<FluentLabel>
+            This example demonstrates the basic Azure Map layers.
+			<br />
+			The map is initialized to a specific camera position (Seattle, WA), with some common map controls.
+            <br />
+			Use the "Reset Map" button to reset the map to its initial state.
+            <br />
+			Click on a layer button to add that type of layer to the map.
+		</FluentLabel>
+	</MapPageHeader>
+
+	<FluentToolbar>
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="8"/>
+        @{
+            foreach (var layerType in Enum.GetValues<MapLayerType>())
+            {
+                <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.Map())" Title="@(layerType.ToString())" OnClick="@(() => AddMapLayer(layerType))">
+                    @layerType.ToString()
+                </FluentButton>
+            }
+        }
+    </FluentToolbar>
+
+    <FluentTabs Width="100%" @bind-ActiveTabId="@activeTab">
+        <FluentTab Id="@idMap" Label="Map">
+            <FluentCard MinimalStyle="true" AreaRestricted="false" Style="padding:1px;">
+                <AzureMap Height="@mapHeight"
+                          Width="@mapWidth"
+                          Controls="@MapHelpers.GetDefaultControls()"
+                          OnMapEventReady="@OnMapEventReady"
+                          Options="@options" />
+            </FluentCard>
+		</FluentTab>
+        <FluentTab Id="@idExample" Label="Example">
+            <FluentCard MinimalStyle="true" AreaRestricted="false" Style="padding:1px;height:400px;">
+                <MarkDownView Url="@markdownUrl" />
+            </FluentCard>
+        </FluentTab>
+    </FluentTabs>
+
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+			   Transparent="false">
+	<FluentProgressRing />
+</FluentOverlay>
+
+@code {
+    private bool overlay;
+    private readonly string hRefCode = HRefCodeSource.DemoApp.CodeUrl("BasicMap.razor");
+    private readonly string header = "Basic Map";
+    private string mapHeight = "400px";
+    private string mapWidth = "100%";
+    private MapOptions? options = MapHelpers.GetDefaultMapOptions();
+    private MapInterop? mapInterop;
+    private bool disabled => overlay || mapInterop == null;
+    private readonly string idMap = Guid.Empty.ToCssId();
+    private readonly string idExample = Guid.Empty.ToCssId();
+    private string? activeTab;
+    private string? markdownUrl;
+    private MapLayerDef? layerDef;
+
+    private async Task OnMapEventReady(MapEventArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            mapInterop = new MapInterop(JSRuntime, e.MapId);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task AddMapLayer(MapLayerType layerType)
+    {
+        try
+        {
+            if (mapInterop == null) return;
+
+            overlay = true;
+
+            await ResetMap();
+
+            layerDef = await mapInterop.AddBasicMapLayer(DataService, layerType);
+            markdownUrl = layerDef != null ? HRefCodeSource.Examples.CodeUrl($"add{layerDef.Type}Layer.md") : "";
+            activeTab = idMap;
+            ToastService.Info($"{layerType} layer added to the map.");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapInterop == null) return;
+
+            if (layerDef != null)
+            {
+                await mapInterop.RemoveLayer(layerDef);
+                layerDef = null;
+				markdownUrl = null;
+            }
+
+            await mapInterop.Configuration.SetMapOptions(options!);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+}

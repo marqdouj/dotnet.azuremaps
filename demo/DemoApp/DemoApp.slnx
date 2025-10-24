@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DemoApp.AzureMaps/DemoApp.AzureMaps.csproj" />
+  <Project Path="DemoApp/DemoApp.csproj" />
+</Solution>
