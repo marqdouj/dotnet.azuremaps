@@ -12,7 +12,7 @@ If you don't have an azure account, you can create a [free account](https://azur
 
 ## Demo
 Demo on how to use this library is found 
-[here](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/Sandbox)
+[here](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/DemoApp)
 
 ## Customization (JS Interop)
 If there is some functionality not yet supported or you need to customize existing support
