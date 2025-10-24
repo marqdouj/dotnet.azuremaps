@@ -1,0 +1,46 @@
+﻿<FluentHeader Style="margin-bottom:5px;">
+    @Header
+    <FluentSpacer Width="10" />
+    <FluentCheckbox @bind-Value="@ShowNarrative">@showHideNarrative</FluentCheckbox>
+</FluentHeader>
+
+<FluentCard Class="@narrativeClass" MinimalStyle="true" Height="auto" Style="margin-bottom:5px;">
+    <FluentStack Orientation="Orientation.Vertical">
+        @ChildContent
+        <FluentStack>
+            <a href="@HRefCode" target="_blank">Source Code</a>
+            @{
+                if (!string.IsNullOrWhiteSpace(HRefDocs))
+                {
+                    <a href="@HRefDocs" target="_blank">Azure Docs</a>
+                }
+            }
+        </FluentStack>
+    </FluentStack>
+</FluentCard>
+
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+
+@code {
+    private string narrativeClass => ShowNarrative ? "" : "hidden";
+    private string showHideNarrative => ShowNarrative ? "Hide Info" : "Show Info";
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter, EditorRequired]
+    public string Header { get; set; }
+
+    [Parameter, EditorRequired]
+    public string HRefCode { get; set; }
+
+    [Parameter]
+    public string? HRefDocs { get; set; }
+
+    [Parameter]
+    public bool ShowNarrative { get; set; } = true;
+}

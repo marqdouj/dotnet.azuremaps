@@ -8,7 +8,7 @@
 <PageTitle>Basic Map</PageTitle>
 
 <FluentLayout>
-	<PageHeader Header="@header" HRefCode="@hRefCode" Subject="@header">
+	<MapPageHeader Header="@header" HRefCode="@hRefCode">
 		<FluentLabel>
             This example demonstrates how to set up a basic Azure Map using the Marqdouj.DotNet.AzureMaps library in a Blazor application.
 			<br />
@@ -18,7 +18,7 @@
             <br />
 			Click on a layer button to add that type of layer to the map.
 		</FluentLabel>
-	</PageHeader>
+	</MapPageHeader>
 
 	<FluentToolbar>
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
@@ -78,7 +78,7 @@
 
             overlay = true;
 
-            await ResetMap();
+			await ResetMap();
 
             layerDef = await mapInterop.AddBasicMapLayer(DataService, layerType);
             ToastService.Info($"{layerType} layer added to the map.");

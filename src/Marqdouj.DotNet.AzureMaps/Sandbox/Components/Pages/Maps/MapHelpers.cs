@@ -5,6 +5,13 @@ using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace Sandbox.Components.Pages.Maps
 {
+    class Test : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync()
+        {
+            throw new NotImplementedException();
+        }
+    }
     internal static class MapHelpers
     {
         public static DialogParameters GetLayerDialogParameters()

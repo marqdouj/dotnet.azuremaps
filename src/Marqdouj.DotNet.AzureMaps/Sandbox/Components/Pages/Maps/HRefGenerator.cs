@@ -5,7 +5,6 @@
         AzureMaps,
         Sandbox,
         AzureDocs,
-        Examples,
     }
 
     internal static class HRefGenerator
@@ -24,9 +23,6 @@
                     break;
                 case HRefCodeSource.Sandbox:
                     url = "https://github.com/marqdouj/dotnet.azuremaps/blob/master/demo/Sandbox/Sandbox/Components/Pages/Maps";
-                    break;
-                case HRefCodeSource.Examples:
-                    url = "https://raw.githubusercontent.com/marqdouj/dotnet.azuremaps/master/docs/examples/";
                     break;
                 default:
                     throw new NotImplementedException();

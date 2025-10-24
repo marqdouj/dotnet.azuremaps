@@ -1,0 +1,39 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<FluentLayout>
+    <FluentHeader>
+        Home
+    </FluentHeader>
+
+    <FluentCard>
+        <FluentLabel Typo="Typography.Subject">
+            Welcome to my Azure Maps Demo!
+        </FluentLabel>
+        <br />
+        <FluentLabel Typo="Typography.Body">
+            This repository/demo is new and currently in preview.<br />
+            Functionality is currently being added to this demo as updates are made during the preview.
+        </FluentLabel>
+        <br />
+        <FluentLabel>
+            <span style="font-weight:500;">## Prerequisites</span>
+            <br />
+            <a href="https://learn.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app#create-an-azure-maps-account" target="_blank">Azure Maps account</a>.
+            If you don't have an Azure account, you can create a
+            <a href="https://azure.microsoft.com" target="_blank">free account</a>.
+        </FluentLabel>
+        <br />
+        <FluentLabel>
+            <span style="font-weight:500;">## Configuration</span>
+            <br />
+            See Program.cs, MapSetup.cs, and App.Razor.
+        </FluentLabel>
+        <br />
+        <FluentStack>
+            <a href="https://github.com/marqdouj/DotNet.AzureMaps" target="_blank">Source Code</a>
+            <a href="https://learn.microsoft.com/en-us/azure/azure-maps/how-to-use-map-control" target="_blank">Azure Docs</a>
+        </FluentStack>
+    </FluentCard>
+</FluentLayout>

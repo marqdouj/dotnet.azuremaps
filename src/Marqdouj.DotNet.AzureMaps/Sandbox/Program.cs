@@ -1,27 +1,17 @@
-using Marqdouj.DotNet.Web.Components.Services;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Sandbox;
 using Sandbox.Components;
 using Sandbox.Services;
-using Sandbox.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
-builder.Services.AddHttpClient();
 builder.Services.AddFluentUIComponents();
 
 //Marqdouj.DotNet.AzureMaps
 builder.Services.AddMapConfiguration(builder.Configuration);
-
-//Marqdouj.DotNet.Web.Components
-builder.Services.AddScoped<IGeolocationService, GeolocationService>();
-
-//Resolves XML Comments for Marqdouj.DotNet.AzureMaps
-builder.Services.AddScoped<IAzureMapsXmlService, AzureMapsXmlService>();
 
 //Simulates getting data from an API.
 builder.Services.AddScoped<IDataService, DataService>();

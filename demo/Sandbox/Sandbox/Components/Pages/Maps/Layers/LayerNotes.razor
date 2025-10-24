@@ -1,143 +1,70 @@
 ﻿@page "/map-layer-notes"
+@rendermode InteractiveServer
 
 <PageTitle>Layer Notes</PageTitle>
 
 <FluentLayout>
-	<FluentHeader>
-		Layer Notes
-	</FluentHeader>
+	<PageHeader Header="Layer Notes"
+				HRefCode="@hRefCode"
+				Subject="Basic Layers">
+		<FluentLabel Typo="Typography.Subject">
+			The layer pages in this group rely heavily on a custom UI.
+			The UI is not required to add a layer to the map.
+			<br />
+			Here are a some examples of adding a layer to a map without the UI.
+			<br />
+			The examples use a 'Data Service' to simulate querying the layer data from an API.
+		</FluentLabel>
+	</PageHeader>
 
-	<FluentLabel Typo="Typography.Subject">
-		The layer pages in this group rely heavily on a custom UI.
-		The UI is not required to add a layer to the map.
-		<br />
-		Here are a some examples of adding a layer to a map without the UI.
-		<br />
-		The examples use a 'Data Service' to simulate querying the layer data from an API.
-	</FluentLabel>
-
-	<FluentTabs>
-		<FluentTab Label="Bubble Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new BubbleLayerDef();<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					var featureDef = new MapFeatureDef(new MultiPoint(await DataSerice.GetBubbleLayerData()));<br />
-					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-73.985550, 40.77900), 11);
-				</CodeText>
-			</FluentCard>
+	<FluentTabs OnTabChange="OnTabChange">
+		<FluentTab Id="@GetTabId(MapLayerType.Bubble)" Label="@GetTabLabel(MapLayerType.Bubble)">
+			@if (activeTabId == GetTabId(MapLayerType.Bubble))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.Bubble)" />
+			}
 		</FluentTab>
-		<FluentTab Label="HeatMap Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new HeatMapLayerDef();<br />
-					var ds = layerDef.GetDataSource();<br />
-					ds.Url = await DataSerice.GetHeatMapLayerUrl();<br />
-					await mapInterop.Map.CreateDatasource(ds);<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.HeatMap)" Label="@GetTabLabel(MapLayerType.HeatMap)">
+			@if (activeTabId == GetTabId(MapLayerType.HeatMap))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.HeatMap)" />
+			}
 		</FluentTab>
-		<FluentTab Label="Image Layer">
-			<FluentCard>
-				<CodeText>
-					var data = await DataSerice.GetImageLayerData();<br />
-					var layerDef = new ImageLayerDef() { Options = new() { Url = data.Url, Coordinates = data.Coordinates } };<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.Image)" Label="@GetTabLabel(MapLayerType.Image)">
+			@if (activeTabId == GetTabId(MapLayerType.Image))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.Image)" />
+			}
 		</FluentTab>
-		<FluentTab Label="Line Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new LineLayerDef();<br />
-					layerDef.Options!.StrokeColor = HtmlColorName.Blue.ToString();<br />
-					layerDef.Options.StrokeWidth = 5;<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					var featureDef = new MapFeatureDef(new LineString(await DataSerice.GetLineLayerData()));<br />
-					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-122.18822, 47.63208), 10);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.Line)" Label="@GetTabLabel(MapLayerType.Line)">
+			@if (activeTabId == GetTabId(MapLayerType.Line))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.Line)" />
+			}
 		</FluentTab>
-		<FluentTab Label="Polygon Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new PolygonLayerDef();<br />
-					layerDef.Options!.FillOpacity = 0.7;<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					var featureDef = new MapFeatureDef(new Polygon(await DataSerice.GetPolygonLayerData()));<br />
-					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-73.98235, 40.76799), 10);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.Polygon)" Label="@GetTabLabel(MapLayerType.Polygon)">
+			@if (activeTabId == GetTabId(MapLayerType.Polygon))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.Polygon)" />
+			}
 		</FluentTab>
-		<FluentTab Label="Polygon Extrusion Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new PolygonExtLayerDef();<br />
-					layerDef.Options!.FillOpacity = 0.7;<br />
-					layerDef.Options!.Height = 500;<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					var featureDef = new MapFeatureDef(new Polygon(await DataSerice.GetPolygonExtLayerData()));<br />
-					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-73.985708, 40.75773), 12);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.PolygonExtrusion)" Label="@GetTabLabel(MapLayerType.PolygonExtrusion)">
+			@if (activeTabId == GetTabId(MapLayerType.PolygonExtrusion))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.PolygonExtrusion)" />
+			}
 		</FluentTab>
-		<FluentTab Label="Symbol Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new SymbolLayerDef();<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					var featureDef = new MapFeatureDef(new Point(new Position(-122.33, 47.6)));<br />
-					await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 12);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.Symbol)" Label="@GetTabLabel(MapLayerType.Symbol)">
+			@if (activeTabId == GetTabId(MapLayerType.Symbol))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.Symbol)" />
+			}
 		</FluentTab>
-		<FluentTab Label="Tile Layer">
-			<FluentCard>
-				<CodeText>
-					var layerDef = new TileLayerDef();<br />
-					layerDef.Options!.TileUrl = await DataSerice.GetTileLayerUrl();<br />
-					<br />
-					//Optional<br />
-					layerDef.Options.Opacity = 0.8;<br />
-					layerDef.Options.TileSize = 256;<br />
-					layerDef.Options.MinSourceZoom = 7;<br />
-					layerDef.Options.MaxSourceZoom = 17;<br />
-					<br />
-					await mapInterop.Map.CreateDatasource(layerDef.GetDataSource()!);<br />
-					await mapInterop.Layers.CreateLayer(layerDef);<br />
-					<br />
-					//Optional<br />
-					await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 11);
-				</CodeText>
-			</FluentCard>
+		<FluentTab Id="@GetTabId(MapLayerType.Tile)" Label="@GetTabLabel(MapLayerType.Tile)">
+			@if (activeTabId == GetTabId(MapLayerType.Tile))
+			{
+				<MarkDownView Url="@GetMapLayerExampleUrl(MapLayerType.Tile)" />
+			}
 		</FluentTab>
 	</FluentTabs>
 
@@ -146,4 +73,27 @@
 @code {
 	private const string height = "400px";
 	private const string width = "100%";
+	private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("MapExtensions.cs");
+	private string activeTabId = GetTabId(MapLayerType.Bubble);
+
+	private static string GetTabId(MapLayerType layerType)
+	{
+		return layerType.ToString().ToLower() + "-layer-tab";
+	}
+
+	private static string GetTabLabel(MapLayerType layerType)
+	{
+		return layerType.ToString() + " Layer";
+	}
+
+	private static string GetMapLayerExampleUrl(MapLayerType layerType)
+	{
+		return HRefCodeSource.Examples.CodeUrl($"add{layerType}Layer.md");
+	}
+
+	private void OnTabChange(FluentTab tab)
+	{
+		activeTabId = tab.Id!;
+		Console.WriteLine($"Switched to tab: {tab.Id}. ActiveTabId:{activeTabId}");
+	}
 }

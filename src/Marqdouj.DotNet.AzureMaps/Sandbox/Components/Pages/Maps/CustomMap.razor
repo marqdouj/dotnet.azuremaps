@@ -9,7 +9,7 @@
 <PageTitle>Custom Map</PageTitle>
 
 <FluentLayout>
-    <PageHeader Header="@header" HRefCode="@hRefCode" Subject="@header">
+    <MapPageHeader Header="@header" HRefCode="@hRefCode">
         <FluentLabel>
             This example demonstrates how add custom functionality to a basic Azure Map, using the Marqdouj.DotNet.AzureMaps library in a Blazor application.
             <br />
@@ -19,7 +19,7 @@
             <br />
 			Three 'interop' buttons allow you to check for map access, add controls, or remove controls using JS Interop.
         </FluentLabel>
-    </PageHeader>
+    </MapPageHeader>
 
     <FluentToolbar>
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
