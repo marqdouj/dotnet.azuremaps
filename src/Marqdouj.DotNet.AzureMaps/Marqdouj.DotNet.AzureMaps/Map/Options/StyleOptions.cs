@@ -111,7 +111,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Options
 
         [JsonInclude]
         [JsonPropertyName("style")]
-        internal string? StyleJs { get => Style.EnumToJsonN(); set => Style = value.JsonToEnumN<MapStyle>(); }
+        internal string? StyleJs { get => Style?.ToString().ToLower(); set => Style = value.JsonToEnumN<MapStyle>(); }
 
         /// <summary>
         /// Specifies which set of geopolitically disputed borders and labels are displayed on the map. 

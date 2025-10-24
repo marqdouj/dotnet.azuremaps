@@ -23,6 +23,14 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-2.3
+- `Issues`
+  - `StyleOptions.Style`. This was incorrectly formatted and the map style was not getting updated.
+    This has been fixed to match the expected format.
+
+- `MapInterop`. Add new method:
+  - `RemoveLayer(MapLayerDef)`. Removes a layer and its associated datasource from the map.
+
 ### 10.0.0-rc-2.2
 - `SymbolLayerOptions`. Initialize Image/Text options with a new instance.
 

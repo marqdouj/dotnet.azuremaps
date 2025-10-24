@@ -237,6 +237,7 @@ export namespace MapInterop {
             const lyr = map.layers.getLayerById(id);
             if (lyr) {
                 map.layers.remove(lyr);
+                console.debug(`${Extensions.logHeader(mapId)} - layer with id '${id}' was removed.`);
             }
         }
 
@@ -324,6 +325,7 @@ export namespace MapInterop {
             const ds = map.sources.getById(id) as atlas.source.DataSource;
             if (ds) {
                 map.sources.remove(ds);
+                console.debug(`${Extensions.logHeader(mapId)} - datasource with id '${id}' was removed.`);
             }
         }
 
