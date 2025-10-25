@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Marqdouj.DotNet.AzureMaps" Version="10.0.0-rc-2.3" />
+    <PackageReference Include="Marqdouj.DotNet.AzureMaps" Version="10.0.0-rc-2.4" />
     <PackageReference Include="Marqdouj.DotNet.Web.Components.FluentUI" Version="10.0.0-Preview8.0" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.13.0" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.13.0" />
