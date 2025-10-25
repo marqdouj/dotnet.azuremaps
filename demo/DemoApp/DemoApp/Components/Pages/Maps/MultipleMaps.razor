@@ -7,7 +7,7 @@
 <PageTitle>Multiple Maps</PageTitle>
 
 <FluentLayout>
-    <MapPageHeader Header="@subject" HRefCode="@hRefCode">
+    <MapPageHeader Header="@subject" HRefSource="@hRefSource">
         <FluentStack Orientation="Orientation.Vertical">
             <FluentLabel>
                 This example demonstrates adding more than one Azure Map component to a page.
@@ -51,7 +51,7 @@
 </FluentOverlay>
 
 @code {
-    private readonly string hRefCode = HRefCodeSource.DemoApp.CodeUrl("MultipleMaps.razor");
+    private readonly string hRefSource = HRefCodeSource.DemoApp.CodeUrl("MultipleMaps.razor");
     private readonly string subject = "Multiple Maps";
     private string mapHeight = "400px";
     private string mapWidth = "100%";

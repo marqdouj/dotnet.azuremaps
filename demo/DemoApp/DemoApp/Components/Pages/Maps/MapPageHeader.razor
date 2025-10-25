@@ -9,9 +9,15 @@
         @ChildContent
         <FluentStack>
             @{
-                if (!string.IsNullOrWhiteSpace(HRefCode))
+                if (!string.IsNullOrWhiteSpace(HRefSource))
                 {
-                    <a href="@HRefCode" target="_blank">@HRefCodeLabel</a>
+                    <a href="@HRefSource" target="_blank">@HRefSourceLabel</a>
+                }
+            }
+            @{
+                if (!string.IsNullOrWhiteSpace(HRefExample))
+                {
+                    <a href="@HRefExample" target="_blank">@HRefExampleLabel</a>
                 }
             }
             @{
@@ -40,11 +46,17 @@
     [Parameter, EditorRequired]
     public string Header { get; set; }
 
-    [Parameter, EditorRequired]
-    public string HRefCode { get; set; }
+    [Parameter]
+    public string? HRefSource { get; set; }
 
 	[Parameter]
-	public string? HRefCodeLabel { get; set; } = "Source Code";
+	public string? HRefSourceLabel { get; set; } = "Page Source";
+
+    [Parameter]
+    public string? HRefExample { get; set; }
+
+    [Parameter]
+    public string? HRefExampleLabel { get; set; } = "Example";
 
     [Parameter]
     public string? HRefDocs { get; set; }
