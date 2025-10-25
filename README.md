@@ -10,9 +10,11 @@ The component is configured to allow for multiple Azure maps on the same page.
 - [Azure Maps account](https://learn.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app#create-an-azure-maps-account).
 If you don't have an azure account, you can create a [free account](https://azure.microsoft.com).
 
-## Demo
-Demo on how to use this library is found 
-[here](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/DemoApp)
+## Demo App (New)
+The 'Sandbox' demo has been removed and replaced by 
+[`DemoApp`](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/DemoApp).
+If you have downloaded the repository previously you should download it again.
+Once the code is downloaded you can run the demo app locally.
 
 ## Customization (JS Interop)
 If there is some functionality not yet supported or you need to customize existing support
@@ -23,6 +25,9 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-2.4
+- `DemoApp`. `Sandbox` demo has been replaced by `DemoApp`.
+
 ### 10.0.0-rc-2.3
 - `Issues`
   - `StyleOptions.Style`. This was incorrectly formatted and the map style was not getting updated.
