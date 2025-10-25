@@ -1,9 +1,13 @@
 ﻿@page "/map-basic"
+@using Marqdouj.DotNet.AzureMaps.Map.Common
+@using Marqdouj.DotNet.AzureMaps.Map.GeoJson
+@using Marqdouj.DotNet.AzureMaps.Map.Interop.Features
 @rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
 @inject ILogger<BasicMap> Logger
 @inject IToastService ToastService
 @inject IDataService DataService
+@inject IGeolocationService GeolocationService
 
 <PageTitle>Basic Map</PageTitle>
 
@@ -17,12 +21,17 @@
 			Use the "Reset Map" button to reset the map to its initial state.
             <br />
 			Click on a layer button to add that type of layer to the map.
+            <br /><br />
+			If the Symbol layer is loaded, you can use the "Get Current Location" button to add a marker at your current geolocation position (if permission is granted).
+            <br />
+            The 'GeolocationService' from my <a href="https://www.nuget.org/packages/Marqdouj.DotNet.Web.Components" target="_blank">dotnet.web.components</a> package is used to get the current position.
 		</FluentLabel>
 	</MapPageHeader>
 
 	<FluentToolbar>
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
         <FluentSpacer Width="8"/>
+        <FluentButton Disabled="@isSymbolLayerDisabled" IconStart="@(new Icons.Regular.Size20.GlobeSearch())" Title="Get Current Location" OnClick="@GetCurrentPosition" />
         @{
             foreach (var layerType in Enum.GetValues<MapLayerType>())
             {
@@ -51,6 +60,8 @@
     private string hRefExample => layerDef != null ? HRefCodeSource.Examples.CodeUrl($"add{layerDef.Type}Layer.md"): "";
     private string hRefExampleLabel => layerDef != null ? $"{layerDef.Type} Layer Example" : "";
     private string hRefSource => HRefCodeSource.DemoApp.CodeUrl($"{nameof(BasicMap)}.razor");
+	private bool isSymbolLayer => layerDef != null && layerDef.Type == MapLayerType.Symbol;
+	private bool isSymbolLayerDisabled => disabled || !isSymbolLayer;
     private readonly string header = "Basic Maps";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
@@ -116,5 +127,59 @@
             Logger.LogError(ex, null);
             ToastService.Error(ex);
         }
+    }
+
+    private async Task GetCurrentPosition()
+    {
+        try
+        {
+            if (!isSymbolLayer)
+                return;
+
+			overlay = true;
+
+            var geolocation = await GeolocationService.GetCurrentPosition();
+
+            if (geolocation != null)
+            {
+                if (geolocation.IsSuccess)
+                {
+                    var coordinates = geolocation.Position!.Coords!;
+                    var position = new Position(coordinates.Longitude, coordinates.Latitude);
+                    var feature = new MapFeatureDef(new Point(position))
+                    {
+                        Id = "geoLocation",
+                        Properties = new Properties
+                        {
+                            { "title", "Current Location" },
+                        }
+                    };
+                    await mapInterop!.Layers.AddMapFeature(feature, layerDef!.SourceId, true);
+                    await mapInterop.Configuration.ZoomTo(position, 15);
+                    ToastService.Info($"Current Location: {position}");
+                }
+                else
+                {
+                    var errMsg = $"Geolocation service failed. {geolocation.Error?.Message}";
+                    Logger?.LogError(errMsg);
+                    ToastService?.Error(errMsg);
+                }
+            }
+            else
+            {
+                var warnMsg = $"Geolocation service returned null.";
+                Logger?.LogWarning(warnMsg);
+                ToastService?.Warning(warnMsg);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+		}
     }
 }

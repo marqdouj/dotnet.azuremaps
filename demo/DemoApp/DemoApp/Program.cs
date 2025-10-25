@@ -1,6 +1,7 @@
 using DemoApp;
 using DemoApp.Components;
 using DemoApp.Services;
+using Marqdouj.DotNet.Web.Components.Services;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,9 @@ builder.Services.AddFluentUIComponents();
 
 //Marqdouj.DotNet.AzureMaps
 builder.Services.AddMapConfiguration(builder.Configuration);
+
+//Marqdouj.DotNet.Web.Components
+builder.Services.AddScoped<IGeolocationService, GeolocationService>();
 
 //Simulates getting data from an API.
 builder.Services.AddScoped<IDataService, DataService>();
