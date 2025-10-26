@@ -1,0 +1,19 @@
+﻿<Project Sdk="MSTest.Sdk/4.0.0-preview.25465.3">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseVSTest>true</UseVSTest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Marqdouj.DotNet.AzureMaps\Map\MapExtensions.cs" Link="MapExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Marqdouj.DotNet.AzureMaps\Marqdouj.DotNet.AzureMaps.csproj" />
+  </ItemGroup>
+
+</Project>

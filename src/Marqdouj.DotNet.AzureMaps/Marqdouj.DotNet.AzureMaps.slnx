@@ -5,4 +5,5 @@
   <Project Path="Marqdouj.DotNet.AzureMaps/Marqdouj.DotNet.AzureMaps.csproj" />
   <Project Path="Sandbox.AzureMaps/Sandbox.AzureMaps.csproj" Id="9406a18a-9bfc-4c1b-b957-435033fad206" />
   <Project Path="Sandbox/Sandbox.csproj" Id="34ba4d74-44e4-42dd-b644-0dc7b9bb1977" />
+  <Project Path="UnitTests/UnitTests.csproj" Id="a9f0d00c-2ecf-4ad8-9dfd-9da4a33b1309" />
 </Solution>
