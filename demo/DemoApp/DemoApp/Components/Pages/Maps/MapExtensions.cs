@@ -10,23 +10,23 @@ namespace DemoApp.Components.Pages.Maps
 {
     internal static class MapExtensions
     {
-        public static async Task<MapLayerDef> AddBasicMapLayer(this MapInterop mapInterop, IDataService dataService, MapLayerType layerType)
+        public static async Task<MapLayerDef> AddBasicMapLayer(this MapInterop mapInterop, IDataService dataService, MapLayerType layerType, bool zoomTo = true)
         {
             return layerType switch
             {
-                MapLayerType.Bubble => await AddBubbleLayer(mapInterop, dataService),
-                MapLayerType.HeatMap => await AddHeatMapLayer(mapInterop, dataService),
-                MapLayerType.Image => await AddImageLayer(mapInterop, dataService),
-                MapLayerType.Line => await AddLineLayer(mapInterop, dataService),
-                MapLayerType.Polygon => await AddPolygonLayer(mapInterop, dataService),
-                MapLayerType.PolygonExtrusion => await AddPolygonExtLayer(mapInterop, dataService),
-                MapLayerType.Symbol => await AddSymbolLayer(mapInterop, dataService),
-                MapLayerType.Tile => await AddTileLayer(mapInterop, dataService),
+                MapLayerType.Bubble => await AddBubbleLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.HeatMap => await AddHeatMapLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.Image => await AddImageLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.Line => await AddLineLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.Polygon => await AddPolygonLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.PolygonExtrusion => await AddPolygonExtLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.Symbol => await AddSymbolLayer(mapInterop, dataService, zoomTo: zoomTo),
+                MapLayerType.Tile => await AddTileLayer(mapInterop, dataService, zoomTo: zoomTo),
                 _ => throw new ArgumentOutOfRangeException(nameof(layerType)),
             };
         }
 
-        private static async Task<MapLayerDef> AddTileLayer(MapInterop mapInterop, IDataService dataService, TileLayerOptions? options = null)
+        public static async Task<MapLayerDef> AddTileLayer(MapInterop mapInterop, IDataService dataService, TileLayerOptions? options = null, bool zoomTo = true)
         {
             var layerDef = new TileLayerDef();
 
@@ -50,12 +50,13 @@ namespace DemoApp.Components.Pages.Maps
             await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());
             await mapInterop.Layers.CreateLayer(layerDef);
 
-            await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 10.75);
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 10.75);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddSymbolLayer(MapInterop mapInterop, IDataService dataService, SymbolLayerOptions? options = null)
+        public static async Task<MapLayerDef> AddSymbolLayer(MapInterop mapInterop, IDataService dataService, SymbolLayerOptions? options = null, bool zoomTo = true)
         {
             var layerDef = new SymbolLayerDef();
 
@@ -87,12 +88,13 @@ namespace DemoApp.Components.Pages.Maps
                 await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
             }
             
-            await mapInterop.Configuration.ZoomTo(data[0], 11);
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(data[0], 11);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddPolygonExtLayer(MapInterop mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null)
+        public static async Task<MapLayerDef> AddPolygonExtLayer(MapInterop mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null, bool zoomTo = true)
         {
             var layerDef = new PolygonExtLayerDef();
 
@@ -125,7 +127,9 @@ namespace DemoApp.Components.Pages.Maps
             };
 
             await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
-            await mapInterop.Configuration.ZoomTo(data[0][0], 11);
+
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(data[0][0], 11);
 
             var camera = await mapInterop.Configuration.GetCamera();
             camera.Pitch = 60;
@@ -134,7 +138,7 @@ namespace DemoApp.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddPolygonLayer(MapInterop mapInterop, IDataService dataService, PolygonLayerOptions? options = null)
+        public static async Task<MapLayerDef> AddPolygonLayer(MapInterop mapInterop, IDataService dataService, PolygonLayerOptions? options = null, bool zoomTo = true)
         {
             var layerDef = new PolygonLayerDef();
 
@@ -166,12 +170,14 @@ namespace DemoApp.Components.Pages.Maps
             };
 
             await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
-            await mapInterop.Configuration.ZoomTo(data[0][0], 11);
+
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(data[0][0], 11);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddLineLayer(MapInterop mapInterop, IDataService dataService, LineLayerOptions? options = null)
+        public static async Task<MapLayerDef> AddLineLayer(MapInterop mapInterop, IDataService dataService, LineLayerOptions? options = null, bool zoomTo = true)
         {
             var layerDef = new LineLayerDef
             {
@@ -205,12 +211,14 @@ namespace DemoApp.Components.Pages.Maps
             };
 
             await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
-            await mapInterop.Configuration.ZoomTo(data[0], 10);
+
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(data[0], 10);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddImageLayer(MapInterop mapInterop, IDataService dataService)
+        public static async Task<MapLayerDef> AddImageLayer(MapInterop mapInterop, IDataService dataService, bool zoomTo = true)
         {
             var layerDef = new ImageLayerDef();
 
@@ -224,12 +232,13 @@ namespace DemoApp.Components.Pages.Maps
             await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());
             await mapInterop.Layers.CreateLayer(layerDef);
 
-            await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddHeatMapLayer(MapInterop mapInterop, IDataService dataService)
+        public static async Task<MapLayerDef> AddHeatMapLayer(MapInterop mapInterop, IDataService dataService, bool zoomTo = true)
         {
             var layerDef = new HeatMapLayerDef();
 
@@ -239,12 +248,13 @@ namespace DemoApp.Components.Pages.Maps
             await mapInterop.Map.CreateDatasource(ds);
             await mapInterop.Layers.CreateLayer(layerDef);
 
-            await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddBubbleLayer(MapInterop mapInterop, IDataService dataService, BubbleLayerOptions? options = null)
+        public static async Task<MapLayerDef> AddBubbleLayer(MapInterop mapInterop, IDataService dataService, BubbleLayerOptions? options = null, bool zoomTo = true)
         {
             var layerDef = new BubbleLayerDef();
 
@@ -266,7 +276,9 @@ namespace DemoApp.Components.Pages.Maps
                     }
             };
             await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);
-            await mapInterop.Configuration.ZoomTo(data[0], 11);
+
+            if (zoomTo)
+                await mapInterop.Configuration.ZoomTo(data[0], 11);
 
             return layerDef;
         }

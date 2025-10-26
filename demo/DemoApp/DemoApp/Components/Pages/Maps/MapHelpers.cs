@@ -24,7 +24,7 @@ namespace DemoApp.Components.Pages.Maps
             return parameters;
         }
 
-        public static MapOptions GetDefaultMapOptions()
+        public static MapOptions GetDefaultMapOptions(double? zoomTo = null)
         {
             // Initialize map options with a specific camera position
             return new MapOptions
@@ -32,7 +32,7 @@ namespace DemoApp.Components.Pages.Maps
                 Camera = new CameraOptions
                 {
                     Center = new Position(-122.33, 47.6), // (Seattle, WA)
-                    Zoom = 10.5,
+                    Zoom = zoomTo ?? 10.5,
                     Pitch = 0,
                 },
                 Style = new StyleOptions
