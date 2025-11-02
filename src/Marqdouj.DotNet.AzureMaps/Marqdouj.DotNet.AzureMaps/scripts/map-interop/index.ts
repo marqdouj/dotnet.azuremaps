@@ -172,7 +172,7 @@ export namespace MapInterop {
     }
 
     export class Layers {
-        public static createLayer(mapId: string, def: MapLayerDef) {
+        public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
             const map = MapFactory.getMap(mapId);
             if (!map) {
                 return;
@@ -195,29 +195,49 @@ export namespace MapInterop {
                 }
             }
 
-            const sourceId = def.sourceId;
+            let ds: atlas.source.DataSource;
+
+            if (dsDef) {
+                ds = new atlas.source.DataSource(dsDef.id, dsDef.options);
+                if (!ds) {
+                    console.error(`${idHeader} error: Unable to create datasource.`, dsDef);
+                    return;
+                }
+                map.sources.add(ds);
+
+                if (Extensions.isNotEmptyOrNull(dsDef.url)) {
+                    ds.importDataFromUrl(dsDef.url);
+                }
+            }
+            else {
+                ds = map.sources.getById(def.sourceId) as atlas.source.DataSource;
+                if (!ds) {
+                    console.error(`${idHeader} error: Unable to find datasource where ID=${def.sourceId}.`);
+                    return;
+                }
+            }
 
             switch (def.type) {
                 case 'Bubble':
-                    map.layers.add(new atlas.layer.BubbleLayer(sourceId, layerId, def.options as atlas.BubbleLayerOptions), def.before);
+                    map.layers.add(new atlas.layer.BubbleLayer(ds, layerId, def.options as atlas.BubbleLayerOptions), def.before);
                     break;
                 case 'HeatMap':
-                    map.layers.add(new atlas.layer.HeatMapLayer(sourceId, layerId, def.options as atlas.HeatMapLayerOptions), def.before);
+                    map.layers.add(new atlas.layer.HeatMapLayer(ds, layerId, def.options as atlas.HeatMapLayerOptions), def.before);
                     break;
                 case 'Image':
                     map.layers.add(new atlas.layer.ImageLayer(def.options as atlas.ImageLayerOptions, layerId), def.before);
                     break;
                 case 'Line':
-                    map.layers.add(new atlas.layer.LineLayer(sourceId, layerId, def.options as atlas.LineLayerOptions), def.before);
+                    map.layers.add(new atlas.layer.LineLayer(ds, layerId, def.options as atlas.LineLayerOptions), def.before);
                     break;
                 case 'Polygon':
-                    map.layers.add(new atlas.layer.PolygonLayer(sourceId, layerId, def.options as atlas.PolygonLayerOptions), def.before);
+                    map.layers.add(new atlas.layer.PolygonLayer(ds, layerId, def.options as atlas.PolygonLayerOptions), def.before);
                     break;
                 case 'PolygonExtrusion':
-                    map.layers.add(new atlas.layer.PolygonExtrusionLayer(sourceId, layerId, def.options as atlas.PolygonExtrusionLayerOptions), def.before);
+                    map.layers.add(new atlas.layer.PolygonExtrusionLayer(ds, layerId, def.options as atlas.PolygonExtrusionLayerOptions), def.before);
                     break;
                 case 'Symbol':
-                    map.layers.add(new atlas.layer.SymbolLayer(sourceId, layerId, def.options as atlas.SymbolLayerOptions), def.before);
+                    map.layers.add(new atlas.layer.SymbolLayer(ds, layerId, def.options as atlas.SymbolLayerOptions), def.before);
                     break;
                 case 'Tile':
                     map.layers.add(new atlas.layer.TileLayer(def.options as atlas.TileLayerOptions, layerId), def.before);

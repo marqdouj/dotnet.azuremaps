@@ -17,12 +17,12 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
 
         public string MapId { get; }
 
-        public async ValueTask CreateDatasource(DataSourceDef source)
+        public async Task CreateDatasource(DataSourceDef source)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, source);
         }
 
-        public async ValueTask RemoveDatasource(string sourceId)
+        public async Task RemoveDatasource(string sourceId)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, sourceId);
         }
@@ -32,7 +32,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, sourceId);
         }
 
-        public async ValueTask AddControls(IEnumerable<MapControl> controls)
+        public async Task AddControls(IEnumerable<MapControl> controls)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, controls.OrderBy(e => e.SortOrder).ToJson());
         }
@@ -41,7 +41,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// Gets a list of controls added to the map using 'AddControls'
         /// </summary>
         /// <returns></returns>
-        public async ValueTask<List<MapControl>> GetControls()
+        public async Task<List<MapControl>> GetControls()
         {
             var controls = await jsRuntime.InvokeAsync<List<MapControl>>(GetMapInteropMethod(), MapId);
             return [.. controls.OrderBy(e => e.Type)];
@@ -51,7 +51,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// Removes the controls added to the map using 'AddControls'
         /// </summary>
         /// <returns></returns>
-        public async ValueTask RemoveControls(IEnumerable<MapControl> controls)
+        public async Task RemoveControls(IEnumerable<MapControl> controls)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, controls);
         }

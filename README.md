@@ -25,6 +25,13 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-3.0
+- `MapInterop`. 
+  - Change `ValueTask` to `Task` for JSInterop.
+  - Add `DataSourceDef` parameter to `CreateLayer`. 
+    This allows for single JSInterop call to create a datasource and layer,
+    i.e. `CreateLayer(layerDef, layerDef.GetDataSource())`
+
 ### 10.0.0-rc-2.4
 - `DemoApp`. `Sandbox` demo has been replaced by `DemoApp`.
 

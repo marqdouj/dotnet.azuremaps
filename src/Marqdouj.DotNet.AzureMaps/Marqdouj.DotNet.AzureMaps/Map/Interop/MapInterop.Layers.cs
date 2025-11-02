@@ -1,4 +1,5 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Interop.Features;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Interop.Features;
 using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
 using Microsoft.JSInterop;
 using System.Runtime.CompilerServices;
@@ -17,17 +18,17 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
 
         public string MapId { get; }
 
-        public async ValueTask CreateLayer(MapLayerDef def)
+        public async Task CreateLayer(MapLayerDef def, DataSourceDef? dsDef = null)
         {
-            await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, def);
+            await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, def, dsDef);
         }
 
-        public async ValueTask RemoveLayer(string layerId)
+        public async Task RemoveLayer(string layerId)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, layerId);
         }
 
-        public async ValueTask AddMapFeature(MapFeatureDef feature, string datasourceId, bool replace = false)
+        public async Task AddMapFeature(MapFeatureDef feature, string datasourceId, bool replace = false)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, feature, datasourceId, replace);
         }

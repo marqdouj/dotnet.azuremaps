@@ -21,57 +21,57 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// The camera's current properties, as a combination of Camera and CameraBounds options
         /// </summary>
         /// <returns></returns>
-        public async ValueTask<MapCamera> GetCamera()
+        public async Task<MapCamera> GetCamera()
         {
             return await jsRuntime.InvokeAsync<MapCamera>(GetMapInteropMethod(), MapId);
         }
 
-        public async ValueTask SetMapOptions(MapOptions options)
+        public async Task SetMapOptions(MapOptions options)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, options);
         }
 
-        public async ValueTask<MapOptions> GetMapOptions()
+        public async Task<MapOptions> GetMapOptions()
         {
             return await jsRuntime.InvokeAsync<MapOptions>(GetMapInteropMethod(), MapId);
         }
 
-        public async ValueTask SetCamera(CameraOptions? camera, SetCameraBoundsOptions? cameraBounds = null, AnimationOptions? animation = null)
+        public async Task SetCamera(CameraOptions? camera, SetCameraBoundsOptions? cameraBounds = null, AnimationOptions? animation = null)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, new  SetCameraOptions(camera, cameraBounds, animation));
         }
 
-        public async ValueTask<ServiceOptions> GetServiceOptions()
+        public async Task<ServiceOptions> GetServiceOptions()
         {
             return await jsRuntime.InvokeAsync<ServiceOptions>(GetMapInteropMethod(), MapId);
         }
 
-        public async ValueTask SetServiceOptions(ServiceOptions options)
+        public async Task SetServiceOptions(ServiceOptions options)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, options);
         }
 
-        public async ValueTask<StyleOptions> GetStyle()
+        public async Task<StyleOptions> GetStyle()
         {
             return await jsRuntime.InvokeAsync<StyleOptions>(GetMapInteropMethod(), MapId);
         }
 
-        public async ValueTask SetStyle(StyleOptions options)
+        public async Task SetStyle(StyleOptions options)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, options);
         }
 
-        public async ValueTask<UserInteractionOptions> GetUserInteraction()
+        public async Task<UserInteractionOptions> GetUserInteraction()
         {
             return await jsRuntime.InvokeAsync<UserInteractionOptions>(GetMapInteropMethod(), MapId);
         }
 
-        public async ValueTask SetUserInteraction(UserInteractionOptions options)
+        public async Task SetUserInteraction(UserInteractionOptions options)
         {
             await jsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, options);
         }
 
-        public async ValueTask ZoomTo(Position center, double zoomLevel)
+        public async Task ZoomTo(Position center, double zoomLevel)
         {
             var camera = await GetCamera();
             var options = camera.ToCameraOptions();

@@ -16,7 +16,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// </summary>
         /// <param name="layerDef"></param>
         /// <returns></returns>
-        public async ValueTask RemoveLayer(MapLayerDef layerDef)
+        public async Task RemoveLayer(MapLayerDef layerDef)
         {
             if (!string.IsNullOrWhiteSpace(layerDef.Id))
                 await Layers.RemoveLayer(layerDef.Id);
