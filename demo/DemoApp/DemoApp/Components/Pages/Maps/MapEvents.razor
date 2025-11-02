@@ -9,7 +9,7 @@
 <PageTitle>Map Events</PageTitle>
 
 <FluentLayout>
-    <MapPageHeader Header="@header" HRefSource="@hRefSource">
+    <MapPageHeader Header="@header" LayerDef="@layerDef" HRefSource="@hRefSource">
         <FluentLabel>
             This example demonstrates subscribing to the Click, MouseMove, and MouseOut map events.
             <br />
@@ -68,7 +68,7 @@
 
 @code {
     private bool overlay;
-    private string hRefSource => HRefCodeSource.DemoApp.CodeUrl($"{nameof(MapEvents)}.razor");
+    private string hRefSource => nameof(MapEvents).ToPageSource();
     private readonly string header = "Map Events";
     private string mapHeight = "400px";
     private string mapWidth = "100%";

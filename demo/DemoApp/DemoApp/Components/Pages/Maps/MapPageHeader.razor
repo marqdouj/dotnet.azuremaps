@@ -1,12 +1,14 @@
 ﻿<FluentHeader Style="margin-bottom:5px;">
     @Header
     <FluentSpacer Width="10" />
-    <FluentCheckbox @bind-Value="@ShowNarrative">@showHideNarrative</FluentCheckbox>
+    <FluentCheckbox @bind-Value="@showNarrativeInternal">@showHideNarrative</FluentCheckbox>
 </FluentHeader>
 
-<FluentCard Class="@narrativeClass" MinimalStyle="true" Height="auto" Style="margin-bottom:5px;">
+<FluentCard MinimalStyle="true" Height="auto" Style="margin-bottom:5px;">
     <FluentStack Orientation="Orientation.Vertical">
-        @ChildContent
+        <div class="@narrativeClass">
+            @ChildContent
+        </div>
         <FluentStack>
             @{
                 if (!string.IsNullOrWhiteSpace(HRefSource))
@@ -15,15 +17,15 @@
                 }
             }
             @{
-                if (!string.IsNullOrWhiteSpace(HRefExample))
+                if (!string.IsNullOrWhiteSpace(hRefExample))
                 {
-                    <a href="@HRefExample" target="_blank">@HRefExampleLabel</a>
+                    <a href="@hRefExample" target="_blank">@hRefExampleLabel</a>
                 }
             }
             @{
-                if (!string.IsNullOrWhiteSpace(HRefDocs))
+                if (!string.IsNullOrWhiteSpace(hRefDocs))
                 {
-                    <a href="@HRefDocs" target="_blank">@HRefDocsLabel</a>
+                    <a href="@hRefDocs" target="_blank">@HRefDocsLabel</a>
                 }
             }
         </FluentStack>
@@ -37,8 +39,12 @@
 </style>
 
 @code {
-    private string narrativeClass => ShowNarrative ? "" : "hidden";
-    private string showHideNarrative => ShowNarrative ? "Hide Info" : "Show Info";
+    private bool showNarrativeInternal = true;
+    private string narrativeClass => showNarrativeInternal ? "" : "hidden";
+    private string showHideNarrative => showNarrativeInternal ? "Hide Info" : "Show Info";
+    private string? hRefDocs => LayerDef.ToHRefAzureDocs();
+    private string? hRefExample => LayerDef?.ToHRefAddLayerExample();
+    private string hRefExampleLabel => $"{LayerDef?.Type} Layer Example";
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -49,21 +55,23 @@
     [Parameter]
     public string? HRefSource { get; set; }
 
-	[Parameter]
-	public string? HRefSourceLabel { get; set; } = "Page Source";
-
     [Parameter]
-    public string? HRefExample { get; set; }
-
-    [Parameter]
-    public string? HRefExampleLabel { get; set; } = "Example";
-
-    [Parameter]
-    public string? HRefDocs { get; set; }
+    public string? HRefSourceLabel { get; set; } = "Page Source";
 
     [Parameter]
     public string? HRefDocsLabel { get; set; } = "Azure SDK Docs";
 
+    [Parameter, EditorRequired]
+    public MapLayerDef? LayerDef { get; set; }
+
     [Parameter]
-    public bool ShowNarrative { get; set; } = true;
+    public bool? ShowNarrative { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (ShowNarrative.HasValue)
+        {
+            showNarrativeInternal = ShowNarrative.Value;
+        }
+    }
 }
