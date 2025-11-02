@@ -12,7 +12,7 @@
 <PageTitle>Basic Map</PageTitle>
 
 <FluentLayout>
-    <MapPageHeader Header="@header" HRefSource="@hRefSource" HRefExample="@hRefExample" HRefExampleLabel="@hRefExampleLabel">
+    <MapPageHeader Header="@header" LayerDef="@layerDef" HRefSource="@hRefSource">
 		<FluentLabel>
             This example demonstrates the basic Azure Map layers.
 			<br />
@@ -57,10 +57,8 @@
 
 @code {
     private bool overlay;
-    private string hRefExample => layerDef != null ? HRefCodeSource.Examples.CodeUrl($"add{layerDef.Type}Layer.md"): "";
-    private string hRefExampleLabel => layerDef != null ? $"{layerDef.Type} Layer Example" : "";
-    private string hRefSource => HRefCodeSource.DemoApp.CodeUrl($"{nameof(BasicMap)}.razor");
-	private bool isSymbolLayer => layerDef != null && layerDef.Type == MapLayerType.Symbol;
+    private string hRefSource => nameof(BasicMap).ToPageSource(); 
+    private bool isSymbolLayer => layerDef != null && layerDef.Type == MapLayerType.Symbol;
 	private bool isSymbolLayerDisabled => disabled || !isSymbolLayer;
     private readonly string header = "Basic Maps";
     private string mapHeight = "400px";

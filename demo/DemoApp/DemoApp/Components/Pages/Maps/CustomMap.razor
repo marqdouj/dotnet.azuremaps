@@ -8,7 +8,7 @@
 <PageTitle>Custom Map</PageTitle>
 
 <FluentLayout>
-    <MapPageHeader Header="@header" HRefSource="@hRefSource">
+    <MapPageHeader Header="@header" LayerDef="@null" HRefSource="@hRefSource">
         <FluentLabel>
             This example demonstrates how add custom functionality to a basic Azure Map, using the Marqdouj.DotNet.AzureMaps library in a Blazor application.
             <br />
@@ -44,8 +44,8 @@
 </FluentOverlay>
 
 @code {
-	private const string MapId = "customMap"; // This is optional; if not provided, a GUID will be generated.
-    private readonly string hRefSource = HRefCodeSource.DemoApp.CodeUrl("CustomMap.razor");
+    private const string MapId = "customMap"; // This is optional.
+    private string hRefSource => nameof(CustomMap).ToPageSource();
     private readonly string header = "Custom Map (JS Interop)";
     private string mapHeight = "400px";
     private string mapWidth = "100%";
