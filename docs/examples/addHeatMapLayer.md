@@ -8,8 +8,7 @@
             var ds = layerDef.GetDataSource();
             ds.Url = await dataService.GetHeatMapLayerUrl();
 
-            await mapInterop.Map.CreateDatasource(ds);
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, ds);
 
             await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
 

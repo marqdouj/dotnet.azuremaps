@@ -18,8 +18,7 @@
                 };
             }
 
-            await mapInterop.Map.CreateDatasource(layerDef.GetDataSource());
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
 
             var data = await dataService.GetPolygonLayerData();
             var feature = new MapFeatureDef(new Polygon(data))
