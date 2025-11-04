@@ -38,7 +38,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         /// The amount of blur to apply to the line in pixels.
         /// Default '0'.
         /// </summary>
-        public double? Blur { get; set; } = 0;
+        public double? Blur { get; set; }
 
         /// <summary>
         /// Specifies how the ends of the lines are rendered.
@@ -97,13 +97,13 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         /// A negative value offsets to the left.
         /// Default '0'.
         /// </summary>
-        public double? Offset { get; set; } = 0;
+        public double? Offset { get; set; }
 
         /// <summary>
         /// A number between 0 and 1 that indicates the opacity at which the line will be drawn.
         /// Default '1'.
         /// </summary>
-        public double? StrokeOpacity { get; set; } = 1;
+        public double? StrokeOpacity { get; set; }
 
         /// <summary>
         /// The amount of offset in pixels to render the line relative to where it would render normally.

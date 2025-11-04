@@ -25,6 +25,11 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-3.1
+- `Layer Options`. 
+  - Removed the hard-coded default property assignments for nullable properties.
+  This allows the map to assigne the default value if the property was not assigned a value.
+
 ### 10.0.0-rc-3.0
 - `MapInterop`. 
   - Change `ValueTask` to `Task` for JSInterop.

@@ -30,38 +30,38 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         /// The color to fill the circle symbol with.
         /// Default "#1A73AA" (Dark Blue).
         /// </summary>
-        public string? Color { get; set; } = "#1A73AA";
+        public string? Color { get; set; }
 
         /// <summary>
         /// The amount to blur the circles.
         /// A value of 1 blurs the circles such that only the center point if at full opacity.
         /// Default '0'.
         /// </summary>
-        public double? Blur { get; set; } = 0;
+        public double? Blur { get; set; }
 
         /// <summary>
         /// A number between 0 and 1 that indicates the opacity at which the circles will be drawn.
         /// Default '1'.
         /// </summary>
-        public double? Opacity { get; set; } = 1;
+        public double? Opacity { get; set; }
 
         /// <summary>
         /// The color of the circles' outlines.
         /// Default '#FFFFFF'.
         /// </summary>
-        public string? StrokeColor { get; set; } = "#FFFFFF";
+        public string? StrokeColor { get; set; }
 
         /// <summary>
         /// A number between 0 and 1 that indicates the opacity at which the circles' outlines will be drawn.
         /// Default '1'.
         /// </summary>
-        public double? StrokeOpacity { get; set; } = 1;
+        public double? StrokeOpacity { get; set; }
 
         /// <summary>
         /// The width of the circles' outlines in pixels.
         /// Default '2'.
         /// </summary>
-        public double? StrokeWidth { get; set; } = 2;
+        public double? StrokeWidth { get; set; }
 
         /// <summary>
         /// Specifies the orientation of circle when map is pitched.
@@ -81,7 +81,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         /// Must be greater than or equal to 0.
         /// Default '8'.
         /// </summary>
-        public double? Radius { get; set; } = 8;
+        public double? Radius { get; set; }
 
         public object Clone()
         {
