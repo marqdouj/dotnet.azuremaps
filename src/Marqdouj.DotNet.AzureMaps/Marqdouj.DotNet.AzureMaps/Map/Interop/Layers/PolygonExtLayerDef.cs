@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Options;
 using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
@@ -13,6 +14,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         {
             var clone = (PolygonExtLayerDef)MemberwiseClone();
             clone.Options = (PolygonExtLayerOptions?)Options?.Clone();
+            clone.SourceOptions = (DataSourceOptions?)(clone.SourceOptions?.Clone());
 
             return clone;
         }

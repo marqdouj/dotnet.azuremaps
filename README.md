@@ -25,6 +25,10 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-3.3
+- `MapLayerDef`. 
+  - `Clone()`. Included the new SourceOptions as part of the clone method.
+
 ### 10.0.0-rc-3.2
 - `MapInterop`. 
   - `MapLayerDef`. Added new `SourceOptions` property.

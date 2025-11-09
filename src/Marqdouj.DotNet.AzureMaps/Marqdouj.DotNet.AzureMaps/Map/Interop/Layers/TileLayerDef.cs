@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,6 +15,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         {
             var clone = (TileLayerDef)MemberwiseClone();
             clone.Options = (TileLayerOptions?)Options?.Clone();
+            clone.SourceOptions = (DataSourceOptions?)(clone.SourceOptions?.Clone());
 
             return clone;
         }
