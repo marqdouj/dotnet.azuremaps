@@ -90,6 +90,16 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop.Layers
         /// </summary>
         public string? Before { get; set; }
 
-        public DataSourceDef GetDataSource(DataSourceOptions? options = null) => new(this, options);
+        /// <summary>
+        /// Gets or sets the configuration options for the data source.
+        /// </summary>
+        public DataSourceOptions? SourceOptions { get; set; }
+
+        /// <summary>
+        /// Creates a new data source definition using the specified options or the default source options.
+        /// </summary>
+        /// <param name="options">The options to configure the data source. If null, the default source options are used.</param>
+        /// <returns>A <see cref="DataSourceDef"/> instance representing the configured data source.</returns>
+        public DataSourceDef GetDataSource(DataSourceOptions? options = null) => new(this, options ?? SourceOptions);
     }
 }

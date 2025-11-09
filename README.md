@@ -25,6 +25,13 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.0.0-rc-3.2
+- `MapInterop`. 
+  - `MapLayerDef`. Added new `SourceOptions` property.
+    - `GetDataSource(options)`. If the options are not provided the SourceOptions will be used.
+  - `CraateLayer(layerDef, dataSourceDef)`. If dataSourceDef is not provided, the layerDef.GetDataSource() method will be used.
+    This simplifies CreateLayer(layerDef, layerDef.GetDataSource()) to just CreateLayer(layerDef).
+
 ### 10.0.0-rc-3.1
 - `Layer Options`. 
   - Removed the hard-coded default property assignments for nullable properties.
