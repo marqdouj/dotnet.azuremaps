@@ -14,7 +14,7 @@
                 layerDef.Options!.IconOptions!.Image = IconImage.Pin_Red;
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetSymbolLayerData();
 

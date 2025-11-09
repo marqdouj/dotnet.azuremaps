@@ -21,7 +21,7 @@
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetLineLayerData();
             var feature = new MapFeatureDef(new LineString(data))

@@ -47,7 +47,7 @@ namespace Sandbox.Components.Pages.Maps
 
             layerDef.Options.TileUrl = await dataService.GetTileLayerUrl();
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 10.75);
 
@@ -67,7 +67,7 @@ namespace Sandbox.Components.Pages.Maps
                 layerDef.Options!.IconOptions!.Image = IconImage.Pin_Red;
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetSymbolLayerData();
 
@@ -108,7 +108,7 @@ namespace Sandbox.Components.Pages.Maps
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetPolygonExtLayerData();
             var feature = new MapFeatureDef(new Polygon(data))
@@ -148,7 +148,7 @@ namespace Sandbox.Components.Pages.Maps
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetPolygonLayerData();
             var feature = new MapFeatureDef(new Polygon(data))
@@ -187,7 +187,7 @@ namespace Sandbox.Components.Pages.Maps
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetLineLayerData();
             var feature = new MapFeatureDef(new LineString(data))
@@ -216,7 +216,7 @@ namespace Sandbox.Components.Pages.Maps
                 Coordinates = data.Coordinates,
             };
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
 
@@ -246,7 +246,7 @@ namespace Sandbox.Components.Pages.Maps
                 layerDef.Options = options;
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetBubbleLayerData();
             MapFeatureDef featureDef = new(new MultiPoint(data))

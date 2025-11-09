@@ -10,7 +10,7 @@
                 layerDef.Options = options;
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             var data = await dataService.GetBubbleLayerData();
             MapFeatureDef featureDef = new(new MultiPoint(data))

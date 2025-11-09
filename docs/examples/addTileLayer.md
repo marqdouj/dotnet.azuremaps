@@ -22,7 +22,7 @@
 
             layerDef.Options.TileUrl = await dataService.GetTileLayerUrl();
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef));
 
             await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 10.75);
 

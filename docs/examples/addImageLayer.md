@@ -12,7 +12,7 @@
                 Coordinates = data.Coordinates,
             };
 
-            await mapInterop.Layers.CreateLayer(layerDef, layerDef.GetDataSource());
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
 
