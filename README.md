@@ -21,5 +21,12 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.1.0
+- `MapConfiguration`.
+  - `AddMarqdoujAzureMaps()`. Added `addValidation` parameter. 
+    - If true and map validation fails then startup will fail.
+    - If false (default) then all validation will be in the component; 
+      which will display a message instead of the map if validation fails.
+
 ### 10.0.0
 - Initial release.
