@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Marqdouj.DotNet.AzureMaps" Version="10.0.0" />
+    <PackageReference Include="Marqdouj.DotNet.AzureMaps" Version="10.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
   </ItemGroup>
 
