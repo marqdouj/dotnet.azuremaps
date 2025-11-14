@@ -4,13 +4,13 @@
 A Blazor implementation of the Azure Maps Web SDK. 
 It provides a set of components and services to easily integrate Azure Maps into Blazor applications.
 The component is configured to allow for multiple Azure maps on the same page.
+
 ## Prerequisites
 - [Azure Maps account](https://learn.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app#create-an-azure-maps-account).
 If you don't have an azure account, you can create a [free account](https://azure.microsoft.com).
 
-## Demo App
-For now, the [`DemoApp`](https://github.com/marqdouj/dotnet.azuremaps/tree/master/demo/DemoApp) is here.
-In the near future, it will be moved to my other `DotNet` packages demo; which can be found [here](https://github.com/marqdouj/dotnet.demo).
+## Demo
+A demo of this, and other of my `DotNet` packages, can be found [here](https://github.com/marqdouj/dotnet.demo).
 
 ## Customization (JS Interop)
 If there is some functionality not yet supported or you need to customize existing support
