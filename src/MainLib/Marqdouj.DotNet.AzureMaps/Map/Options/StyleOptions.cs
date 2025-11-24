@@ -64,6 +64,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Options
         /// <summary>
         /// The list of layer groups to be loaded at the initial stage. Passing an empty array will disable the progressive loading.
         /// This option may only be set when initializing the map.
+        /// Default `['base']`
         /// </summary>
         public StringOptions? ProgressiveLoadingInitialLayerGroups { get; set; }
 
