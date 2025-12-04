@@ -1,8 +1,7 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
 using Marqdouj.DotNet.AzureMaps.Map.Interop;
-using Marqdouj.DotNet.AzureMaps.Map.Interop.Features;
-using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
+using Marqdouj.DotNet.AzureMaps.Map.Layers;
 using Marqdouj.DotNet.Web.Components.Css;
 using Sandbox.Services;
 
@@ -82,7 +81,7 @@ namespace Sandbox.Components.Pages.Maps
                         { "demo", true },
                     }
                 };
-                await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
+                await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
             }
             
             await mapInterop.Configuration.ZoomTo(data[0], 11);
@@ -121,7 +120,7 @@ namespace Sandbox.Components.Pages.Maps
                 AsShape = true
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
             await mapInterop.Configuration.ZoomTo(data[0][0], 11);
 
             var camera = await mapInterop.Configuration.GetCamera();
@@ -161,7 +160,7 @@ namespace Sandbox.Components.Pages.Maps
                 AsShape = true
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
             await mapInterop.Configuration.ZoomTo(data[0][0], 11);
 
             return layerDef;
@@ -199,7 +198,7 @@ namespace Sandbox.Components.Pages.Maps
                 }
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.SourceId);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
             await mapInterop.Configuration.ZoomTo(data[0], 10);
 
             return layerDef;
@@ -227,10 +226,9 @@ namespace Sandbox.Components.Pages.Maps
         {
             var layerDef = new HeatMapLayerDef();
 
-            var ds = layerDef.GetDataSource();
-            ds.Url = await dataService.GetHeatMapLayerUrl();
+            layerDef.DataSource.Url = await dataService.GetHeatMapLayerUrl();
 
-            await mapInterop.Layers.CreateLayer(layerDef, ds);
+            await mapInterop.Layers.CreateLayer(layerDef);
 
             await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
 
@@ -257,7 +255,7 @@ namespace Sandbox.Components.Pages.Maps
                         { "demo", true },
                     }
             };
-            await mapInterop.Layers.AddMapFeature(featureDef, layerDef.SourceId);
+            await mapInterop.Layers.AddMapFeature(featureDef, layerDef.DataSource.Id);
             await mapInterop.Configuration.ZoomTo(data[0], 11);
 
             return layerDef;

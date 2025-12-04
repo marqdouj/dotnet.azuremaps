@@ -1,5 +1,6 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
-using Marqdouj.DotNet.AzureMaps.Map.Options;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
+using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
+using System.Runtime.CompilerServices;
 
 namespace Marqdouj.DotNet.AzureMaps.Map
 {
@@ -7,8 +8,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map
     {
         internal const string LIBRARY_NAME = "marqdoujAzureMaps";
 
+        internal static string GetMapInteropMethod(string module, [CallerMemberName] string name = "")
+            => $"{MapExtensions.LIBRARY_NAME}.MapInterop.{module}.{name.ToJsonName()}";
+
         /// <summary>
-        /// Generates a valid Css Id using a new Guid.
+        /// Generates a valid Css Id using a Guid.
         /// </summary>
         /// <returns></returns>
         internal static string GetRandomCssId()
@@ -17,20 +21,25 @@ namespace Marqdouj.DotNet.AzureMaps.Map
         }
 
         /// <summary>
-        /// Merges the default (Configuration) options with the user (Parameter) options
+        /// first char must be lowercase
         /// </summary>
-        internal static MapOptions Merge(this MapConfiguration config, MapOptions? user)
+        internal static string ToJsonName(this string name)
         {
-            var options = new MapOptions
-            {
-                Camera = user?.Camera ?? config.Options?.Camera,
-                Service = user?.Service ?? config.Options?.Service,
-                Style = user?.Style ?? config.Options?.Style,
-                UserInteraction = user?.UserInteraction ?? config.Options?.UserInteraction
-            };
-
-            return options;
+            var firstChar = name[0].ToString().ToLower();
+            var remainder = name.Substring(1);
+            return $"{firstChar}{remainder}";
         }
+
+        /// <summary>
+        /// first char must be lowercase
+        /// </summary>
+        internal static string ToJsonName<T>(this T value) where T : Enum
+        {
+            return ToJsonName(value.ToString());
+        }
+
+        internal static List<object>? ToJson(this IEnumerable<MapControl>? controls)
+            => controls?.Select(e => (object)e).ToList();
 
         internal static void EnsureCount(this List<double> items, int min, int? max = null, double addDefault = 0)
         {
@@ -76,6 +85,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map
             return value?.ToString().ToLower().Replace("_", "-");
         }
 
+        public static List<string> EnumToJson<T>(this IEnumerable<T>? items) where T : Enum
+            => items?.Select(e => e.EnumToJson()).Distinct().OrderBy(e => e).ToList() ?? [];
+
         public static T JsonToEnum<T>(this string? value, T defaultValue = default!) where T : Enum
         {
             value = value?.Replace("-", "_");
@@ -88,32 +100,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map
             return Enum.TryParse(typeof(T), value, true, out var result) ? (T)result : defaultValue;
         }
 
-        public static List<string> EnumToJson<T>(this IEnumerable<T>? items) where T : Enum
-            => items?.Select(e => e.EnumToJson()).Distinct().OrderBy(e => e).ToList() ?? [];
-
         public static List<T> JsonToEnum<T>(this IEnumerable<string>? items) where T : Enum
         {
             var toProcess = items?.Where(e => !string.IsNullOrWhiteSpace(e)).Distinct().ToList();
             var values = toProcess?.Select(e => e.JsonToEnum<T>()).ToList() ?? [];
             return [.. values.Select(e => e)];
-        }
-
-        /// <summary>
-        /// first char must be lowercase
-        /// </summary>
-        internal static string ToJsonName(this string name)
-        {
-            var firstChar = name[0].ToString().ToLower();
-            var remainder = name.Substring(1);
-            return $"{firstChar}{remainder}";
-        }
-
-        /// <summary>
-        /// first char must be lowercase
-        /// </summary>
-        internal static string ToJsonName<T>(this T value) where T : Enum
-        {
-            return ToJsonName(value.ToString());
         }
     }
 }

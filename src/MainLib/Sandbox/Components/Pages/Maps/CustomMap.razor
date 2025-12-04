@@ -1,5 +1,4 @@
 ﻿@page "/map-custom"
-@using Sandbox.AzureMaps
 @rendermode InteractiveServer
 @implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
@@ -29,13 +28,9 @@
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ClearFormatting())" Title="Remove Controls" OnClick="@RemoveControls" />
     </FluentToolbar>
 
-    <FluentStack Orientation="Orientation.Vertical">
-        <AzureMap Id="@MapId"
-                  Height="@mapHeight"
-                  Width="@mapWidth"
-                  OnMapEventReady="@OnMapEventReady"
-                  Options="@options" />
-    </FluentStack>
+    <AzureMap Id="@MapId"
+              OnMapEventReady="@OnMapEventReady"
+              Options="@MapHelpers.GetDefaultCreateMapOptions()" />
 </FluentLayout>
 
 <FluentOverlay @bind-Visible="@overlay"
@@ -47,13 +42,11 @@
 	private const string MapId = "customMap"; // This is optional; if not provided, a GUID will be generated.
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("CustomMap.razor");
     private readonly string header = "Custom Map (JS Interop)";
-    private string mapHeight = "400px";
-    private string mapWidth = "100%";
     private bool overlay;
     private bool disabled => overlay || mapInterop == null;
-    private MapOptions? options = MapHelpers.GetDefaultMapOptions();
     private MapInterop? mapInterop;
     private SandboxMaps? sandboxMaps;
+    private readonly MapOptionsSet options = MapHelpers.GetDefaultSetMapOptions();
 
     protected override void OnInitialized()
     {
@@ -78,7 +71,7 @@
     {
         try
         {
-            await mapInterop!.Configuration.SetMapOptions(options!);
+            await mapInterop!.Configuration.SetMapOptions(options);
             _= await sandboxMaps!.RemoveControls(mapInterop.MapId);
         }
         catch (Exception ex)

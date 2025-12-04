@@ -1,28 +1,24 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
+using System.Runtime.CompilerServices;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Interop
 {
+    internal enum MapInteropModule
+    {
+        Configuration,
+        Layers,
+        Maps
+    }
+
     public class MapInterop(IJSRuntime jsRuntime, string mapId)
     {
         public string MapId { get; } = mapId;
 
-        public MapInteropLayers Layers { get; } = new MapInteropLayers(jsRuntime, mapId);
-        public MapInteropMap Map { get; } = new MapInteropMap(jsRuntime, mapId);
         public MapInteropConfiguration Configuration { get; } = new MapInteropConfiguration(jsRuntime, mapId);
+        public MapInteropLayers Layers { get; } = new MapInteropLayers(jsRuntime, mapId);
+        public MapInteropMaps Map { get; } = new MapInteropMaps(jsRuntime, mapId);
 
-        /// <summary>
-        /// Removes a layer and its associated datasource from the map.
-        /// </summary>
-        /// <param name="layerDef"></param>
-        /// <returns></returns>
-        public async Task RemoveLayer(MapLayerDef layerDef)
-        {
-            if (!string.IsNullOrWhiteSpace(layerDef.Id))
-                await Layers.RemoveLayer(layerDef.Id);
-
-            if (!string.IsNullOrWhiteSpace(layerDef.SourceId))
-                await Map.RemoveDatasource(layerDef.SourceId);
-        }
+        internal static string GetMapInteropMethod(MapInteropModule module, [CallerMemberName] string name = "")
+            => $"{MapExtensions.LIBRARY_NAME}.{module}.{name.ToJsonName()}";
     }
 }

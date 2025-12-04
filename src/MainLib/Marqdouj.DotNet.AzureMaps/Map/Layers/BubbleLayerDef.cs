@@ -1,0 +1,92 @@
+﻿using System.Text.Json.Serialization;
+
+namespace Marqdouj.DotNet.AzureMaps.Map.Layers
+{
+    public class BubbleLayerDef : MapLayerDef, ICloneable
+    {
+        [JsonIgnore]
+        public override MapLayerType LayerType => MapLayerType.Bubble;
+
+        public BubbleLayerOptions? Options { get; set; } = new();
+
+        public object Clone()
+        {
+            var clone = (BubbleLayerDef)MemberwiseClone();
+            clone.Options = (BubbleLayerOptions?)Options?.Clone();
+            clone.DataSource = (DataSourceDef)(clone.DataSource.Clone());
+
+            return clone;
+        }
+    }
+
+    public enum BubbleLayerPitchAlignment
+    {
+        Viewport,
+        Map,
+    }
+
+    public class BubbleLayerOptions : SourceLayerOptions, ICloneable
+    {
+        /// <summary>
+        /// The color to fill the circle symbol with.
+        /// Default "#1A73AA" (Dark Blue).
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// The amount to blur the circles.
+        /// A value of 1 blurs the circles such that only the center point if at full opacity.
+        /// Default '0'.
+        /// </summary>
+        public double? Blur { get; set; }
+
+        /// <summary>
+        /// A number between 0 and 1 that indicates the opacity at which the circles will be drawn.
+        /// Default '1'.
+        /// </summary>
+        public double? Opacity { get; set; }
+
+        /// <summary>
+        /// The color of the circles' outlines.
+        /// Default '#FFFFFF'.
+        /// </summary>
+        public string? StrokeColor { get; set; }
+
+        /// <summary>
+        /// A number between 0 and 1 that indicates the opacity at which the circles' outlines will be drawn.
+        /// Default '1'.
+        /// </summary>
+        public double? StrokeOpacity { get; set; }
+
+        /// <summary>
+        /// The width of the circles' outlines in pixels.
+        /// Default '2'.
+        /// </summary>
+        public double? StrokeWidth { get; set; }
+
+        /// <summary>
+        /// Specifies the orientation of circle when map is pitched.
+        /// "map": The circle is aligned to the plane of the map.
+        /// "viewport": The circle is aligned to the plane of the viewport.
+        /// Default 'viewport'
+        /// </summary>
+        [JsonIgnore]
+        public BubbleLayerPitchAlignment? PitchAlignment { get; set; }
+
+        [JsonInclude]
+        [JsonPropertyName("pitchAlignment")]
+        internal string? PitchAlignmentJs { get => PitchAlignment.EnumToJsonN(); set => PitchAlignment = value.JsonToEnumN<BubbleLayerPitchAlignment>(); }
+
+        /// <summary>
+        /// The radius of the circle symbols in pixels.
+        /// Must be greater than or equal to 0.
+        /// Default '8'.
+        /// </summary>
+        public double? Radius { get; set; }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+    }
+}

@@ -24,7 +24,7 @@
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
         <FluentSpacer Width="8"/>
         @{
-            foreach (var layerType in Enum.GetValues<MapLayerType>())
+            foreach (var layerType in Enum.GetValues<MapLayerType>().Where(e => e != MapLayerType.Unknown))
             {
                 <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.Map())" Title="@(layerType.ToString())" OnClick="@(() => AddMapLayer(layerType))">
                     @layerType.ToString()
@@ -33,11 +33,10 @@
         }
     </FluentToolbar>
 
-    <AzureMap Height="@mapHeight"
-              Width="@mapWidth"
-              Controls="@MapHelpers.GetDefaultControls()"
+    <AzureMap OnCreateMapError="@OnCreatMapError"
               OnMapEventReady="@OnMapEventReady"
-              Options="@options" />
+              Controls="@MapHelpers.GetDefaultControls()"
+              Options="@MapHelpers.GetDefaultCreateMapOptions()" />
 </FluentLayout>
 
 <FluentOverlay @bind-Visible="@overlay"
@@ -46,15 +45,19 @@
 </FluentOverlay>
 
 @code {
-    private bool overlay;
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("BasicMap.razor");
     private readonly string header = "Basic Map";
-    private string mapHeight = "400px";
-    private string mapWidth = "100%";
-    private MapOptions? options = MapHelpers.GetDefaultMapOptions();
+    private readonly MapOptionsSet options = MapHelpers.GetDefaultSetMapOptions();
     private MapInterop? mapInterop;
+    private bool overlay;
     private bool disabled => overlay || mapInterop == null;
     private MapLayerDef? layerDef;
+    private readonly EnumList<MapEventType> events = new();
+
+    private async Task OnCreatMapError(Exception ex)
+    {
+        ToastService.Error($"Error creating the map: {ex.Message}");
+    }
 
     private async Task OnMapEventReady(MapEventArgs e)
     {
@@ -102,11 +105,11 @@
 
             if (layerDef != null)
             {
-                await mapInterop.RemoveLayer(layerDef);
+                await mapInterop.Layers.RemoveLayer(layerDef);
                 layerDef = null;
             }
 
-            await mapInterop.Configuration.SetMapOptions(options!);
+            await mapInterop.Configuration.SetMapOptions(options);
         }
         catch (Exception ex)
         {

@@ -1,5 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
-using Marqdouj.DotNet.AzureMaps.Map.Interop.Layers;
+using Marqdouj.DotNet.AzureMaps.Map.Layers;
 
 namespace Sandbox.Services
 {

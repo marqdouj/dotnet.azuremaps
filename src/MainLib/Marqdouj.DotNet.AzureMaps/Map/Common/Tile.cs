@@ -35,6 +35,13 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Common
         Expired
     }
 
+    public class TileId
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+    }
+
     /// <summary>
     /// Tile object returned by the map when a source data event occurs.
     /// </summary>

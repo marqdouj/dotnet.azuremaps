@@ -1,4 +1,4 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Options;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Configuration;
 using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Controls

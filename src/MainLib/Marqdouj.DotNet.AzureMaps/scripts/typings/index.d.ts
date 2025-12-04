@@ -1,49 +1,5 @@
 import * as atlas from "azure-maps-control";
-
-type DataSourceDef = {
-    id: string;
-    url: string;
-    options?: atlas.DataSourceOptions;
-}
-
-type TMapFeature = {
-    id?: string | number;
-    geometry: any;
-    bbox?: atlas.data.BoundingBox;
-    properties?: TProperties;
-    asShape: boolean;
-}
-type TProperties = { [key: string]: any };
-type TOptions = atlas.ServiceOptions & atlas.StyleOptions & atlas.UserInteractionOptions & (atlas.CameraOptions | atlas.CameraBoundsOptions);
-type TControlOptions = atlas.CompassControlOptions
-    & atlas.FullscreenControlOptions
-    & atlas.PitchControlOptions
-    & atlas.ScaleControlOptions
-    & atlas.StyleControlOptions
-    & atlas.ZoomControlOptions;
-
-interface MapOptions {
-    camera?: atlas.CameraOptions | atlas.CameraBoundsOptions,
-    cameraBounds?: atlas.CameraBoundsOptions;
-    service?: atlas.ServiceOptions;
-    style?: atlas.StyleOptions;
-    userInteraction?: atlas.UserInteractionOptions;
-}
-
-interface MapControl {
-    type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'zoom';
-    id: string;
-    interopId: string;
-    position: atlas.ControlPosition;
-    options: TControlOptions;
-    controlOptions: atlas.ControlOptions;
-}
-
-interface SetCameraOptions {
-    animation: atlas.AnimationOptions;
-    camera?: atlas.CameraOptions;
-    cameraBounds?: (atlas.CameraBoundsOptions & { pitch?: number, bearing?: number });
-}
+import { Logger } from "../common"
 
 interface MapLayerDef {
     type: 'Bubble' | 'HeatMap' | 'Image' | 'Line' | 'Polygon' | 'PolygonExtrusion' | 'Symbol' | 'Tile';
@@ -60,4 +16,65 @@ interface MapLayerDef {
     atlas.SymbolLayerOptions |
     atlas.TileLayerOptions |
     atlas.WebGLLayerOptions;
+}
+
+type DataSourceDef = {
+    id: string;
+    url: string;
+    options?: atlas.DataSourceOptions;
+}
+
+interface MapControl {
+    type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'zoom';
+    id: string;
+    interopId: string;
+    position: atlas.ControlPosition;
+    options: atlas.CompassControlOptions
+    | atlas.FullscreenControlOptions
+    | atlas.PitchControlOptions
+    | atlas.ScaleControlOptions
+    | atlas.StyleControlOptions
+    | atlas.ZoomControlOptions;
+    controlOptions: atlas.ControlOptions;
+}
+
+interface MapOptions {
+    camera?: atlas.CameraOptions;
+    cameraBounds?: atlas.CameraBoundsOptions;
+    service?: atlas.ServiceOptions;
+    style?: atlas.StyleOptions;
+    userInteraction?: atlas.UserInteractionOptions;
+}
+
+interface MapSettings {
+    authOptions: atlas.AuthenticationOptions;
+    options?: MapOptions;
+    logLevel?: Logger.LogLevel;
+    inDevelopment?: boolean;
+}
+
+type TMapOptions = atlas.ServiceOptions & atlas.StyleOptions & atlas.UserInteractionOptions & (atlas.CameraOptions | atlas.CameraBoundsOptions);
+type TCameraOptionsSet = (atlas.CameraOptions | (atlas.CameraBoundsOptions & { pitch?: number, bearing?: number })) & atlas.AnimationOptions;
+
+interface CameraOptionsSet {
+    camera?: atlas.CameraOptions;
+    cameraBounds?: atlas.CameraBoundsOptions & { pitch?: number, bearing?: number };
+    animation?: atlas.AnimationOptions;
+}
+
+interface MapOptionsSet {
+    camera?: CameraOptionsSet;
+    service?: atlas.ServiceOptions;
+    style?: atlas.StyleOptions;
+    userInteraction?: atlas.UserInteractionOptions;
+}
+
+type TProperties = { [key: string]: any };
+
+type TMapFeature = {
+    id?: string;
+    geometry: any;
+    bbox?: atlas.data.BoundingBox;
+    properties?: TProperties;
+    asShape: boolean;
 }

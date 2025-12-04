@@ -1,65 +1,74 @@
 import * as atlas from "azure-maps-control";
+import { Logger } from "../common"
 import { MapEvents } from "./events"
-import { MapOptions, TOptions, MapControl } from "../typings"
-import { MapInterop } from "../map-interop";
+import { MapControl, MapSettings, MapOptions, TMapOptions } from "../typings"
+import { Maps } from "../map-interop/maps";
 
 export class MapFactory {
     static #azmaps: Map<string, atlas.Map> = new Map<string, atlas.Map>();
     static getAuthTokenCallback: atlas.getAuthTokenCallback;
 
-    static addMap(
+    static createMap(
         dotNetRef: any,
         mapId: string,
-        authOptions: atlas.AuthenticationOptions,
-        mapOptions: MapOptions,
-        events: string[],
+        settings: MapSettings,
+        events?: string[],
         controls?: MapControl[]): void {
 
-        const header = this.#logHeader(mapId);
+        Logger.currentLevel = settings.logLevel ?? Logger.LogLevel.Information;
 
         if (this.#azmaps.has(mapId)) {
-            console.warn(`${header} already exists.`);
+            Logger.logMessage(mapId, Logger.LogLevel.Warn, "Map already exists.");
             return;
         }
 
-        const options = this.#buildMapOptions(authOptions, mapOptions);
+        if (settings.inDevelopment)
+            Logger.logMessage(mapId, Logger.LogLevel.Trace, 'Settings-MapOptions:', settings.options);
+
+        const options = this.#buildMapOptions(settings.authOptions, settings.options);
         const azmap = new atlas.Map(mapId, options);
-
         this.#azmaps.set(mapId, azmap);
-        console.debug(`${header} was added.`);
+        Logger.logMessage(mapId, Logger.LogLevel.Debug, "was created.");
 
-        this.#buildEvents(dotNetRef, mapId, events, controls);
+        if (controls) {
+            Maps.addControls(mapId, controls);
+        }
+
+        this.#buildEvents(dotNetRef, mapId, events);
     }
 
     static getMap(mapId: string): atlas.Map | undefined {
         const map = this.#azmaps.get(mapId);
-        const header = this.#logHeader(mapId);
 
         if (!map) {
-            console.warn(`${header} was not found.`);
+            Logger.logMessage(mapId, Logger.LogLevel.Debug, "was not found.");
         }
+
         return map;
     }
 
     static removeMap(mapId: string): void {
-        const removed = this.#azmaps.delete(mapId);
-        const header = this.#logHeader(mapId);
-
-        if (removed) {
-            console.debug(`${header} was removed.`);
+        if (this.#azmaps.delete(mapId)) {
+            Logger.logMessage(mapId, Logger.LogLevel.Debug, "was removed");
         }
     }
 
-    static #buildMapOptions(authOptions: atlas.AuthenticationOptions, mapOptions?: MapOptions): TOptions {
-        let options: TOptions = {};
+    static #buildMapOptions(authOptions: atlas.AuthenticationOptions, mapOptions?: MapOptions): TMapOptions {
+        let options: TMapOptions = {};
 
         if (mapOptions) {
-            if (mapOptions.service) {
-                options = { ...mapOptions.service };
-            }
+            //Camera and CameraBounds are mutually exclusive
             if (mapOptions.camera) {
                 options = { ...options, ...mapOptions.camera };
             }
+            else if (mapOptions.cameraBounds) {
+                options = { ...options, ...mapOptions.cameraBounds };
+            }
+
+            if (mapOptions.service) {
+                options = { ...options, ...mapOptions.service };
+            }
+
             if (mapOptions.style) {
                 options = { ...options, ...mapOptions.style };
             }
@@ -74,25 +83,30 @@ export class MapFactory {
         return options;
     }
 
-    static #buildEvents(dotNetRef: any, mapId: string, events: string[], controls?: MapControl[]): void {
+    static #buildEvents(dotNetRef: any, mapId: string, events: string[]): void {
         const azmap = this.getMap(mapId);
-        const header = this.#logHeader(mapId);
+
+        if (!azmap) {
+            Logger.logMessage(mapId, Logger.LogLevel.Error, "Cannot build events. Map not found.");
+            return;
+        }
 
         events ??= [];
 
         azmap.events.addOnce('ready', event => {
             //MapEventError
-            if (events.includes('error')) {
-                azmap.events.add('error', event => {
-                    console.error(`${header} error:`, event.error);
+            azmap.events.add('error', event => {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, `Map error: ${event.error.message}`, event.error);
+
+                if (events.includes('error')) {
                     dotNetRef.invokeMethodAsync(MapEvents.EventNotifications.NotifyMapEventError,
                         {
                             mapId: mapId,
                             type: 'error',
                             payload: { message: event.error.message, name: event.error.name, stack: event.error.stack, cause: event.error.cause }
                         });
-                });
-            }
+                }
+            });
 
             //MapEventGeneral
             Object.values(MapEvents.MapEventGeneral).filter(value => events.includes(value)).forEach((value) => {
@@ -161,7 +175,7 @@ export class MapFactory {
                         });
 
                         if (mouseEvent.shapes.length != shapes.length) {
-                            console.warn(`${header} MouseEvent. Event shapes count [${mouseEvent.shapes.length}] and processed shapes count [${shapes.length}] does not match.`);
+                            Logger.logMessage(mapId, Logger.LogLevel.Warn, `MouseEvent. Event shapes count [${mouseEvent.shapes.length}] and processed shapes count [${shapes.length}] does not match.`);
                         }
 
                         let result = {
@@ -177,7 +191,7 @@ export class MapFactory {
 
                         dotNetRef.invokeMethodAsync(MapEvents.EventNotifications.NotifyMapEventMouse, result);
                     } catch (e) {
-                        console.error(`Error processing mouse event for ${header}:`, e);
+                        Logger.logMessage(mapId, Logger.LogLevel.Error, `Error processing mouse event: ${e}`);
                     }
                 });
             });
@@ -207,7 +221,7 @@ export class MapFactory {
                             style: style
                         }
                     };
-                    dotNetRef.invokeMethodAsync(MapEvents.EventNotifications.NotifyMapEventStyle, result );
+                    dotNetRef.invokeMethodAsync(MapEvents.EventNotifications.NotifyMapEventStyle, result);
                 });
             });
 
@@ -264,16 +278,8 @@ export class MapFactory {
                 });
             });
 
-            if (controls) {
-                MapInterop.Map.addControls(mapId, controls);
-            }
-
             dotNetRef.invokeMethodAsync(MapEvents.EventNotifications.NotifyMapEventReady, { mapId: mapId, type: 'ready' });
         });
-    }
-
-    static #logHeader(mapId: string): string {
-        return `Map with ID '${mapId}'`;
     }
 
     static #isFeature(obj: any): obj is atlas.data.Feature<atlas.data.Geometry, any> {

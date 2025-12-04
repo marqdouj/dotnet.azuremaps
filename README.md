@@ -21,6 +21,13 @@ An example of one of the methods to do this is in the demo.
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
 ## Release Notes
+### 10.2.0 (Breaking Changes)
+- Major refactor to update/streamline JSInterop with the Azure Maps SDK.
+- Some namespaces, classes, and methods have been renamed or moved.
+  - Most changes are backward compatible, but some breaking changes exist.
+  - The most significant change is the default height and width of the map component is now 100% of its container.
+    - You may need to adjust your CSS or container elements to ensure the map displays correctly.
+
 ### 10.1.0
 - `MapConfiguration`.
   - `AddMarqdoujAzureMaps()`. Added `addValidation` parameter. 

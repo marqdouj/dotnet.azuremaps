@@ -1,5 +1,5 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
-using Marqdouj.DotNet.AzureMaps.Map.Controls;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
+using Marqdouj.DotNet.AzureMaps.Map.Layers;
 using Microsoft.JSInterop;
 using System.Runtime.CompilerServices;
 

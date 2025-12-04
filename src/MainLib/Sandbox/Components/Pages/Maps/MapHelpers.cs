@@ -1,6 +1,6 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Configuration;
+using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
-using Marqdouj.DotNet.AzureMaps.Map.Options;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace Sandbox.Components.Pages.Maps
@@ -24,7 +24,7 @@ namespace Sandbox.Components.Pages.Maps
             return parameters;
         }
 
-        public static MapOptions GetDefaultMapOptions()
+        public static MapOptions GetDefaultCreateMapOptions()
         {
             // Initialize map options with a specific camera position
             return new MapOptions
@@ -34,11 +34,24 @@ namespace Sandbox.Components.Pages.Maps
                     Center = new Position(-122.33, 47.6), // (Seattle, WA)
                     Zoom = 10.5,
                     Pitch = 0,
-                },
-                Style = new StyleOptions
+                }
+            };
+        }
+
+        public static MapOptionsSet GetDefaultSetMapOptions()
+        {
+            // Initialize map options with a specific camera position
+            return new MapOptionsSet
+            {
+                Camera = new CameraOptionsSet
                 {
-                    Style = MapStyle.Road,
-                },
+                    Camera = new CameraOptions
+                    {
+                        Center = new Position(-122.33, 47.6), // (Seattle, WA)
+                        Zoom = 10.5,
+                        Pitch = 0,
+                    },
+                }
             };
         }
 

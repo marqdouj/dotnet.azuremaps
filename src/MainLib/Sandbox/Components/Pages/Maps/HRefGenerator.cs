@@ -22,7 +22,7 @@
                     url = "https://github.com/marqdouj/dotnet.azuremaps/blob/master/src/Marqdouj.DotNet.AzureMaps/Marqdouj.DotNet.AzureMaps";
                     break;
                 case HRefCodeSource.Sandbox:
-                    url = "https://github.com/marqdouj/dotnet.azuremaps/blob/master/demo/Sandbox/Sandbox/Components/Pages/Maps";
+                    url = "https://github.com/marqdouj/dotnet.azuremaps/blob/master/src/MainLib/Sandbox/Components/Pages/Maps";
                     break;
                 default:
                     throw new NotImplementedException();

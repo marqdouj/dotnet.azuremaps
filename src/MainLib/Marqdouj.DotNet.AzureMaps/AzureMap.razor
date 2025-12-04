@@ -1,13 +1,6 @@
-﻿@using Marqdouj.DotNet.AzureMaps.Map
-@using Marqdouj.DotNet.AzureMaps.Map.Controls
-@using Marqdouj.DotNet.AzureMaps.Map.Events
-@using Marqdouj.DotNet.AzureMaps.Map.Options
-@using Microsoft.Extensions.Logging
-@using Microsoft.Extensions.Options
-@using Microsoft.JSInterop
-@implements IAsyncDisposable
+﻿@implements IAsyncDisposable
 @inject IJSRuntime JSRuntime
-@inject IOptions<MapConfiguration> Configuration
+@inject IOptions<MapConfiguration> Settings
 @inject ILogger<AzureMap> Logger
 
 <div id="@Id" class="@Class" style="@divStyle">
@@ -19,21 +12,20 @@
 </div>
 
 @code {
-    private MapConfiguration config => Configuration.Value;
-    private bool hasInvalidMessage => !string.IsNullOrWhiteSpace(validateMessage) || !string.IsNullOrWhiteSpace(issuesMessage);
-    private string? validateMessage => config.IsValid ? "" : $"Invalid configuration for map: {config.ValidationMessage}";
-    private string? issuesMessage;
     private string? divStyle => $"height:{divHeight};width:{divWidth};{Style}";
-    private string divHeight => string.IsNullOrWhiteSpace(Height) ? "300px" : Height;
-    private string divWidth => string.IsNullOrWhiteSpace(Width) ? "300px" : Width;
-
+    private string divHeight => string.IsNullOrWhiteSpace(Height) ? "100%" : Height;
+    private string divWidth => string.IsNullOrWhiteSpace(Width) ? "100%" : Width;
+    private MapConfiguration settings => Settings.Value;
+    private bool hasInvalidMessage => !string.IsNullOrWhiteSpace(validateMessage) || !string.IsNullOrWhiteSpace(issuesMessage);
+    private string? validateMessage => settings.IsValid ? "" : $"Invalid settings for the map: {settings.ValidationMessage}";
+    private string? issuesMessage;
     private DotNetObjectReference<AzureMap>? dotNetRef;
     private MapFactory? mapFactory;
 
     #region Parameters
 
     /// <summary>
-    /// css class for the map container.
+    /// Css class for the map container.
     /// </summary>
     [Parameter]
     public string? Class { get; set; }
@@ -54,38 +46,38 @@
     public IEnumerable<MapEventType>? Events { get; set; }
 
     /// <summary>
-    /// css height for the map container.
-    /// appended to the 'Style' parameter.
-    /// default 300px
+    /// Css height for the map container.
+    /// Appended to the 'Style' parameter.
+    /// default 100%
     /// </summary>
     [Parameter]
     public string? Height { get; set; }
 
     /// <summary>
-    /// css width for the map container.
-    /// appended to the 'Style' parameter.
-    /// default 300px
-    /// </summary>
-    [Parameter]
-    public string? Width { get; set; }
-
-    /// <summary>
-    /// css style for the map container.
-    /// </summary>
-    [Parameter]
-    public string? Style { get; set; }
-
-    /// <summary>
-    /// map container Id.
+    /// Map container Id.
     /// </summary>
     [Parameter]
     public string Id { get; set; } = MapExtensions.GetRandomCssId();
 
     /// <summary>
-    /// Overrides the default map options.
+    /// Override default map options.
     /// </summary>
     [Parameter]
     public MapOptions? Options { get; set; }
+
+    /// <summary>
+    /// Css style for the map container.
+    /// </summary>
+    [Parameter]
+    public string? Style { get; set; }
+
+    /// <summary>
+    /// Css width for the map container.
+    /// Appended to the 'Style' parameter.
+    /// default 100%
+    /// </summary>
+    [Parameter]
+    public string? Width { get; set; }
 
     #endregion
 
@@ -97,7 +89,7 @@
         {
             if (!string.IsNullOrWhiteSpace(validateMessage))
             {
-                Logger.LogError("Invalid map configuration: {ValidationMessage}", config.ValidationMessage);
+                Logger.LogError("Invalid map configuration: {ValidationMessage}", settings.ValidationMessage);
                 return;
             }
             if (string.IsNullOrWhiteSpace(Id))
@@ -108,15 +100,28 @@
                 return;
             }
 
-            dotNetRef = DotNetObjectReference.Create(this);
-            mapFactory = new MapFactory(JSRuntime, Id);
+            try
+            {
+                dotNetRef = DotNetObjectReference.Create(this);
+                mapFactory = new MapFactory(JSRuntime, Id);
+                var mapSettings = new MapConfiguration
+                {
+                    Authentication = settings.Authentication,
+                    Options = Options ?? settings.Options,
+                    LogLevel = settings.LogLevel
+                };
 
-            await mapFactory.AddMap(
-                dotNetRef,
-                config,
-                Options,
-                Events,
-                Controls);
+                await mapFactory.CreateMap(
+                    dotNetRef,
+                    mapSettings,
+                    Events,
+                    Controls);
+            }
+            catch (Exception ex)
+            {
+                await OnCreateMapError.InvokeAsync(ex);
+                Logger.LogError(ex, "Error creating the map.");
+            }
         }
     }
 
@@ -139,6 +144,9 @@
     #endregion
 
     #region JSInterop
+
+    [Parameter]
+    public EventCallback<Exception> OnCreateMapError { get; set; }
 
     [Parameter]
     public EventCallback<MapEventArgs> OnMapEvent { get; set; }
