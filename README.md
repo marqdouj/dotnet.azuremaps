@@ -17,11 +17,11 @@ If there is some functionality not yet supported or you need to customize existi
 you can use your own custom [Blazor JS Interop](https://learn.microsoft.com/en-us/aspnet/core/blazor/javascript-interoperability/).
 An example of one of the methods to do this is in the demo.
 
-## Setup
-- See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
-
 ## Documentation
 - [Go to Docs](docs/ReadMe.md)
+
+## Setup
+- See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
 ### 10.3.0 (Major Changes)
