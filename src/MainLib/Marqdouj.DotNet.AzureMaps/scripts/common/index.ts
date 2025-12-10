@@ -53,4 +53,8 @@ export class Extensions {
     static isNotEmptyOrNull(str: string | null | undefined): boolean {
         return !this.isEmptyOrNull(str);
     }
+
+    static isValueInEnum<T extends Record<string, string>>(enumObj: T, value: string): boolean {
+        return Object.values(enumObj).includes(value as T[keyof T]);
+    }
 }

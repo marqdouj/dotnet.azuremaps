@@ -1,7 +1,9 @@
-## Add HeatMap Layer
+## DotNet.AzureMaps Documentation - Add HeatMap Layer
+
+### [<- Go Back](../Layers.md)
 
 ````CSharp
-        private static async Task<MapLayerDef> AddHeatMapLayer(MapInterop mapInterop, IDataService dataService)
+        private static async Task<MapLayerDef> AddHeatMapLayer(IAzureMapContainer mapInterop, IDataService dataService)
         {
             var layerDef = new HeatMapLayerDef();
 

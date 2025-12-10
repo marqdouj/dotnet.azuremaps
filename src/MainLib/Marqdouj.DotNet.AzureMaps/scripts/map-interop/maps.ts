@@ -2,8 +2,17 @@ import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger } from "../common"
 import { MapControl, DataSourceDef } from "../typings"
+import { EventManager, MapEvent } from "../map-events"
 
 export class Maps {
+    static addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
+        EventManager.addEvents(dotNetRef, mapId, events);
+    }
+
+    static removeEvents(mapId: string, events: MapEvent[]): void {
+        EventManager.removeEvents(mapId, events);
+    }
+
     public static addControls(mapId: string, controls: MapControl[]): void {
         const map = MapFactory.getMap(mapId);
         if (!map) {

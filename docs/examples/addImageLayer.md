@@ -1,7 +1,9 @@
-## Add Image Layer
+## DotNet.AzureMaps Documentation - Add Image Layer
+
+### [<- Go Back](../Layers.md)
 
 ````CSharp
-        private static async Task<MapLayerDef> AddImageLayer(MapInterop mapInterop, IDataService dataService)
+        private static async Task<MapLayerDef> AddImageLayer(IAzureMapContainer mapInterop, IDataService dataService)
         {
             var layerDef = new ImageLayerDef();
 

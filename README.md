@@ -20,7 +20,20 @@ An example of one of the methods to do this is in the demo.
 ## Setup
 - See `Program.cs`, `MapSetup.cs`, and `App.Razor` in the demo app.
 
+## Documentation
+- [Go to Docs](docs/ReadMe.md)
+
 ## Release Notes
+### 10.3.0 (Major Changes)
+- Major changes have been made to update/streamline JSInterop with the Azure Maps SDK.
+  - `MapInterop`. The class has been marked as `obsolete`. It's orginal design did not lend well to future updates to support more advanced mapping scenarios.
+    Replaced by the `IAzureMapContainer`.
+  - `IAzureMapContainer`. The map container reference is passed to the parent component via the  `OnMapReady` event.
+  - `OnMapReady`. New event.
+  - `MapEventDef`. New class the defines a map event. See [Event Docs](docs/Events.md)
+- Documentation. Docs have been added, updated, and streamlined for navigation.
+- See the [Demo](https://github.com/marqdouj/dotnet.demo) for examples using the new features.
+
 ### 10.2.0 (Breaking Changes)
 - Major refactor to update/streamline JSInterop with the Azure Maps SDK.
 - Some namespaces, classes, and methods have been renamed or moved.

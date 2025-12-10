@@ -1,7 +1,9 @@
-## Add Polygon Layer
+## DotNet.AzureMaps Documentation - Add Polygon Layer
+
+### [<- Go Back](../Layers.md)
 
 ````CSharp
-        private static async Task<MapLayerDef> AddPolygonLayer(MapInterop mapInterop, IDataService dataService, PolygonLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddPolygonLayer(IAzureMapContainer mapInterop, IDataService dataService, PolygonLayerOptions? options = null)
         {
             var layerDef = new PolygonLayerDef();
 

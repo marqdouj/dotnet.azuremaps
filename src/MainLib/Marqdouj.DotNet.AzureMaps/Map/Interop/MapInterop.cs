@@ -7,9 +7,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
     {
         Configuration,
         Layers,
+        MapFactory,
         Maps
     }
 
+    [Obsolete("This class is no longer being maintained and is kept for backward compatibility. It may be removed in a future version. Use the AzureMap.OnMapReady event and the IAzureMapContainer.")]
     public class MapInterop(IJSRuntime jsRuntime, string mapId)
     {
         public string MapId { get; } = mapId;

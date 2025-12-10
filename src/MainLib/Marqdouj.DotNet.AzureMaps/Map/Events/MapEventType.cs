@@ -1,7 +1,7 @@
 ﻿namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     /// <summary>
-    /// Represents the various types of events that can occur on a map.
+    /// Represents the various types of map events that can be subscribed to.
     /// </summary>
     public enum MapEventType
     {
@@ -11,6 +11,7 @@
         Drag,
         DragEnd,
         DragStart,
+        [Obsolete("Error is now always subscribed and no longer optional.")]
         Error,
         Idle,
         Load,

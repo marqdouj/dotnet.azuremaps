@@ -63,6 +63,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         }
 
         private static string GetMapInteropMethod([CallerMemberName] string name = "")
+#pragma warning disable CS0618 // Type or member is obsolete
             => MapInterop.GetMapInteropMethod(MapInteropModule.Layers, name);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

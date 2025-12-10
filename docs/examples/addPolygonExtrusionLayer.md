@@ -1,7 +1,9 @@
-## Add Polygon Extrusion Layer
+## DotNet.AzureMaps Documentation - Add Polygon Extrusion Layer
+
+### [<- Go Back](../Layers.md)
 
 ````CSharp
-        private static async Task<MapLayerDef> AddPolygonExtLayer(MapInterop mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddPolygonExtLayer(IAzureMapContainer mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null)
         {
             var layerDef = new PolygonExtLayerDef();
 

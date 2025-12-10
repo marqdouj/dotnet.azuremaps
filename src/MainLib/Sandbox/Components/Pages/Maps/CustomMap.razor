@@ -29,7 +29,7 @@
     </FluentToolbar>
 
     <AzureMap Id="@MapId"
-              OnMapEventReady="@OnMapEventReady"
+              OnMapReady="@OnMapReady"
               Options="@MapHelpers.GetDefaultCreateMapOptions()" />
 </FluentLayout>
 
@@ -43,22 +43,22 @@
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("CustomMap.razor");
     private readonly string header = "Custom Map (JS Interop)";
     private bool overlay;
-    private bool disabled => overlay || mapInterop == null;
-    private MapInterop? mapInterop;
+    private bool disabled => overlay || mapContainer == null;
     private SandboxMaps? sandboxMaps;
     private readonly MapOptionsSet options = MapHelpers.GetDefaultSetMapOptions();
+    private IAzureMapContainer? mapContainer;
 
     protected override void OnInitialized()
     {
         sandboxMaps = new SandboxMaps(JSRuntime);
     }
 
-    private async Task OnMapEventReady(MapEventArgs e)
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
     {
         try
         {
             await Task.CompletedTask;
-            mapInterop = new MapInterop(JSRuntime, e.MapId);
+            this.mapContainer = mapContainer;
         }
         catch (Exception ex)
         {
@@ -71,8 +71,10 @@
     {
         try
         {
-            await mapInterop!.Configuration.SetMapOptions(options);
-            _= await sandboxMaps!.RemoveControls(mapInterop.MapId);
+            if (mapContainer == null) return;
+
+            await mapContainer.Configuration.SetMapOptions(options);
+            _ = await sandboxMaps!.RemoveControls(mapContainer.MapId);
         }
         catch (Exception ex)
         {
@@ -85,7 +87,9 @@
     {
         try
         {
-            var exists = await sandboxMaps!.MapExists(mapInterop!.MapId);
+            if (mapContainer == null) return;
+
+            var exists = await sandboxMaps!.MapExists(mapContainer.MapId);
             ToastService.Info($"Check for map access: {exists}");
         }
         catch (Exception ex)
@@ -99,7 +103,9 @@
     {
         try
         {
-            var msg = await sandboxMaps!.AddControls(mapInterop!.MapId);
+            if (mapContainer == null) return;
+
+            var msg = await sandboxMaps!.AddControls(mapContainer.MapId);
             ToastService.Info(msg);
         }
         catch (Exception ex)
@@ -113,7 +119,9 @@
     {
         try
         {
-            var msg = await sandboxMaps!.RemoveControls(mapInterop!.MapId);
+            if (mapContainer == null) return;
+
+            var msg = await sandboxMaps!.RemoveControls(mapContainer.MapId);
             ToastService.Info(msg);
         }
         catch (Exception ex)

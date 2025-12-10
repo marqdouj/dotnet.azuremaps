@@ -34,8 +34,10 @@
     </FluentToolbar>
 
     <AzureMap OnCreateMapError="@OnCreatMapError"
-              OnMapEventReady="@OnMapEventReady"
+              OnMapEventMouse="@OnMapEventMouse"
+              OnMapReady="@OnMapReady"
               Controls="@MapHelpers.GetDefaultControls()"
+              Events="@events.Items"
               Options="@MapHelpers.GetDefaultCreateMapOptions()" />
 </FluentLayout>
 
@@ -48,23 +50,37 @@
     private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("BasicMap.razor");
     private readonly string header = "Basic Map";
     private readonly MapOptionsSet options = MapHelpers.GetDefaultSetMapOptions();
-    private MapInterop? mapInterop;
     private bool overlay;
-    private bool disabled => overlay || mapInterop == null;
+    private bool disabled => overlay || mapContainer == null;
     private MapLayerDef? layerDef;
-    private readonly EnumList<MapEventType> events = new();
+    private readonly EnumList<MapEventType> events = new(new List<MapEventType> {MapEventType.MouseMove});
+    private IAzureMapContainer? mapContainer;
 
     private async Task OnCreatMapError(Exception ex)
     {
         ToastService.Error($"Error creating the map: {ex.Message}");
     }
 
-    private async Task OnMapEventReady(MapEventArgs e)
+    private async Task OnMapEventMouse(MapEventMouseArgs e)
     {
         try
         {
             await Task.CompletedTask;
-            mapInterop = new MapInterop(JSRuntime, e.MapId);
+            Logger.LogInformation($"MouseMove: {e.Payload}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
         }
         catch (Exception ex)
         {
@@ -77,13 +93,13 @@
     {
         try
         {
-            if (mapInterop == null) return;
+            if (mapContainer == null) return;
 
             overlay = true;
 
 			await ResetMap();
 
-            layerDef = await mapInterop.AddBasicMapLayer(DataService, layerType);
+            layerDef = await mapContainer.AddBasicMapLayer(DataService, layerType);
             ToastService.Info($"{layerType} layer added to the map.");
         }
         catch (Exception ex)
@@ -101,15 +117,15 @@
     {
         try
         {
-            if (mapInterop == null) return;
+            if (mapContainer == null) return;
 
             if (layerDef != null)
             {
-                await mapInterop.Layers.RemoveLayer(layerDef);
+                await mapContainer.Layers.RemoveLayer(layerDef);
                 layerDef = null;
             }
 
-            await mapInterop.Configuration.SetMapOptions(options);
+            await mapContainer.Configuration.SetMapOptions(options);
         }
         catch (Exception ex)
         {

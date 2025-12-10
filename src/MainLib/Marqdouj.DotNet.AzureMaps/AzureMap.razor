@@ -19,8 +19,7 @@
     private bool hasInvalidMessage => !string.IsNullOrWhiteSpace(validateMessage) || !string.IsNullOrWhiteSpace(issuesMessage);
     private string? validateMessage => settings.IsValid ? "" : $"Invalid settings for the map: {settings.ValidationMessage}";
     private string? issuesMessage;
-    private DotNetObjectReference<AzureMap>? dotNetRef;
-    private MapFactory? mapFactory;
+    private AzureMapContainer? mapContainer;
 
     #region Parameters
 
@@ -44,6 +43,12 @@
     /// </summary>
     [Parameter]
     public IEnumerable<MapEventType>? Events { get; set; }
+
+    /// <summary>
+    /// Subscribed Map Events. This has precedence over the Events parameter if both values are set.
+    /// </summary>
+    [Parameter]
+    public IEnumerable<MapEventDef>? EventDefs { get; set; }
 
     /// <summary>
     /// Css height for the map container.
@@ -92,6 +97,7 @@
                 Logger.LogError("Invalid map configuration: {ValidationMessage}", settings.ValidationMessage);
                 return;
             }
+
             if (string.IsNullOrWhiteSpace(Id))
             {
                 issuesMessage = "Map Id is missing.";
@@ -102,8 +108,7 @@
 
             try
             {
-                dotNetRef = DotNetObjectReference.Create(this);
-                mapFactory = new MapFactory(JSRuntime, Id);
+                mapContainer = new(JSRuntime, this);
                 var mapSettings = new MapConfiguration
                 {
                     Authentication = settings.Authentication,
@@ -111,11 +116,20 @@
                     LogLevel = settings.LogLevel
                 };
 
-                await mapFactory.CreateMap(
-                    dotNetRef,
-                    mapSettings,
-                    Events,
-                    Controls);
+                if (EventDefs != null)
+                {
+                    await mapContainer.Factory.CreateMap(
+                     mapSettings,
+                     EventDefs,
+                     Controls);
+                }
+                else
+                {
+                    await mapContainer.Factory.CreateMap(
+                        mapSettings,
+                        Events,
+                        Controls);
+                }
             }
             catch (Exception ex)
             {
@@ -127,23 +141,26 @@
 
     public async ValueTask DisposeAsync()
     {
-        dotNetRef?.Dispose();
-
-        if (mapFactory != null)
+        try
         {
-            try
-            {
-                await mapFactory.RemoveMap();
-            }
-            catch (JSDisconnectedException)
-            {
-            }
+            if (mapContainer !=  null)
+            await mapContainer.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
         }
     }
 
     #endregion
 
     #region JSInterop
+
+    #region MapReady
+    [Parameter]
+    public EventCallback<IAzureMapContainer> OnMapReady { get; set; }
+    [JSInvokable]
+    public async Task NotifyMapReady(MapEventArgs e) => await OnMapReady.InvokeAsync(mapContainer);
+    #endregion
 
     [Parameter]
     public EventCallback<Exception> OnCreateMapError { get; set; }
@@ -156,6 +173,9 @@
 
     [Parameter]
     public EventCallback<MapEventDataArgs> OnMapEventData { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventDataSourceArgs> OnMapEventDataSource { get; set; }
 
     [Parameter]
     public EventCallback<MapEventErrorArgs> OnMapEventError { get; set; }
@@ -175,6 +195,9 @@
     [Parameter]
     public EventCallback<MapEventTouchArgs> OnMapEventTouch { get; set; }
 
+    [Parameter]
+    public EventCallback<MapEventWheelArgs> OnMapEventWheel { get; set; }
+
     [JSInvokable]
     public async Task NotifyMapEvent(MapEventArgs e) => await OnMapEvent.InvokeAsync(e);
 
@@ -183,6 +206,9 @@
 
     [JSInvokable]
     public async Task NotifyMapEventData(MapEventDataArgs e) => await OnMapEventData.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventDataSource(MapEventDataSourceArgs e) => await OnMapEventDataSource.InvokeAsync(e);
 
     [JSInvokable]
     public async Task NotifyMapEventError(MapEventErrorArgs e) => await OnMapEventError.InvokeAsync(e);
@@ -201,6 +227,9 @@
 
     [JSInvokable]
     public async Task NotifyMapEventTouch(MapEventTouchArgs e) => await OnMapEventTouch.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventWheel(MapEventWheelArgs e) => await OnMapEventWheel.InvokeAsync(e);
 
     #endregion
 }

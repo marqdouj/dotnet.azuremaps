@@ -9,7 +9,7 @@ namespace Sandbox.Components.Pages.Maps
 {
     internal static class MapExtensions
     {
-        public static async Task<MapLayerDef> AddBasicMapLayer(this MapInterop mapInterop, IDataService dataService, MapLayerType layerType)
+        public static async Task<MapLayerDef> AddBasicMapLayer(this IAzureMapContainer mapInterop, IDataService dataService, MapLayerType layerType)
         {
             return layerType switch
             {
@@ -25,7 +25,7 @@ namespace Sandbox.Components.Pages.Maps
             };
         }
 
-        private static async Task<MapLayerDef> AddTileLayer(MapInterop mapInterop, IDataService dataService, TileLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddTileLayer(IAzureMapContainer mapInterop, IDataService dataService, TileLayerOptions? options = null)
         {
             var layerDef = new TileLayerDef();
 
@@ -53,7 +53,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddSymbolLayer(MapInterop mapInterop, IDataService dataService, SymbolLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddSymbolLayer(IAzureMapContainer mapInterop, IDataService dataService, SymbolLayerOptions? options = null)
         {
             var layerDef = new SymbolLayerDef();
 
@@ -89,7 +89,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddPolygonExtLayer(MapInterop mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddPolygonExtLayer(IAzureMapContainer mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null)
         {
             var layerDef = new PolygonExtLayerDef();
 
@@ -130,7 +130,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddPolygonLayer(MapInterop mapInterop, IDataService dataService, PolygonLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddPolygonLayer(IAzureMapContainer mapInterop, IDataService dataService, PolygonLayerOptions? options = null)
         {
             var layerDef = new PolygonLayerDef();
 
@@ -166,7 +166,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddLineLayer(MapInterop mapInterop, IDataService dataService, LineLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddLineLayer(IAzureMapContainer mapInterop, IDataService dataService, LineLayerOptions? options = null)
         {
             var layerDef = new LineLayerDef
             {
@@ -204,7 +204,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddImageLayer(MapInterop mapInterop, IDataService dataService)
+        private static async Task<MapLayerDef> AddImageLayer(IAzureMapContainer mapInterop, IDataService dataService)
         {
             var layerDef = new ImageLayerDef();
 
@@ -222,7 +222,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddHeatMapLayer(MapInterop mapInterop, IDataService dataService)
+        private static async Task<MapLayerDef> AddHeatMapLayer(IAzureMapContainer mapInterop, IDataService dataService)
         {
             var layerDef = new HeatMapLayerDef();
 
@@ -235,7 +235,7 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddBubbleLayer(MapInterop mapInterop, IDataService dataService, BubbleLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddBubbleLayer(IAzureMapContainer mapInterop, IDataService dataService, BubbleLayerOptions? options = null)
         {
             var layerDef = new BubbleLayerDef();
 

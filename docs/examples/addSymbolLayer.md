@@ -1,7 +1,9 @@
-## Add Symbol Layer
+## DotNet.AzureMaps Documentation - Add Symbol Layer
+
+### [<- Go Back](../Layers.md)
 
 ````csharp
-        private static async Task<MapLayerDef> AddSymbolLayer(MapInterop mapInterop, IDataService dataService, SymbolLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddSymbolLayer(IAzureMapContainer mapInterop, IDataService dataService, SymbolLayerOptions? options = null)
         {
             var layerDef = new SymbolLayerDef();
 

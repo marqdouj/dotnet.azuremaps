@@ -88,7 +88,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Configuration
         public bool? ShowLogo { get; set; }
 
         /// <summary>
-        /// Specifies if the map should display labels
+        /// Specifies if the map should display labels.
         /// Default true
         /// </summary>
         public bool? ShowLabels { get; set; }
@@ -105,7 +105,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Configuration
         /// <summary>
         /// The name of the style to use when rendering the map. Available styles can be found in the
         /// [supported styles](https://docs.microsoft.com/en-us/azure/azure-maps/supported-map-styles) article.
-        /// default 'road'.
+        /// Default 'road'.
         /// </summary>
         [JsonIgnore]
         public MapStyle? Style { get; set; }

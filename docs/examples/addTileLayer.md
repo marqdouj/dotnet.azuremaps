@@ -1,7 +1,9 @@
-## Add Tile Layer
+## DotNet.AzureMaps Documentation - Add Tile Layer
+
+### [<- Go Back](../Layers.md)
 
 ````csharp
-        private static async Task<MapLayerDef> AddTileLayer(MapInterop mapInterop, IDataService dataService, TileLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddTileLayer(IAzureMapContainer mapInterop, IDataService dataService, TileLayerOptions? options = null)
         {
             var layerDef = new TileLayerDef();
 

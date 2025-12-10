@@ -7,7 +7,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <PackageIcon>DMNuGet.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>10.2.0</Version>
+    <Version>10.3.0-Preview-1.5</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Blazor implemenation of the Azure Maps SDK</Title>
@@ -22,7 +22,6 @@
 
   <Target Name="RemoveTSGenFiles" AfterTargets="GetTypeScriptOutputForPublishing">
     <ItemGroup>
-      <Content Remove="tsgen\**" />
       <None Include="tsgen\**">
         <Pack>False</Pack>
       </None>

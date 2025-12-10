@@ -1,7 +1,9 @@
-## Add Line Layer
+## DotNet.AzureMaps Documentation - Add Line Layer
+
+### [<- Go Back](../Layers.md)
 
 ````CSharp
-        private static async Task<MapLayerDef> AddLineLayer(MapInterop mapInterop, IDataService dataService, LineLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddLineLayer(IAzureMapContainer mapInterop, IDataService dataService, LineLayerOptions? options = null)
         {
             var layerDef = new LineLayerDef
             {

@@ -2,6 +2,7 @@ import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger, Extensions } from "../common"
 import { MapLayerDef, DataSourceDef, TMapFeature } from "../typings"
+import { Maps } from "./maps"
 
 export class Layers {
     public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
@@ -94,6 +95,12 @@ export class Layers {
             map.layers.remove(lyr);
             Logger.logMessage(mapId, Logger.LogLevel.Debug, `- CreateLayer:- layer with id '${id}' was removed.`);
         }
+    }
+
+    public static removeLayerAndDataSource(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
+
+        this.removeLayer(mapId, def.id);
+        Maps.removeDatasource(mapId, dsDef.id);
     }
 
     public static addMapFeature(

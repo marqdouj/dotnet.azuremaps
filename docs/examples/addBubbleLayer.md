@@ -1,7 +1,9 @@
-## Add Bubble Layer
+## DotNet.AzureMaps Documentation - Add Bubble Layer
+
+### [<- Go Back](../Layers.md)
 
 ````csharp
-        private static async Task<MapLayerDef> AddBubbleLayer(MapInterop mapInterop, IDataService dataService, BubbleLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddBubbleLayer(IAzureMapContainer mapInterop, IDataService dataService, BubbleLayerOptions? options = null)
         {
             var layerDef = new BubbleLayerDef();
 
