@@ -1,6 +1,6 @@
 ## DotNet.AzureMaps Documentation - Events
 
-### [<- Go Back](README.md)
+### [<- Go Back](ReadMe.md)
 
 ## Summary
 Events can be added to the map:
