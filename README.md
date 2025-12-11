@@ -24,6 +24,9 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.1
+- Fixed NuGet package issue; removed unnecessary content files.
+
 ### 10.3.0 (Major Changes)
 - Major changes have been made to update/streamline JSInterop with the Azure Maps SDK.
   - `MapInterop`. The class has been marked as `obsolete`. It's orginal design did not lend well to future updates to support more advanced mapping scenarios.
