@@ -15,6 +15,8 @@
     <FluentToolbar>
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
         <FluentSpacer Width="8" />
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.SearchInfo())" Title="Check for Controls on Map" OnClick="@CheckControls" />
+        <FluentSpacer Width="8" />
         @{
             foreach (var layerType in Enum.GetValues<MapControlType>())
             {
@@ -92,6 +94,27 @@
                 vm.Loaded = false;
             }
             await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task CheckControls()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            var msg = "No controls were found on the map";
+            var found = await mapContainer.Maps.GetControls();
+            if (found.Any())
+            {
+                msg = string.Join(",", found.Select(e => e.Type));
+            }
+            ToastService.Info(msg);
         }
         catch (Exception ex)
         {

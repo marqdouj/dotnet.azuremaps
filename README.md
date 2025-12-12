@@ -25,7 +25,7 @@ An example of one of the methods to do this is in the demo.
 
 ## Release Notes
 ### 10.3.1
-- Fixed issues in *.ts for Maps add/remove/get controls
+- Fixed issues in *.ts for Maps add/remove/get controls.
 
 ### 10.3.1
 - Fixed NuGet package issue; removed unnecessary content files.
