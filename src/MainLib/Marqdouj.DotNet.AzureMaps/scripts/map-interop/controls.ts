@@ -79,12 +79,14 @@ export class Controls {
 
         const mapControls = map.controls.getControls();
 
-        mapControls.filter(control => this.#isInteropControl(control)).forEach(control => {
-            const jsInterop = (control as any).jsInterop as JsInteropControl;
-            if (jsInterop) {
-                if (controls.find(e => e.id === jsInterop.id || e.interopId === jsInterop.interopId)) {
-                    map.controls.remove(control);
-                }
+        mapControls.filter(mapControl => this.#isInteropControl(mapControl)).forEach(mapControl => {
+            const jsInterop = (mapControl as any).jsInterop as JsInteropControl;
+            Logger.logMessage(mapId, Logger.LogLevel.Trace, "found control:", jsInterop);
+
+            const control = controls.findLast(e => e.id == jsInterop.id && e.interopId == jsInterop.interopId);
+            if (control) {
+                map.controls.remove(mapControl);
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "removing control:", control);
             }
         });
     }

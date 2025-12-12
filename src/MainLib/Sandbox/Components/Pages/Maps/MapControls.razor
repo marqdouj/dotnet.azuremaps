@@ -1,0 +1,125 @@
+﻿@page "/map-controls"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+@inject ILogger<BasicMap> Logger
+@inject IToastService ToastService
+
+<FluentLayout>
+    <FluentHeader>
+        Map Controls
+        <FluentLabel>
+            This page demonstrates adding/removing controls dynamically.
+        </FluentLabel>
+    </FluentHeader>
+
+    <FluentToolbar>
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="8" />
+        @{
+            foreach (var layerType in Enum.GetValues<MapControlType>())
+            {
+                switch (layerType)
+                {
+                    case MapControlType.Compass:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@compass.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
+                    case MapControlType.Fullscreen:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@fullscreen.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
+                    case MapControlType.Pitch:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@pitch.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
+                    case MapControlType.Scale:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@scale.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
+                    case MapControlType.Style:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@style.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
+                    case MapControlType.Zoom:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@zoom.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    </FluentToolbar>
+
+    <AzureMap OnMapReady="@OnMapReady"
+              Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+               Transparent="false">
+    <FluentProgressRing />
+</FluentOverlay>
+
+@code {
+    private IAzureMapContainer? mapContainer;
+    private bool overlay;
+    private bool disabled => overlay || mapContainer == null;
+    private readonly List<MapControlViewModel> controls = MapHelpers.GetDefaultControls().Select(e => new MapControlViewModel(e)).ToList();
+    private MapControlViewModel compass => controls.First(c => c.Control.Type == MapControlType.Compass);
+    private MapControlViewModel fullscreen => controls.First(c => c.Control.Type == MapControlType.Fullscreen);
+    private MapControlViewModel pitch => controls.First(c => c.Control.Type == MapControlType.Pitch);
+    private MapControlViewModel scale => controls.First(c => c.Control.Type == MapControlType.Scale);
+    private MapControlViewModel style => controls.First(c => c.Control.Type == MapControlType.Style);
+    private MapControlViewModel zoom => controls.First(c => c.Control.Type == MapControlType.Zoom);
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await mapContainer.Maps.RemoveControls(controls.Select(e => e.Control));
+            foreach (var vm in controls)
+            {
+                vm.Loaded = false;
+            }
+            await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnCheckedChanged(bool value, MapControlType type)
+    {
+        var vm = controls.First(e => e.Control.Type == type);
+        var items = new List<MapControl> { vm.Control };
+
+        if (vm.Loaded)
+        {
+            await mapContainer!.Maps.RemoveControls(items);
+            vm.Loaded = false;
+        }
+        else
+        {
+            await mapContainer!.Maps.AddControls(items);
+            vm.Loaded = true;
+        }
+    }
+
+    private class MapControlViewModel(MapControl control)
+    {
+        public MapControl Control { get; set; } = control;
+        public bool Loaded { get; set; }
+    }
+}
