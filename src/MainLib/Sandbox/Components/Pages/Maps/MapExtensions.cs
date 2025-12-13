@@ -9,6 +9,33 @@ namespace Sandbox.Components.Pages.Maps
 {
     internal static class MapExtensions
     {
+        public static async Task<List<MapFeatureDef>> GetDefaultSymbolLayerFeatures(this IDataService dataService)
+        {
+            var results = new List<MapFeatureDef>();
+            var data = await dataService.GetSymbolLayerData();
+            var counter = 0;
+
+            foreach (var position in data)
+            {
+                counter++;
+
+                var feature = new MapFeatureDef(new Point(position))
+                {
+                    Id = $"demoSymbol-{counter}",
+                    Properties = new Properties
+                    {
+                        { "title", $"my symbol #{counter}" },
+                        { "description", $"my symbol #{counter} description" },
+                        { "demo", true },
+                    }
+                };
+
+                results.Add(feature);
+            }
+
+            return results;
+        }
+
         public static async Task<MapLayerDef> AddBasicMapLayer(this IAzureMapContainer mapInterop, IDataService dataService, MapLayerType layerType)
         {
             return layerType switch
@@ -68,23 +95,14 @@ namespace Sandbox.Components.Pages.Maps
 
             await mapInterop.Layers.CreateLayer(layerDef);
 
-            var data = await dataService.GetSymbolLayerData();
-
-            foreach (var position in data)
+            var data = await dataService.GetDefaultSymbolLayerFeatures();
+            foreach (var feature in data)
             {
-                var feature = new MapFeatureDef(new Point(position))
-                {
-                    Properties = new Properties
-                    {
-                        { "title", "my symbol" },
-                        { "description", "my symbol description" },
-                        { "demo", true },
-                    }
-                };
                 await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
             }
-            
-            await mapInterop.Configuration.ZoomTo(data[0], 11);
+
+            var pt = (Point)data[0].Geometry;
+            await mapInterop.Configuration.ZoomTo(pt.Coordinates, 11);
 
             return layerDef;
         }

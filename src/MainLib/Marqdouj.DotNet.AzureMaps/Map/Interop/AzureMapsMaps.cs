@@ -38,6 +38,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// Retrieves a list of map controls associated with the current map.
         /// </summary>
         Task<List<MapControl>> GetControls();
+        Task<List<MapEventShape>> GetDataSourceShapes(string sourceId);
 
         /// <summary>
         /// Removes the specified controls from the map.
@@ -88,6 +89,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async Task ClearDatasource(string sourceId)
         {
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, sourceId);
+        }
+
+        public async Task<List<MapEventShape>> GetDataSourceShapes(string sourceId)
+        {
+            return await JsRuntime.InvokeAsync<List<MapEventShape>>(GetMapInteropMethod(), MapId, sourceId);
         }
 
         public async Task<List<MapControl>> GetControls()

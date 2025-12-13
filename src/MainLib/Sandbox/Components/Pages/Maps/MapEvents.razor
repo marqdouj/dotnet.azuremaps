@@ -1,6 +1,6 @@
 ﻿@page "/map-events"
 @rendermode InteractiveServer
-@inject ILogger<BasicMap> Logger
+@inject ILogger<MapEvents> Logger
 @inject IToastService ToastService
 @inject IDataService DataService
 
@@ -8,11 +8,15 @@
     <MapPageHeader Header="Map Events" HRefCode="@hRefCode">
         <FluentLabel>
             This page demonstrates adding/removing events dynamically.
-            <br /><br />
+            <br />
             When the style control events are active, you will receive a StyleSelected event when you change the style in the control.
-            <br /><br />
-            When the layer events are active, you will receive a Click event when you click on a symbol that is part of the layer,
-            and a LayerRemoved event when you remove the layer.
+            <br />
+            When the layer events are active, you will see a Click event toast when you click on a symbol that is part of the layer,
+            and a LayerRemoved event toast when you remove the layer.
+            <br />
+            The MouseEnter and MouseLeave events will be logged to the Console.
+            <br />
+            When you move the shapes (Move Shapes button) the ShapeChanged events will be logged to the Console.
         </FluentLabel>
     </MapPageHeader>
 
@@ -24,10 +28,12 @@
         <FluentSpacer Width="8" />
         <FluentCheckbox Disabled="@disabled" @bind-Value:get="@layerDefLoaded" @bind-Value:set="OnLayerCheckedChanged">Symbol Layer</FluentCheckbox>
         <FluentCheckbox Disabled="@disableLayerEvents" @bind-Value:get="@addLayerEvents" @bind-Value:set="OnLayerEventsCheckedChanged">Symbol Layer Events</FluentCheckbox>
+        <FluentButton Disabled="@disableLayerEvents" IconStart="@(new Icons.Regular.Size20.ArrowMove())" Title="Move Shapes" OnClick="@MoveShapes" />
     </FluentToolbar>
 
     <AzureMap OnMapReady="@OnMapReady"
               OnMapEventLayer="OnMapEventLayer"
+              OnMapEventShape="OnMapEventShape"
               OnMapEventStyle="OnMapEventStyle"
               Options="@MapHelpers.GetDefaultCreateMapOptions()" />
 </FluentLayout>
@@ -47,6 +53,7 @@
     private List<MapEventDef> styleEvents = new List<MapEventDef> { new MapEventDef(MapEventType.StyleSelected, MapEventTarget.StyleControl) };
     private bool addStyleControlEvents;
     private MapLayerDef? layerDef;
+    private List<MapFeatureDef>? mapFeatures;
     private bool layerDefLoaded => layerDef != null;
     private bool disableLayerEvents => disabled || layerDef == null;
     private bool addLayerEvents;
@@ -62,6 +69,20 @@
         {
             await Task.CompletedTask;
             this.mapContainer = mapContainer;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventShape(MapEventShapeArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            Logger.LogInformation($"OnMapEventShape: Event={e.Type} Id={e.Payload?.Id}");
         }
         catch (Exception ex)
         {
@@ -89,7 +110,23 @@
         try
         {
             await Task.CompletedTask;
-            ToastService.Info($"OnMapEventLayer: Event={e.Type} Id={e.Payload?.Id}");
+
+            var msg = $"OnMapEventLayer: Event={e.Type} Id={e.Payload?.Id}";
+
+            switch (e.Type)
+            {
+                case MapEventType.MouseEnter:
+                    var shapes = string.Join(",", e.Payload?.Mouse?.Shapes?.Select(s => s.Type) ?? []);
+                    msg = $"{msg} Position={e.Payload?.Mouse?.Position} ShapeCount:{e.Payload?.Mouse?.Shapes?.Count} Shapes:{shapes}";
+                    Logger.LogInformation(msg);
+                    break;
+                case MapEventType.MouseLeave:
+                    Logger.LogInformation(msg);
+                    break;
+                default:
+                    ToastService.Info(msg);
+                    break;
+            }
         }
         catch (Exception ex)
         {
@@ -165,7 +202,7 @@
             await RemoveLayer();
 
             layerDef = await mapContainer.AddBasicMapLayer(DataService, MapLayerType.Symbol);
-            // await mapContainer.Layers.CreateLayer(layerDef);
+            mapFeatures = await DataService.GetDefaultSymbolLayerFeatures();
             ToastService.Info($"{MapLayerType.Symbol} layer was added to the map.");
         }
         else
@@ -184,13 +221,30 @@
 
         if (value)
         {
+
             await mapContainer!.Maps.AddEvents(BuildLayerEvents(layerDef));
+            await mapContainer!.Maps.AddEvents(BuildShapeEvents(layerDef));
             addLayerEvents = true;
         }
         else
         {
             await mapContainer!.Maps.RemoveEvents(BuildLayerEvents(layerDef));
+            await mapContainer!.Maps.RemoveEvents(BuildShapeEvents(layerDef));
             addLayerEvents = false;
+        }
+    }
+
+    private async Task MoveShapes()
+    {
+        if (!layerDefLoaded || mapFeatures == null)
+            return;
+
+        foreach (var feature in mapFeatures)
+        {
+            var pt = (Point)feature.Geometry;
+            pt.Coordinates = new Position(pt.Coordinates.Longitude - 0.00123, pt.Coordinates.Latitude);
+
+            await mapContainer!.Layers.UpdateMapFeature(feature, layerDef!.DataSource.Id);
         }
     }
 
@@ -203,18 +257,29 @@
         {
             await mapContainer.Layers.RemoveLayer(layerDef);
             layerDef = null;
+            mapFeatures = null;
             addLayerEvents = false;
         }
     }
 
     private List<MapEventDef> BuildLayerEvents(MapLayerDef? layerDef)
     {
-        var layerEvents = new List<MapEventDef>
+        var events = new List<MapEventDef>
         {
             new MapEventDef(MapEventType.LayerRemoved, MapEventTarget.Layer){TargetId = layerDef?.Id},
             new MapEventDef(MapEventType.Click, MapEventTarget.Layer){TargetId = layerDef?.Id},
+            new MapEventDef(MapEventType.MouseEnter, MapEventTarget.Layer){TargetId = layerDef?.Id},
+            new MapEventDef(MapEventType.MouseLeave, MapEventTarget.Layer){TargetId = layerDef?.Id},
         };
 
-        return layerEvents;
+        return events;
+    }
+
+    private List<MapEventDef> BuildShapeEvents(MapLayerDef? layerDef)
+    {
+        List<MapEventDef> events = (mapFeatures ?? [])
+            .Select(shape => new MapEventDef(MapEventType.ShapeChanged, MapEventTarget.Shape) { TargetId = shape.Id, TargetSourceId = layerDef!.DataSource.Id }).ToList();
+
+        return events;
     }
 }

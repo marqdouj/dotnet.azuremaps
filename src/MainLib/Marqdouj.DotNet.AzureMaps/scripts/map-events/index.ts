@@ -443,16 +443,16 @@ export class EventManager {
                     wasAdded = true;
                 }
 
-                if (Extensions.isValueInEnum(MapEventMouse, value.type)) {
+                if (Extensions.isValueInEnum(MapEventMouse, value.type) || Extensions.isValueInEnum(MapLayerMouseEvent, value.type)) {
                     if (value.once) {
                         azmap.events.addOnce(value.type as MapEventMouse, target, (mouseEvent: atlas.MapMouseEvent) => {
-                            result.payload = { id: value.targetId, touch: this.#buildMouseEventPayload(mouseEvent) };
+                            result.payload = { id: value.targetId, mouse: this.#buildMouseEventPayload(mouseEvent) };
                             dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
                         });
                     }
                     else {
                         azmap.events.add(value.type as MapEventMouse, target, (mouseEvent: atlas.MapMouseEvent) => {
-                            result.payload = { id: value.targetId, touch: this.#buildMouseEventPayload(mouseEvent) };
+                            result.payload = { id: value.targetId, mouse: this.#buildMouseEventPayload(mouseEvent) };
                             dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
                         });
                     }
@@ -618,34 +618,23 @@ export class EventManager {
     // #endregion
 
     static #isFeature(obj: any): obj is atlas.data.Feature<atlas.data.Geometry, any> {
-        return obj && obj.type === 'Feature';
+        return Extensions.isFeature(obj);
     }
 
     static #isShape(obj: any): obj is atlas.Shape {
-        return obj && obj.getType != undefined;
+        return Extensions.isShape(obj);
     }
 
     static #getFeatureResult(feature: atlas.data.Feature<atlas.data.Geometry, any>): object {
-
-        const item: object = {
-            id: feature.id?.toString(),
-            type: feature.geometry.type,
-            bbox: feature.bbox,
-            source: "feature",
-            properties: feature.properties
-        };
-        return item;
+        return Extensions.getFeatureResult(feature);
     }
 
     static #getShapeResult(shape: atlas.Shape): object {
-        const item: object = {
-            id: shape.getId()?.toString(),
-            type: shape.getType(),
-            bbox: shape.getBounds(),
-            source: "shape",
-            properties: shape.getProperties()
-        };
-        return item;
+        return Extensions.getShapeResult(shape);
+    }
+
+    static #buildShapeResults(shapes: Array<atlas.data.Feature<atlas.data.Geometry, any> | atlas.Shape>): object[] {
+        return Extensions.buildShapeResults(shapes);
     }
 
     static #buildMouseEventPayload(mouseEvent: atlas.MapMouseEvent) {
@@ -655,19 +644,6 @@ export class EventManager {
             position: mouseEvent.position,
             shapes: this.#buildShapeResults(mouseEvent.shapes)
         };
-    }
-
-    static #buildShapeResults(shapes: Array<atlas.data.Feature<atlas.data.Geometry, any> | atlas.Shape>): object[] {
-        const results: object[] = [];
-
-        shapes.filter(feature => this.#isFeature(feature)).forEach(feature => {
-            results.push(this.#getFeatureResult(feature));
-        });
-        shapes.filter(shape => this.#isShape(shape)).forEach(shape => {
-            results.push(this.#getShapeResult(shape));
-        });
-
-        return results;
     }
 
     static #buildTouchEventPayload(touchEvent: atlas.MapTouchEvent) {
@@ -824,6 +800,12 @@ enum MapLayerEvent {
     TouchStart = 'touchstart',
 
     Wheel = 'wheel',
+}
+
+//Events not included in MapEventMouse
+enum MapLayerMouseEvent {
+    MouseEnter = 'mouseenter',
+    MouseLeave = 'mouseleave',
 }
 
 enum MapShapeEvent {

@@ -27,6 +27,7 @@ An example of one of the methods to do this is in the demo.
 ### 10.3.3
 - `Map Events`. Implemented dynamic add/remove event support for:
   - `Layer`
+  - `Shape`
   - `StyleControl`
 
 ### 10.3.2

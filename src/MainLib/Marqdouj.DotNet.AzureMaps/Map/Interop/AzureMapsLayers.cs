@@ -33,6 +33,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <param name="layerDef"></param>
         /// <returns></returns>
         Task RemoveLayer(MapLayerDef layerDef);
+        Task UpdateMapFeature(MapFeatureDef feature, string datasourceId);
     }
 
     internal sealed class AzureMapsLayers(AzureMapReference mapReference) : IAzureMapsLayers
@@ -59,6 +60,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async Task AddMapFeature(MapFeatureDef feature, string datasourceId, bool replace = false)
         {
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, feature, datasourceId, replace);
+        }
+
+        public async Task UpdateMapFeature(MapFeatureDef feature, string datasourceId)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, feature, datasourceId);
         }
 
         private static string GetMapInteropMethod([CallerMemberName] string name = "")

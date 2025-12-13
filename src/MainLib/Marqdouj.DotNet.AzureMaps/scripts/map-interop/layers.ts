@@ -1,8 +1,9 @@
 import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
-import { Logger, Extensions } from "../common"
-import { MapLayerDef, DataSourceDef, TMapFeature, JsInteropDef } from "../typings"
+import { Logger, Extensions, GeoJSONType } from "../common"
+import { MapLayerDef, DataSourceDef, TMapFeature } from "../typings"
 import { Maps } from "./maps"
+import { FeatureManager } from "./features"
 
 export class Layers {
     public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
@@ -109,71 +110,14 @@ export class Layers {
         datasourceId: string,
         replace?: boolean) {
 
-        const map = MapFactory.getMap(mapId);
-        if (!map) {
-            return;
-        }
-
-        const ds = map.sources.getById(datasourceId) as atlas.source.DataSource;
-
-        if (replace && mapFeature.id) {
-            const shape = ds.getShapeById(mapFeature.id);
-            if (shape) {
-                ds.remove(shape);
-            }
-        }
-
-        let geom: atlas.data.Geometry;
-        const geomType = mapFeature.geometry.type as string;
-
-        switch (geomType.toLowerCase()) {
-            case GeoJSONType.Point:
-                geom = new atlas.data.Point(mapFeature.geometry.coordinates);
-                break;
-            case GeoJSONType.MultiPoint:
-                geom = new atlas.data.MultiPoint(mapFeature.geometry.coordinates, mapFeature.bbox);
-                break;
-            case GeoJSONType.LineString:
-                geom = new atlas.data.LineString(mapFeature.geometry.coordinates, mapFeature.bbox);
-                break;
-            case GeoJSONType.Polygon:
-                geom = new atlas.data.Polygon(mapFeature.geometry.coordinates, mapFeature.bbox);
-                break;
-        }
-
-        if (!geom) {
-            Logger.logMessage(mapId, Logger.LogLevel.Error, `- adding feature error: geometry type '${mapFeature.geometry.type}' not supported`);
-            return;
-        }
-
-        let feature = new atlas.data.Feature(geom, mapFeature.properties, mapFeature.id)
-
-        const jsInterop: JsInteropDef = {
-            id: mapFeature.id,
-            interopId: mapFeature.interopId,
-            type: mapFeature.geometry.type,
-            options: null,
-            controlOptions: null,
-        };
-
-        (feature as any).jsInterop = jsInterop;
-
-        if (mapFeature.asShape) {
-            let shape = new atlas.Shape(feature);
-            (shape as any).jsInterop = jsInterop;
-            ds.add(shape);
-        }
-        else {
-            ds.add(feature);
-        }
+        FeatureManager.addFeature(mapId, mapFeature, datasourceId, replace);
     }
-}
 
-enum GeoJSONType {
-    Point = 'point',
-    MultiPoint = 'multipoint',
-    LineString = 'linestring',
-    MultiLineString = 'multilinestring',
-    Polygon = 'polygon',
-    MultiPolygon = 'multipolygon'
+    public static updateMapFeature(
+        mapId: string,
+        mapFeature: TMapFeature,
+        datasourceId: string) {
+
+        FeatureManager.updateFeature(mapId, mapFeature, datasourceId);
+    }
 }
