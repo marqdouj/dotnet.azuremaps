@@ -2,6 +2,8 @@ import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger, Extensions } from "../common"
 import { Controls } from "../map-interop/controls"
+import { Markers } from "../map-interop/markers"
+import { Popups } from "../map-interop/popups"
 
 export class EventManager {
     static addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
@@ -387,12 +389,50 @@ export class EventManager {
     // #region HtmlMarkerEvents
     static #addHtmlMarkerEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
-        Logger.logMessage(mapId, Logger.LogLevel.Information, "addHtmlMarkerEvents not yet implemented.");
+
+        Object.values(events).filter(value => Extensions.isValueInEnum(MapHtmlMarkerEvent, value.type)).forEach((value) => {
+            const target = Markers.getMarker(mapId, value.targetId);
+
+            if (target) {
+                let result: MapEventInfo = { mapId: mapId, type: value.type };
+
+                if (value.once) {
+                    azmap.events.addOnce(value.type as MapHtmlMarkerEvent, target, (event: atlas.TargetedEvent) => {
+                        result.payload = this.#buildTargetedEventPayload(event);
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventHtmlMarker, result);
+                    });
+                }
+                else {
+                    azmap.events.add(value.type as MapHtmlMarkerEvent, target, (event: atlas.TargetedEvent) => {
+                        result.payload = this.#buildTargetedEventPayload(event);
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventHtmlMarker, result);
+                    });
+                }
+
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addHtmlMarkerEvents - invalid TargetId.", value);
+            }
+
+            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+        });
     }
 
     static #removeHtmlMarkerEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
-        Logger.logMessage(mapId, Logger.LogLevel.Information, "removeHtmlMarkerEvents not yet implemented.");
+
+        events.forEach((value) => {
+            const target = Markers.getMarker(mapId, value.targetId);
+
+            if (target) {
+                azmap.events.remove(value.type, target, () => { });
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeHtmlMarkerEvents - invalid TargetId.", value);
+            }
+        });
     }
     // #endregion
 
@@ -608,12 +648,50 @@ export class EventManager {
     // #region PopupEvents
     static #addPopupEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
-        Logger.logMessage(mapId, Logger.LogLevel.Information, "addPopupEvents not yet implemented.");
+
+        Object.values(events).filter(value => Extensions.isValueInEnum(MapPopupEvent, value.type)).forEach((value) => {
+            const target = Popups.getPopup(mapId, value.targetId);
+
+            if (target) {
+                let result: MapEventInfo = { mapId: mapId, type: value.type };
+
+                if (value.once) {
+                    azmap.events.addOnce(value.type as MapPopupEvent, target, (event: atlas.TargetedEvent) => {
+                        result.payload = this.#buildTargetedEventPayload(event);
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventPopup, result);
+                    });
+                }
+                else {
+                    azmap.events.add(value.type as MapPopupEvent, target, (event: atlas.TargetedEvent) => {
+                        result.payload = this.#buildTargetedEventPayload(event);
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventPopup, result);
+                    });
+                }
+
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addPopupEvents - invalid TargetId.", value);
+            }
+
+            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+        });
     }
 
     static #removePopupEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
-        Logger.logMessage(mapId, Logger.LogLevel.Information, "removePopupEvents not yet implemented.");
+
+        events.forEach((value) => {
+            const target = Popups.getPopup(mapId, value.targetId);
+
+            if (target) {
+                azmap.events.remove(value.type, target, () => { });
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removePopupEvents - invalid TargetId.", value);
+            }
+        });
     }
     // #endregion
 
@@ -643,6 +721,12 @@ export class EventManager {
             pixel: mouseEvent.pixel,
             position: mouseEvent.position,
             shapes: this.#buildShapeResults(mouseEvent.shapes)
+        };
+    }
+
+    static #buildTargetedEventPayload(event: atlas.TargetedEvent) {
+        return {
+            interop: (event.target as any).jsInterop
         };
     }
 
@@ -684,8 +768,10 @@ export enum EventNotifications {
     NotifyMapEventData = 'NotifyMapEventData',
     NotifyMapEventDataSource = 'NotifyMapEventDataSource',
     NotifyMapEventError = 'NotifyMapEventError',
+    NotifyMapEventHtmlMarker = 'NotifyMapEventHtmlMarker',
     NotifyMapEventLayer = 'NotifyMapEventLayer',
     NotifyMapEventMouse = 'NotifyMapEventMouse',
+    NotifyMapEventPopup = "NotifyMapEventPopup",
     NotifyMapEventReady = 'NotifyMapEventReady',
     NotifyMapEventShape = 'NotifyMapEventShape',
     NotifyMapEventSource = 'NotifyMapEventSource',
@@ -779,6 +865,27 @@ enum MapEventTouch {
     TouchStart = 'touchstart'
 }
 
+enum MapHtmlMarkerEvent{
+    Click = 'click',
+    ContextMenu = 'contextmenu',
+    DblClick = 'dblclick',
+    MouseDown = 'mousedown',
+    MouseEnter = 'mouseenter',
+    MouseLeave = 'mouseleave',
+    MouseMove = 'mousemove',
+    MouseOut = 'mouseout',
+    MouseOver = 'mouseover',
+    MouseUp = 'mouseup',
+
+    Drag = 'drag',
+    DragEnd = 'dragend',
+    DragStart = 'dragstart',
+
+    KeyDown = 'keydown',
+    KeyPress = 'keypress',
+    KeyUp = 'keyup',
+}
+
 enum MapLayerEvent {
     LayerAdded = 'layeradded',
     LayerRemoved = 'layerremoved',
@@ -806,6 +913,14 @@ enum MapLayerEvent {
 enum MapLayerMouseEvent {
     MouseEnter = 'mouseenter',
     MouseLeave = 'mouseleave',
+}
+
+enum MapPopupEvent {
+    Drag = 'drag',
+    DragEnd = 'dragend',
+    DragStart = 'dragstart',
+    Open = 'open',
+    Close = 'close',
 }
 
 enum MapShapeEvent {

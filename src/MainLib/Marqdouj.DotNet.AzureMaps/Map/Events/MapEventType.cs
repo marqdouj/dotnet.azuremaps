@@ -1,5 +1,13 @@
 ﻿namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
+    //    Drag = 'drag',
+    //DragStart = 'dragstart',
+    //DragEnd = 'dragend',
+
+    //KeyDown = 'keydown',
+    //KeyPress = 'keypress',
+    //KeyUp = 'keyup',
+
     /// <summary>
     /// Represents the various types of map events that can be subscribed to.
     /// </summary>
@@ -14,6 +22,18 @@
         [Obsolete("Error is now always subscribed and no longer optional.")]
         Error,
         Idle,
+        /// <summary>
+        /// Applies to target HtmlMarker only.
+        /// </summary>
+        KeyDown,
+        /// <summary>
+        /// Applies to target HtmlMarker only.
+        /// </summary>
+        KeyPress,
+        /// <summary>
+        /// Applies to target HtmlMarker only.
+        /// </summary>
+        KeyUp, 
         Load,
         Move,
         MoveEnd,

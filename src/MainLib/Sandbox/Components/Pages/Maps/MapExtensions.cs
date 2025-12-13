@@ -95,13 +95,10 @@ namespace Sandbox.Components.Pages.Maps
 
             await mapInterop.Layers.CreateLayer(layerDef);
 
-            var data = await dataService.GetDefaultSymbolLayerFeatures();
-            foreach (var feature in data)
-            {
-                await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
-            }
+            var features = await dataService.GetDefaultSymbolLayerFeatures();
+            await mapInterop.Layers.AddMapFeatures(features, layerDef.DataSource.Id);
 
-            var pt = (Point)data[0].Geometry;
+            var pt = (Point)features[0].Geometry;
             await mapInterop.Configuration.ZoomTo(pt.Coordinates, 11);
 
             return layerDef;

@@ -7,9 +7,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
     {
         Map,
         DataSource,
-        //HtmlMarker,
+        HtmlMarker,
         Layer,
-        //Popup,
+        Popup,
         Shape,
         StyleControl,
     }

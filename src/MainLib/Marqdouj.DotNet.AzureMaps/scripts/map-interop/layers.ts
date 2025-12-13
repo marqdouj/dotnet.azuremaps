@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
-import { Logger, Extensions, GeoJSONType } from "../common"
-import { MapLayerDef, DataSourceDef, TMapFeature } from "../typings"
+import { Logger, Extensions } from "../common"
+import { MapLayerDef, DataSourceDef, MapFeature } from "../typings"
 import { Maps } from "./maps"
 import { FeatureManager } from "./features"
 
@@ -106,18 +106,35 @@ export class Layers {
 
     public static addMapFeature(
         mapId: string,
-        mapFeature: TMapFeature,
+        mapFeature: MapFeature,
         datasourceId: string,
         replace?: boolean) {
 
         FeatureManager.addFeature(mapId, mapFeature, datasourceId, replace);
     }
 
+    public static addMapFeatures(
+        mapId: string,
+        mapFeatures: MapFeature[],
+        datasourceId: string,
+        replace?: boolean) {
+
+        FeatureManager.addFeatures(mapId, mapFeatures, datasourceId, replace);
+    }
+
     public static updateMapFeature(
         mapId: string,
-        mapFeature: TMapFeature,
+        mapFeature: MapFeature,
         datasourceId: string) {
 
         FeatureManager.updateFeature(mapId, mapFeature, datasourceId);
+    }
+
+    public static updateMapFeatures(
+        mapId: string,
+        mapFeatures: MapFeature[],
+        datasourceId: string) {
+
+        FeatureManager.updateFeatures(mapId, mapFeatures, datasourceId);
     }
 }

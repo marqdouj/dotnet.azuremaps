@@ -14,6 +14,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <param name="replace">If <see langword="true"/>, replaces any existing feature with the same identifier; otherwise, adds the
         /// feature without replacing.</param>
         Task AddMapFeature(MapFeatureDef feature, string datasourceId, bool replace = false);
+        Task AddMapFeatures(List<MapFeatureDef> features, string datasourceId, bool replace = false);
 
         /// <summary>
         /// Creates a new map layer on the client using the specified layer definition.
@@ -34,6 +35,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <returns></returns>
         Task RemoveLayer(MapLayerDef layerDef);
         Task UpdateMapFeature(MapFeatureDef feature, string datasourceId);
+        Task UpdateMapFeatures(List<MapFeatureDef> features, string datasourceId);
     }
 
     internal sealed class AzureMapsLayers(AzureMapReference mapReference) : IAzureMapsLayers
@@ -62,9 +64,19 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, feature, datasourceId, replace);
         }
 
+        public async Task AddMapFeatures(List<MapFeatureDef> features, string datasourceId, bool replace = false)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, features, datasourceId, replace);
+        }
+
         public async Task UpdateMapFeature(MapFeatureDef feature, string datasourceId)
         {
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, feature, datasourceId);
+        }
+
+        public async Task UpdateMapFeatures(List<MapFeatureDef> features, string datasourceId)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, features, datasourceId);
         }
 
         private static string GetMapInteropMethod([CallerMemberName] string name = "")

@@ -24,6 +24,10 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.4
+- `HtmlMarker`. Added support for HtmlMarker
+- `Popup`. Added support for Popup
+
 ### 10.3.3
 - `Map Events`. Implemented dynamic add/remove event support for:
   - `Layer`

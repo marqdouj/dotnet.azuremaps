@@ -1,4 +1,5 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.Events;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
 using Microsoft.JSInterop;
@@ -21,6 +22,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <param name="mapEvents"></param>
         /// <returns></returns>
         Task AddEvents(IEnumerable<MapEventDef> mapEvents);
+        Task AddMarkers(IEnumerable<HtmlMarkerDef> markers);
+        Task AddPopups(IEnumerable<PopupDef> Popups);
 
         /// <summary>
         /// Clears the specified data source.
@@ -58,6 +61,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <param name="mapEvents"></param>
         /// <returns></returns>
         Task RemoveEvents(IEnumerable<MapEventDef> mapEvents);
+        Task RemoveMarkers(IEnumerable<HtmlMarkerDef> markers);
+        Task RemovePopups(IEnumerable<PopupDef> Popups);
     }
 
     internal sealed class AzureMapsMaps(AzureMapReference mapReference) : IAzureMapsMaps
@@ -110,6 +115,26 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async Task RemoveDatasource(string sourceId)
         {
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, sourceId);
+        }
+
+        public async Task AddMarkers(IEnumerable<HtmlMarkerDef> markers)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, markers);
+        }
+
+        public async Task RemoveMarkers(IEnumerable<HtmlMarkerDef> markers)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, markers);
+        }
+
+        public async Task AddPopups(IEnumerable<PopupDef> Popups)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, Popups);
+        }
+
+        public async Task RemovePopups(IEnumerable<PopupDef> Popups)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, Popups);
         }
 
         private static string GetMapInteropMethod([CallerMemberName] string name = "")

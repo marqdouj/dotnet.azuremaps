@@ -1,17 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Controls
 {
-    public class MapControl
+    public class MapControl : JSInteropDef
     {
-        public string? Id { get; set; }
-
-        /// <summary>
-        /// Internal. Used for identifying controls added to the map via JsInterop.
-        /// </summary>
-        [JsonInclude]
-        public string InteropId { get; internal set; } = MapExtensions.GetRandomCssId();
-
         [JsonIgnore]
         public MapControlType? Type { get; internal set; }
 

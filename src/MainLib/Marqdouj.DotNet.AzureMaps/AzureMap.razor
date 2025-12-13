@@ -181,6 +181,9 @@
     public EventCallback<MapEventErrorArgs> OnMapEventError { get; set; }
 
     [Parameter]
+    public EventCallback<MapEventHtmlMarkerArgs> OnMapEventHtmlMarker { get; set; }
+
+    [Parameter]
     public EventCallback<MapEventLayerArgs> OnMapEventLayer { get; set; }
 
     [Parameter]
@@ -188,6 +191,9 @@
 
     [Parameter]
     public EventCallback<MapEventArgs> OnMapEventReady { get; set; }
+
+    [Parameter]
+    public EventCallback<MapEventPopupArgs> OnMapEventPopup { get; set; }
 
     [Parameter]
     public EventCallback<MapEventShapeArgs> OnMapEventShape { get; set; }
@@ -220,6 +226,9 @@
     public async Task NotifyMapEventError(MapEventErrorArgs e) => await OnMapEventError.InvokeAsync(e);
 
     [JSInvokable]
+    public async Task NotifyMapEventHtmlMarker(MapEventHtmlMarkerArgs e) => await OnMapEventHtmlMarker.InvokeAsync(e);
+
+    [JSInvokable]
     public async Task NotifyMapEventLayer(MapEventLayerArgs e) => await OnMapEventLayer.InvokeAsync(e);
 
     [JSInvokable]
@@ -227,6 +236,9 @@
 
     [JSInvokable]
     public async Task NotifyMapEventReady(MapEventArgs e) => await OnMapEventReady.InvokeAsync(e);
+
+    [JSInvokable]
+    public async Task NotifyMapEventPopup(MapEventPopupArgs e) => await OnMapEventPopup.InvokeAsync(e);
 
     [JSInvokable]
     public async Task NotifyMapEventShape(MapEventShapeArgs e) => await OnMapEventShape.InvokeAsync(e);

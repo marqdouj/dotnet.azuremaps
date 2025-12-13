@@ -1,17 +1,29 @@
 import * as atlas from "azure-maps-control";
 import { Logger } from "../common"
 
-interface JsInteropDef {
+interface JsInteropObject {
     id: string,
     interopId: string,
+}
+
+interface JsInteropDef extends JsInteropObject {
     type: string,
     options: object;
     controlOptions: object;
 }
 
-interface MapLayerDef {
+
+interface HtmlMarkerDef extends JsInteropObject {
+    options: atlas.HtmlMarkerOptions;
+    togglePopupOnClick: boolean;
+}
+
+interface PopupDef extends JsInteropObject {
+    options: atlas.PopupOptions;
+}
+
+interface MapLayerDef extends JsInteropObject {
     type: 'Bubble' | 'HeatMap' | 'Image' | 'Line' | 'Polygon' | 'PolygonExtrusion' | 'Symbol' | 'Tile';
-    id: string;
     sourceId: string;
     before?: string;
     options?:
@@ -26,16 +38,13 @@ interface MapLayerDef {
     atlas.WebGLLayerOptions;
 }
 
-type DataSourceDef = {
-    id: string;
+interface DataSourceDef extends JsInteropObject {
     url: string;
     options?: atlas.DataSourceOptions;
 }
 
-interface MapControl {
+interface MapControl extends JsInteropObject {
     type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'zoom';
-    id: string;
-    interopId: string;
     position: atlas.ControlPosition;
     options: atlas.CompassControlOptions
     | atlas.FullscreenControlOptions
@@ -79,9 +88,7 @@ interface MapOptionsSet {
 
 type TProperties = { [key: string]: any };
 
-type TMapFeature = {
-    id?: string;
-    interopId?: string,
+interface MapFeature extends JsInteropObject {
     geometry: any;
     bbox?: atlas.data.BoundingBox;
     properties?: TProperties;

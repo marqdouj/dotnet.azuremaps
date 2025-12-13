@@ -1,4 +1,5 @@
 ﻿@page "/map-events"
+@using Marqdouj.DotNet.Web.Components.Css
 @rendermode InteractiveServer
 @inject ILogger<MapEvents> Logger
 @inject IToastService ToastService
@@ -17,6 +18,8 @@
             The MouseEnter and MouseLeave events will be logged to the Console.
             <br />
             When you move the shapes (Move Shapes button) the ShapeChanged events will be logged to the Console.
+            <br />
+            An HtmlMarker with Popup will be added to the map, in the middle of Lake Washington, when you add the layer. Click on the marker to see the popup.
         </FluentLabel>
     </MapPageHeader>
 
@@ -54,6 +57,7 @@
     private bool addStyleControlEvents;
     private MapLayerDef? layerDef;
     private List<MapFeatureDef>? mapFeatures;
+    private List<HtmlMarkerDef>? htmlMarkers;
     private bool layerDefLoaded => layerDef != null;
     private bool disableLayerEvents => disabled || layerDef == null;
     private bool addLayerEvents;
@@ -135,7 +139,6 @@
         }
     }
 
-
     private async Task ResetMap()
     {
         try
@@ -203,6 +206,24 @@
 
             layerDef = await mapContainer.AddBasicMapLayer(DataService, MapLayerType.Symbol);
             mapFeatures = await DataService.GetDefaultSymbolLayerFeatures();
+
+            htmlMarkers = new()
+            {
+                new HtmlMarkerDef(){Options = new(){
+                    Color = HtmlColorName.Crimson.ToString(),
+                    Text = "?",
+                    Position = new(-122.25561843457605, 47.61125650358747),
+                    Popup = new PopupDef(){ Options = new()
+                        { 
+                            Content = "<div style=\"padding:10px\">Hi from my HtmlMarker Popup!</div>",
+                            PixelOffset = new (0, 30)
+                        },
+                    }},
+                    TogglePopupOnClick = true
+                }
+            };
+
+            await mapContainer.Maps.AddMarkers(htmlMarkers);
             ToastService.Info($"{MapLayerType.Symbol} layer was added to the map.");
         }
         else
@@ -243,9 +264,10 @@
         {
             var pt = (Point)feature.Geometry;
             pt.Coordinates = new Position(pt.Coordinates.Longitude - 0.00123, pt.Coordinates.Latitude);
-
-            await mapContainer!.Layers.UpdateMapFeature(feature, layerDef!.DataSource.Id);
         }
+
+        await mapContainer!.Layers.UpdateMapFeatures(mapFeatures, layerDef!.DataSource.Id);
+
     }
 
     private async Task RemoveLayer()
@@ -259,6 +281,12 @@
             layerDef = null;
             mapFeatures = null;
             addLayerEvents = false;
+        }
+
+        if (htmlMarkers != null)
+        {
+            await mapContainer.Maps.RemoveMarkers(htmlMarkers);
+            htmlMarkers = null;
         }
     }
 

@@ -1,14 +1,14 @@
 import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger } from "../common"
-import { TMapFeature, TProperties } from "../typings"
+import { MapFeature, TProperties } from "../typings"
 import { SourceManager } from "./source"
 import { GeoJSONType } from "../common"
 
 export class FeatureManager {
     public static addFeature(
         mapId: string,
-        mapFeature: TMapFeature,
+        mapFeature: MapFeature,
         datasourceId: string,
         replace?: boolean) {
 
@@ -20,6 +20,37 @@ export class FeatureManager {
         const ds = SourceManager.getDataSource(map, mapId, datasourceId); 
         if (!ds)
             return;
+
+        this.#doAddFeature(map, mapId, mapFeature, ds, replace);
+    }
+
+    public static addFeatures(
+        mapId: string,
+        mapFeatures: MapFeature[],
+        datasourceId: string,
+        replace?: boolean) {
+
+        const map = MapFactory.getMap(mapId);
+        if (!map) {
+            return;
+        }
+
+        const ds = SourceManager.getDataSource(map, mapId, datasourceId);
+        if (!ds)
+            return;
+
+        mapFeatures.forEach(mapFeature => {
+            this.#doAddFeature(map, mapId, mapFeature, ds, replace);
+        });
+    }
+
+
+    static #doAddFeature(
+        map: atlas.Map,
+        mapId: string,
+        mapFeature: MapFeature,
+        ds: atlas.source.DataSource,
+        replace?: boolean) {
 
         if (replace && mapFeature.id) {
             const shape = ds.getShapeById(mapFeature.id);
@@ -66,7 +97,7 @@ export class FeatureManager {
 
     public static updateFeature(
         mapId: string,
-        mapFeature: TMapFeature,
+        mapFeature: MapFeature,
         datasourceId: string) {
 
         const map = MapFactory.getMap(mapId);
@@ -83,5 +114,28 @@ export class FeatureManager {
         if (shape) {
             shape.setCoordinates(mapFeature.geometry.coordinates);
         }
+    }
+
+    public static updateFeatures(
+        mapId: string,
+        mapFeatures: MapFeature[],
+        datasourceId: string) {
+
+        const map = MapFactory.getMap(mapId);
+        if (!map) {
+            return;
+        }
+
+        const ds = SourceManager.getDataSource(map, mapId, datasourceId);
+
+        if (!ds)
+            return;
+
+        mapFeatures.forEach(feature => {
+            const shape = ds.getShapeById(feature.id);
+            if (shape) {
+                shape.setCoordinates(feature.geometry.coordinates);
+            }
+        });
     }
 }

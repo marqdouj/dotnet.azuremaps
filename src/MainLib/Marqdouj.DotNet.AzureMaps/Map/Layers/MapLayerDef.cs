@@ -1,11 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Layers
 {
     /// <summary>
     /// defines a layer to be added to the map.
     /// </summary>
-    public abstract class MapLayerDef
+    public abstract class MapLayerDef : JSInteropDef
     {
         protected internal MapLayerDef() { }
 
@@ -18,12 +19,6 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Layers
         [JsonInclude]
         [JsonPropertyName("type")]
         internal string Type { get => LayerType.ToString(); }
-
-        /// <summary>
-        /// Custom Id for the layer (Optional).
-        /// Default is an internally generated valid Css Id.
-        /// </summary>
-        public string Id { get; set; } = MapExtensions.GetRandomCssId();
 
         /// <summary>
         ///  Optionally specify a layer id to insert the new layer(s) before it.
