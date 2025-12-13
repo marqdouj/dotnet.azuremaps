@@ -6,8 +6,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Controls
     {
         public string? Id { get; set; }
 
+        /// <summary>
+        /// Internal. Used for identifying controls added to the map via JsInterop.
+        /// </summary>
         [JsonInclude]
-        internal string InteropId { get; set; } = Guid.NewGuid().ToString();
+        public string InteropId { get; internal set; } = MapExtensions.GetRandomCssId();
 
         [JsonIgnore]
         public MapControlType? Type { get; internal set; }

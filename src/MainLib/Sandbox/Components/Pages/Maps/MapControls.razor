@@ -1,16 +1,14 @@
 ﻿@page "/map-controls"
 @rendermode InteractiveServer
-@inject IJSRuntime JSRuntime
 @inject ILogger<BasicMap> Logger
 @inject IToastService ToastService
 
 <FluentLayout>
-    <FluentHeader>
-        Map Controls
+    <MapPageHeader Header="Map Controls" HRefCode="@hRefCode">
         <FluentLabel>
-            This page demonstrates adding/removing controls dynamically.
+            This example demonstrates adding/removing controls dynamically..
         </FluentLabel>
-    </FluentHeader>
+    </MapPageHeader>
 
     <FluentToolbar>
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
@@ -58,6 +56,7 @@
 
 @code {
     private IAzureMapContainer? mapContainer;
+    private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("MapControls.razor");
     private bool overlay;
     private bool disabled => overlay || mapContainer == null;
     private readonly List<MapControlViewModel> controls = MapHelpers.GetDefaultControls().Select(e => new MapControlViewModel(e)).ToList();
@@ -138,11 +137,5 @@
             await mapContainer!.Maps.AddControls(items);
             vm.Loaded = true;
         }
-    }
-
-    private class MapControlViewModel(MapControl control)
-    {
-        public MapControl Control { get; set; } = control;
-        public bool Loaded { get; set; }
     }
 }

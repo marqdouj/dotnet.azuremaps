@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger, Extensions } from "../common"
-import { MapLayerDef, DataSourceDef, TMapFeature } from "../typings"
+import { MapLayerDef, DataSourceDef, TMapFeature, JsInteropDef } from "../typings"
 import { Maps } from "./maps"
 
 export class Layers {
@@ -146,9 +146,21 @@ export class Layers {
             return;
         }
 
-        const feature = new atlas.data.Feature(geom, mapFeature.properties, mapFeature.id)
+        let feature = new atlas.data.Feature(geom, mapFeature.properties, mapFeature.id)
+
+        const jsInterop: JsInteropDef = {
+            id: mapFeature.id,
+            interopId: mapFeature.interopId,
+            type: mapFeature.geometry.type,
+            options: null,
+            controlOptions: null,
+        };
+
+        (feature as any).jsInterop = jsInterop;
+
         if (mapFeature.asShape) {
-            const shape = new atlas.Shape(feature);
+            let shape = new atlas.Shape(feature);
+            (shape as any).jsInterop = jsInterop;
             ds.add(shape);
         }
         else {

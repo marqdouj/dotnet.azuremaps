@@ -48,6 +48,14 @@
         ContextMenu,
         DblClick,
         MouseDown,
+        /// <summary>
+        /// Applies to target Layer only.
+        /// </summary>
+        MouseEnter,
+        /// <summary>
+        /// Applies to target Layer only.
+        /// </summary>
+        MouseLeave,
         MouseMove,
         MouseOut,
         MouseOver,
@@ -58,9 +66,18 @@
         SourceAdded,
         SourceRemoved,
 
+        //Shape
+        /// <summary>
+        /// Applies to target Shape only.
+        /// </summary>
+        ShapeChanged,
+
         //Style
         StyleChanged,
         StyleImageMissing,
+        /// <summary>
+        /// Applies to target StyleControl only.
+        /// </summary>
         StyleSelected,
 
         //Touch

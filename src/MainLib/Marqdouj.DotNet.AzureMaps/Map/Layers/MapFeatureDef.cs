@@ -1,5 +1,6 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
+using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Layers
 {
@@ -9,7 +10,13 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Layers
     /// <param name="geometry"></param>
     public class MapFeatureDef (Geometry geometry)
     {
-        public string? Id { get; set; }
+        public string? Id { get; set; } = MapExtensions.GetRandomCssId();
+
+        /// <summary>
+        /// Internal. Used for identifying features added to the map via JsInterop.
+        /// </summary>
+        [JsonInclude]
+        public string InteropId { get; internal set; } = MapExtensions.GetRandomCssId();
 
         public object Geometry { get; } = geometry;
 

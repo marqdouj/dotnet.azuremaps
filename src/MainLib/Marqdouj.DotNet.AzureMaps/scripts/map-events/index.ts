@@ -1,9 +1,12 @@
 import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger, Extensions } from "../common"
+import { Controls } from "../map-interop/controls"
 
 export class EventManager {
     static addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         const azmap = MapFactory.getMap(mapId);
 
         if (!azmap) {
@@ -17,9 +20,16 @@ export class EventManager {
 
         this.#addMapEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "map"));
         this.#addDataSourceEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "datasource"));
+        this.#addHtmlMarkerEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "htmlmarker"));
+        this.#addLayerEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "layer"));
+        this.#addShapeEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "shape"));
+        this.#addStyleControlEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "stylecontrol"));
+        this.#addPopupEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "popup"));
     }
 
     static removeEvents(mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         const azmap = MapFactory.getMap(mapId);
 
         if (!azmap) {
@@ -31,9 +41,18 @@ export class EventManager {
 
         this.#removeMapEvents(azmap, mapId, Object.values(events).filter(value => value.target === "map"));
         this.#removeDataSourceEvents(azmap, mapId, Object.values(events).filter(value => value.target === "datasource"));
+        this.#removeHtmlMarkerEvents(azmap, mapId, Object.values(events).filter(value => value.target === "htmlmarker"));
+        this.#removeLayerEvents(azmap, mapId, Object.values(events).filter(value => value.target === "layer"));
+        this.#removeShapeEvents(azmap, mapId, Object.values(events).filter(value => value.target === "shape"));
+        this.#removeStyleControlEvents(azmap, mapId, Object.values(events).filter(value => value.target === "stylecontrol"));
+        this.#removePopupEvents(azmap, mapId, Object.values(events).filter(value => value.target === "popup"));
     }
 
+    // #region MapEvents
+
     static #addMapEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         this.#addMapEventsConfig(dotNetRef, azmap, mapId, events);
         this.#addMapEventsData(dotNetRef, azmap, mapId, events);
         this.#addMapEventsGeneral(dotNetRef, azmap, mapId, events);
@@ -46,6 +65,8 @@ export class EventManager {
     }
 
     static #addMapEventsConfig(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventConfig, value.type)).forEach((value) => {
 
             if (value.once) {
@@ -64,6 +85,8 @@ export class EventManager {
     }
 
     static #addMapEventsData(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventData, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
@@ -97,6 +120,8 @@ export class EventManager {
     }
 
     static #addMapEventsGeneral(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventGeneral, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
@@ -116,6 +141,8 @@ export class EventManager {
     }
 
     static #addMapEventsLayer(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventLayer, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
@@ -137,28 +164,20 @@ export class EventManager {
     }
 
     static #addMapEventsMouse(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventMouse, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
                 azmap.events.addOnce(value.type as MapEventMouse, (mouseEvent: atlas.MapMouseEvent) => {
-                    result.payload = {
-                        layerId: mouseEvent.layerId,
-                        pixel: mouseEvent.pixel,
-                        position: mouseEvent.position,
-                        shapes: this.#buildShapeResults(mouseEvent.shapes)
-                    };
+                    result.payload = this.#buildMouseEventPayload(mouseEvent);
                     dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventMouse, result);
                 });
             }
             else {
                 azmap.events.add(value.type as MapEventMouse, (mouseEvent: atlas.MapMouseEvent) => {
-                    result.payload = {
-                        layerId: mouseEvent.layerId,
-                        pixel: mouseEvent.pixel,
-                        position: mouseEvent.position,
-                        shapes: this.#buildShapeResults(mouseEvent.shapes)
-                    };
+                    result.payload = this.#buildMouseEventPayload(mouseEvent);
                     dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventMouse, result);
                 });
             }
@@ -168,6 +187,8 @@ export class EventManager {
     }
 
     static #addMapEventsSource(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventSource, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
@@ -189,6 +210,8 @@ export class EventManager {
     }
 
     static #addMapEventsStyle(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventStyle, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
@@ -229,32 +252,20 @@ export class EventManager {
     }
 
     static #addMapEventsTouch(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventTouch, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
                 azmap.events.addOnce(value.type as MapEventTouch, (touchEvent: atlas.MapTouchEvent) => {
-                    result.payload = {
-                        pixel: touchEvent.pixel,
-                        pixels: touchEvent.pixels,
-                        position: touchEvent.position,
-                        positions: touchEvent.positions,
-                        layerId: touchEvent.layerId,
-                        shapes: this.#buildShapeResults(touchEvent.shapes)
-                    };
+                    result.payload = this.#buildTouchEventPayload(touchEvent);
                     dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventTouch, result);
                 });
             }
             else {
                 azmap.events.add(value.type as MapEventTouch, (touchEvent: atlas.MapTouchEvent) => {
-                    result.payload = {
-                        pixel: touchEvent.pixel,
-                        pixels: touchEvent.pixels,
-                        position: touchEvent.position,
-                        positions: touchEvent.positions,
-                        layerId: touchEvent.layerId,
-                        shapes: this.#buildShapeResults(touchEvent.shapes)
-                    };
+                    result.payload = this.#buildTouchEventPayload(touchEvent);
                     dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventTouch, result);
                 });
             }
@@ -264,18 +275,20 @@ export class EventManager {
     }
 
     static #addMapEventsWheel(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventWheel, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
                 azmap.events.addOnce(value.type as MapEventWheel, (wheelEvent: atlas.MapMouseWheelEvent) => {
-                    result.payload = { type: wheelEvent.type };
+                    result.payload = this.#buildWheelEventPayload(wheelEvent);
                     dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventWheel, result);
                 });
             }
             else {
                 azmap.events.add(value.type as MapEventWheel, (wheelEvent: atlas.MapMouseWheelEvent) => {
-                    result.payload = { type: wheelEvent.type };
+                    result.payload = this.#buildWheelEventPayload(wheelEvent);
                     dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventWheel, result);
                 });
             }
@@ -285,13 +298,20 @@ export class EventManager {
     }
 
     static #removeMapEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         events.forEach((value) => {
             azmap.events.remove(value.type, () => { });
             Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
         });
     }
 
+    // #endregion
+
+    // #region DataSourceEvents
     static #addDataSourceEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
         Object.values(events).filter(value => Extensions.isValueInEnum(MapEventDataSource, value.type)).forEach((value) => {
             const ds = azmap.sources.getById(value.targetId) as atlas.source.DataSource;
 
@@ -302,6 +322,7 @@ export class EventManager {
                 payload.shapes = dsShapes;
 
                 let result: MapEventInfo = { mapId: mapId, type: value.type, payload: payload };
+                let wasAdded: boolean = true;
 
                 switch (value.type.toLowerCase()) {
                     case MapEventDataSource.DataSourceUpdated:
@@ -332,9 +353,15 @@ export class EventManager {
                         }
                         break;
                     default:
+                        wasAdded = false;
                 }
 
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                if (wasAdded) {
+                    Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                }
+                else {
+                    Logger.logMessage(mapId, Logger.LogLevel.Trace, "event was not added - type not found:", value);
+                }
             }
             else {
                 Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addDataSourceEvents - invalid TargetId.", value);
@@ -355,6 +382,240 @@ export class EventManager {
             }
         });
     }
+    // #endregion
+
+    // #region HtmlMarkerEvents
+    static #addHtmlMarkerEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+        Logger.logMessage(mapId, Logger.LogLevel.Information, "addHtmlMarkerEvents not yet implemented.");
+    }
+
+    static #removeHtmlMarkerEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+        Logger.logMessage(mapId, Logger.LogLevel.Information, "removeHtmlMarkerEvents not yet implemented.");
+    }
+    // #endregion
+
+    // #region LayerEvents
+    static #addLayerEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
+        Logger.logMessage(mapId, Logger.LogLevel.Trace, "addLayerEvents:", events);
+
+        Object.values(events).filter(value => Extensions.isValueInEnum(MapLayerEvent, value.type)).forEach((value) => {
+            const target = azmap.layers.getLayerById(value.targetId);
+
+            if (target) {
+                let result: MapEventInfo = { mapId: mapId, type: value.type };
+                let wasAdded: boolean = false;
+
+                if (Extensions.isValueInEnum(MapEventTouch, value.type)) {
+                    if (value.once) {
+                        azmap.events.addOnce(value.type as MapEventTouch, target, (touchEvent: atlas.MapTouchEvent) => {
+                            result.payload = { id: value.targetId, touch: this.#buildTouchEventPayload(touchEvent) };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+                    else {
+                        azmap.events.add(value.type as MapEventTouch, target, (touchEvent: atlas.MapTouchEvent) => {
+                            result.payload = { id: value.targetId, touch: this.#buildTouchEventPayload(touchEvent) };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+
+                    wasAdded = true;
+                }
+
+                if (Extensions.isValueInEnum(MapEventLayer, value.type)) {
+                    if (value.once) {
+                        azmap.events.addOnce(value.type as MapEventLayer, target, (layer: atlas.layer.Layer) => {
+                            result.payload = { id: layer.getId() };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+                    else {
+                        azmap.events.add(value.type as MapEventLayer, target, (layer: atlas.layer.Layer) => {
+                            result.payload = { id: layer.getId() };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+
+                    wasAdded = true;
+                }
+
+                if (Extensions.isValueInEnum(MapEventMouse, value.type)) {
+                    if (value.once) {
+                        azmap.events.addOnce(value.type as MapEventMouse, target, (mouseEvent: atlas.MapMouseEvent) => {
+                            result.payload = { id: value.targetId, touch: this.#buildMouseEventPayload(mouseEvent) };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+                    else {
+                        azmap.events.add(value.type as MapEventMouse, target, (mouseEvent: atlas.MapMouseEvent) => {
+                            result.payload = { id: value.targetId, touch: this.#buildMouseEventPayload(mouseEvent) };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+
+                    wasAdded = true;
+                }
+
+                if (Extensions.isValueInEnum(MapEventWheel, value.type)) {
+                    if (value.once) {
+                        azmap.events.addOnce(value.type as MapEventWheel, target, (wheelEvent: atlas.MapMouseWheelEvent) => {
+                            result.payload = { id: value.targetId, wheel: this.#buildWheelEventPayload(wheelEvent) };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+                    else {
+                        azmap.events.add(value.type as MapEventWheel, target, (wheelEvent: atlas.MapMouseWheelEvent) => {
+                            result.payload = { id: value.targetId, wheel: this.#buildWheelEventPayload(wheelEvent) };
+                            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+                        });
+                    }
+
+                    wasAdded = true;
+                }
+
+                if (wasAdded) {
+                    Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                }
+                else {
+                    Logger.logMessage(mapId, Logger.LogLevel.Error, "event not added - type not implemented:", value);
+                }
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addLayerEvents - invalid TargetId.", value);
+            }
+        });
+    }
+
+    static #removeLayerEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
+        events.forEach((value) => {
+            const target = azmap.layers.getLayerById(value.targetId);
+
+            if (target) {
+                azmap.events.remove(value.type, target, () => { });
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeLayerEvents - invalid TargetId.", value);
+            }
+        });
+    }
+    // #endregion
+
+    // #region ShapeEvents
+    static #addShapeEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
+        Object.values(events).filter(value => Extensions.isValueInEnum(MapShapeEvent, value.type)).forEach((value) => {
+            const ds = azmap.sources.getById(value.targetSourceId) as atlas.source.DataSource;
+            const target = ds.getShapeById(value.targetId);
+
+            if (target) {
+                let result: MapEventInfo = { mapId: mapId, type: value.type };
+
+                if (value.once) {
+                    azmap.events.addOnce(value.type as MapShapeEvent, target, (shape: atlas.Shape) => {
+                        result.payload = { id: shape.getId() };
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventShape, result);
+                    });
+                }
+                else {
+                    azmap.events.add(value.type as MapShapeEvent, target, (shape: atlas.Shape) => {
+                        result.payload = { id: shape.getId() };
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventShape, result);
+                    });
+                }
+
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addShapeEvents - invalid TargetId or TargetSourceId.", value);
+            }
+
+            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+        });
+    }
+
+    static #removeShapeEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        events.forEach((value) => {
+            const ds = azmap.sources.getById(value.targetSourceId) as atlas.source.DataSource;
+            const target = ds.getShapeById(value.targetId);
+
+            if (target) {
+                azmap.events.remove(value.type, target, () => { });
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeShapeEvents - invalid TargetId or TargetSourceId.", value);
+            }
+        });
+    }
+    // #endregion
+
+    // #region StyleControlEvents
+    static #addStyleControlEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+
+        Object.values(events).filter(value => Extensions.isValueInEnum(MapStyleControlEvent, value.type)).forEach((value) => {
+            const target = Controls.getControlByByInteropId(mapId, value.targetId) as atlas.control.StyleControl;
+
+            if (target) {
+                let result: MapEventInfo = { mapId: mapId, type: value.type };
+
+                if (value.once) {
+                    azmap.events.addOnce(value.type as MapStyleControlEvent, target, (style: string) => {
+                        result.payload = { style: style };
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventStyle, result);
+                    });
+                }
+                else {
+                    azmap.events.add(value.type as MapStyleControlEvent, target, (style: string) => {
+                        result.payload = { style: style };
+                        dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventStyle, result);
+                    });
+                }
+
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addShapeEvents - invalid TargetId.", value);
+            }
+
+            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+        });
+    }
+
+    static #removeStyleControlEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        events.forEach((value) => {
+            const target = Controls.getControlByByInteropId(mapId, value.targetId) as atlas.control.StyleControl;
+
+            if (target) {
+                azmap.events.remove(value.type, target, () => { });
+                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+            }
+            else {
+                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeStyleControlEvents - invalid TargetId.", value);
+            }
+        });
+    }
+    // #endregion
+
+    // #region PopupEvents
+    static #addPopupEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+        Logger.logMessage(mapId, Logger.LogLevel.Information, "addPopupEvents not yet implemented.");
+    }
+
+    static #removePopupEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
+        if (events.length == 0) return;
+        Logger.logMessage(mapId, Logger.LogLevel.Information, "removePopupEvents not yet implemented.");
+    }
+    // #endregion
 
     static #isFeature(obj: any): obj is atlas.data.Feature<atlas.data.Geometry, any> {
         return obj && obj.type === 'Feature';
@@ -387,6 +648,15 @@ export class EventManager {
         return item;
     }
 
+    static #buildMouseEventPayload(mouseEvent: atlas.MapMouseEvent) {
+        return {
+            layerId: mouseEvent.layerId,
+            pixel: mouseEvent.pixel,
+            position: mouseEvent.position,
+            shapes: this.#buildShapeResults(mouseEvent.shapes)
+        };
+    }
+
     static #buildShapeResults(shapes: Array<atlas.data.Feature<atlas.data.Geometry, any> | atlas.Shape>): object[] {
         const results: object[] = [];
 
@@ -399,13 +669,31 @@ export class EventManager {
 
         return results;
     }
+
+    static #buildTouchEventPayload(touchEvent: atlas.MapTouchEvent) {
+        return {
+            pixel: touchEvent.pixel,
+            pixels: touchEvent.pixels,
+            position: touchEvent.position,
+            positions: touchEvent.positions,
+            layerId: touchEvent.layerId,
+            shapes: this.#buildShapeResults(touchEvent.shapes)
+        };
+    }
+
+    static #buildWheelEventPayload(wheelEvent: atlas.MapMouseWheelEvent) {
+        return {
+            type: wheelEvent.type,
+        };
+    }
 }
 
 export interface MapEvent {
     type: string;
     once?: boolean;
-    target: 'map' | 'datasource' | 'shape' | 'layer' | 'stylecontrol' | 'popup' | 'htmlmarker';
+    target: 'map' | 'datasource' | 'htmlmarker' | 'layer' | 'shape' | 'stylecontrol' | 'popup';
     targetId?: string;
+    targetSourceId?: string;
 }
 
 export interface MapEventInfo {
@@ -423,6 +711,7 @@ export enum EventNotifications {
     NotifyMapEventLayer = 'NotifyMapEventLayer',
     NotifyMapEventMouse = 'NotifyMapEventMouse',
     NotifyMapEventReady = 'NotifyMapEventReady',
+    NotifyMapEventShape = 'NotifyMapEventShape',
     NotifyMapEventSource = 'NotifyMapEventSource',
     NotifyMapEventStyle = 'NotifyMapEventStyle',
     NotifyMapEventTouch = 'NotifyMapEventTouch',
@@ -505,16 +794,42 @@ enum MapEventSource {
 enum MapEventStyle {
     StyleChanged = 'stylechanged',
     StyleImageMissing = 'styleimagemissing',
-    //StyleSelected = 'styleselected',
 }
-
-//enum MapEventStyleChanged {
-//    StyleChanged = 'stylechanged',
-//}
 
 enum MapEventTouch {
     TouchCancel = 'touchcancel',
     TouchEnd = 'touchend',
     TouchMove = 'touchmove',
     TouchStart = 'touchstart'
+}
+
+enum MapLayerEvent {
+    LayerAdded = 'layeradded',
+    LayerRemoved = 'layerremoved',
+
+    Click = 'click',
+    ContextMenu = 'contextmenu',
+    DblClick = 'dblclick',
+    MouseDown = 'mousedown',
+    MouseEnter = 'mouseenter',
+    MouseLeave = 'mouseleave',
+    MouseMove = 'mousemove',
+    MouseOut = 'mouseout',
+    MouseOver = 'mouseover',
+    MouseUp = 'mouseup',
+
+    TouchCancel = 'touchcancel',
+    TouchEnd = 'touchend',
+    TouchMove = 'touchmove',
+    TouchStart = 'touchstart',
+
+    Wheel = 'wheel',
+}
+
+enum MapShapeEvent {
+    ShapeChanged = 'shapechanged',
+}
+
+enum MapStyleControlEvent {
+    StyleSelected = 'styleselected',
 }

@@ -7,9 +7,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
     {
         Map,
         DataSource,
-        HtmlMarker,
+        //HtmlMarker,
         Layer,
-        Popup,
+        //Popup,
         Shape,
         StyleControl,
     }
@@ -33,7 +33,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         internal string? TypeJs { get => Type?.EnumToJson(); set => Type = value.JsonToEnumN<MapEventType>(); }
 
         /// <summary>
-        /// Currently, only the 'Map' and 'DataSource' targets are implemented. The others will be added in future versions.
+        /// Type of object associated with the event.
         /// </summary>
         [JsonIgnore]
         public MapEventTarget? Target { get; internal set; }
@@ -44,8 +44,14 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 
         /// <summary>
         /// Required for any Target other than 'Map'.
+        /// For the StyleControl use the 'InteropId'
         /// </summary>
         public string? TargetId { get; set; }
+
+        /// <summary>
+        /// Required for targets that belong to a source, i.e. Shape requires DataSourceId.
+        /// </summary>
+        public string? TargetSourceId { get; set; }
 
         /// <summary>
         /// If true, adds the event once (for events that support 'once'); otherwise continuous. Default is 'false'.

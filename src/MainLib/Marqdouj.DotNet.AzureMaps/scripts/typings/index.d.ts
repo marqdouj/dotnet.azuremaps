@@ -1,6 +1,14 @@
 import * as atlas from "azure-maps-control";
 import { Logger } from "../common"
 
+interface JsInteropDef {
+    id: string,
+    interopId: string,
+    type: string,
+    options: object;
+    controlOptions: object;
+}
+
 interface MapLayerDef {
     type: 'Bubble' | 'HeatMap' | 'Image' | 'Line' | 'Polygon' | 'PolygonExtrusion' | 'Symbol' | 'Tile';
     id: string;
@@ -73,6 +81,7 @@ type TProperties = { [key: string]: any };
 
 type TMapFeature = {
     id?: string;
+    interopId?: string,
     geometry: any;
     bbox?: atlas.data.BoundingBox;
     properties?: TProperties;

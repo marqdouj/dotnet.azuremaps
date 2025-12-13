@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control";
 import { MapFactory } from "../map-factory"
 import { Logger } from "../common"
-import { MapControl } from "../typings"
+import { MapControl, JsInteropDef } from "../typings"
 
 export class Controls {
     public static addControls(mapId: string, controls: MapControl[]): void {
@@ -38,7 +38,7 @@ export class Controls {
             }
 
             if (mapControl) {
-                const jsInterop: JsInteropControl = {
+                const jsInterop: JsInteropDef = {
                     id: control.id,
                     interopId: control.interopId,
                     type: control.type,
@@ -53,6 +53,28 @@ export class Controls {
         });
     }
 
+    public static getControlByByInteropId(mapId: string, interopId: string): atlas.Control {
+        const map = MapFactory.getMap(mapId);
+        if (!map) {
+            return;
+        }
+
+        const controls = map.controls.getControls();
+        let result: atlas.Control;
+
+        var mapControls = controls.filter(control => this.#isInteropMapControl(control, interopId));
+        if (mapControls.length == 1) {
+            result = mapControls[0];
+        }
+        else if (mapControls.length > 1) {
+            Logger.logMessage(mapId, Logger.LogLevel.Error, `getControlByByInteropId: more than one control was found where interopId = '${interopId}'.`);
+        }
+        else {
+            Logger.logMessage(mapId, Logger.LogLevel.Debug, `getControlByByInteropId: control not found where interopId = '${interopId}'`);
+        }
+        return result;
+    }
+
     public static getControls(mapId: string): object[] {
         const map = MapFactory.getMap(mapId);
         if (!map) {
@@ -60,10 +82,10 @@ export class Controls {
         }
 
         const controls = map.controls.getControls();
-        const result: JsInteropControl[] = [];
+        const result: JsInteropDef[] = [];
 
         controls.filter(control => this.#isInteropControl(control)).forEach(control => {
-            const jsInterop = (control as any).jsInterop as JsInteropControl;
+            const jsInterop = (control as any).jsInterop as JsInteropDef;
             if (jsInterop)
                 result.push(jsInterop);
         });
@@ -80,7 +102,7 @@ export class Controls {
         const mapControls = map.controls.getControls();
 
         mapControls.filter(mapControl => this.#isInteropControl(mapControl)).forEach(mapControl => {
-            const jsInterop = (mapControl as any).jsInterop as JsInteropControl;
+            const jsInterop = (mapControl as any).jsInterop as JsInteropDef;
             Logger.logMessage(mapId, Logger.LogLevel.Trace, "found control:", jsInterop);
 
             const control = controls.findLast(e => e.id == jsInterop.id && e.interopId == jsInterop.interopId);
@@ -94,12 +116,9 @@ export class Controls {
     static #isInteropControl(obj: any): obj is atlas.Control {
         return obj && obj.jsInterop != undefined && obj.jsInterop.interopId != undefined;
     }
+
+    static #isInteropMapControl(obj: any, interopId: string): obj is atlas.Control {
+        return this.#isInteropControl(obj) && (obj as any).jsInterop.interopId === interopId;
+    }
 }
 
-interface JsInteropControl {
-    id: string,
-    interopId: string,
-    type: string,
-    options: object;
-    controlOptions: object;
-}

@@ -1,0 +1,220 @@
+﻿@page "/map-events"
+@rendermode InteractiveServer
+@inject ILogger<BasicMap> Logger
+@inject IToastService ToastService
+@inject IDataService DataService
+
+<FluentLayout>
+    <MapPageHeader Header="Map Events" HRefCode="@hRefCode">
+        <FluentLabel>
+            This page demonstrates adding/removing events dynamically.
+            <br /><br />
+            When the style control events are active, you will receive a StyleSelected event when you change the style in the control.
+            <br /><br />
+            When the layer events are active, you will receive a Click event when you click on a symbol that is part of the layer,
+            and a LayerRemoved event when you remove the layer.
+        </FluentLabel>
+    </MapPageHeader>
+
+    <FluentToolbar>
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="8" />
+        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@styleControl.Loaded" @bind-Value:set="OnStyleControlCheckedChanged">Style Control</FluentCheckbox>
+        <FluentCheckbox Disabled="@disableStyleEvents" @bind-Value:get="@addStyleControlEvents" @bind-Value:set="OnStyleEventsCheckedChanged">Style Events</FluentCheckbox>
+        <FluentSpacer Width="8" />
+        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@layerDefLoaded" @bind-Value:set="OnLayerCheckedChanged">Symbol Layer</FluentCheckbox>
+        <FluentCheckbox Disabled="@disableLayerEvents" @bind-Value:get="@addLayerEvents" @bind-Value:set="OnLayerEventsCheckedChanged">Symbol Layer Events</FluentCheckbox>
+    </FluentToolbar>
+
+    <AzureMap OnMapReady="@OnMapReady"
+              OnMapEventLayer="OnMapEventLayer"
+              OnMapEventStyle="OnMapEventStyle"
+              Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+               Transparent="false">
+    <FluentProgressRing />
+</FluentOverlay>
+
+@code {
+    private IAzureMapContainer? mapContainer;
+    private readonly string hRefCode = HRefCodeSource.Sandbox.CodeUrl("MapEvents.razor");
+    private bool overlay;
+    private bool disabled => overlay || mapContainer == null;
+    private bool disableStyleEvents => disabled || !styleControl.Loaded;
+    private MapControlViewModel styleControl = new MapControlViewModel(MapHelpers.GetDefaultControl(MapControlType.Style));
+    private List<MapEventDef> styleEvents = new List<MapEventDef> { new MapEventDef(MapEventType.StyleSelected, MapEventTarget.StyleControl) };
+    private bool addStyleControlEvents;
+    private MapLayerDef? layerDef;
+    private bool layerDefLoaded => layerDef != null;
+    private bool disableLayerEvents => disabled || layerDef == null;
+    private bool addLayerEvents;
+
+    protected override void OnInitialized()
+    {
+        styleEvents.First().TargetId = styleControl.Control.InteropId;
+    }
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventStyle(MapEventStyleArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            ToastService.Info($"OnMapEventStyle: Event={e.Type} Style={e.Payload?.Style}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventLayer(MapEventLayerArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            ToastService.Info($"OnMapEventLayer: Event={e.Type} Id={e.Payload?.Id}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await RemoveLayer();
+
+            await mapContainer.Maps.RemoveControls(new List<MapControl> {styleControl.Control});
+            styleControl.Loaded = false;
+            addStyleControlEvents = false;
+
+            await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnStyleControlCheckedChanged(bool value)
+    {
+        if (value)
+        {
+            await mapContainer!.Maps.AddControls(new List<MapControl> { styleControl.Control });
+            styleControl.Loaded = true;
+        }
+        else
+        {
+            await mapContainer!.Maps.RemoveControls(new List<MapControl> { styleControl.Control });
+            styleControl.Loaded = false;
+            addStyleControlEvents = false;
+        }
+    }
+
+    private async Task OnStyleEventsCheckedChanged(bool value)
+    {
+        if (styleControl.IsNotLoaded)
+        {
+            addStyleControlEvents = false;
+            return;
+        }
+
+        if (value)
+        {
+            await mapContainer!.Maps.AddEvents(styleEvents);
+            addStyleControlEvents = true;
+        }
+        else
+        {
+            await mapContainer!.Maps.RemoveEvents(styleEvents);
+            addStyleControlEvents = false;
+        }
+    }
+
+    private async Task OnLayerCheckedChanged(bool value)
+    {
+        if (mapContainer == null)
+            return;
+
+        if (value)
+        {
+            await RemoveLayer();
+
+            layerDef = await mapContainer.AddBasicMapLayer(DataService, MapLayerType.Symbol);
+            // await mapContainer.Layers.CreateLayer(layerDef);
+            ToastService.Info($"{MapLayerType.Symbol} layer was added to the map.");
+        }
+        else
+        {
+            await RemoveLayer();
+        }
+    }
+
+    private async Task OnLayerEventsCheckedChanged(bool value)
+    {
+        if (!layerDefLoaded)
+        {
+            addLayerEvents = false;
+            return;
+        }
+
+        if (value)
+        {
+            await mapContainer!.Maps.AddEvents(BuildLayerEvents(layerDef));
+            addLayerEvents = true;
+        }
+        else
+        {
+            await mapContainer!.Maps.RemoveEvents(BuildLayerEvents(layerDef));
+            addLayerEvents = false;
+        }
+    }
+
+    private async Task RemoveLayer()
+    {
+        if (mapContainer == null)
+            return;
+
+        if (layerDef != null)
+        {
+            await mapContainer.Layers.RemoveLayer(layerDef);
+            layerDef = null;
+            addLayerEvents = false;
+        }
+    }
+
+    private List<MapEventDef> BuildLayerEvents(MapLayerDef? layerDef)
+    {
+        var layerEvents = new List<MapEventDef>
+        {
+            new MapEventDef(MapEventType.LayerRemoved, MapEventTarget.Layer){TargetId = layerDef?.Id},
+            new MapEventDef(MapEventType.Click, MapEventTarget.Layer){TargetId = layerDef?.Id},
+        };
+
+        return layerEvents;
+    }
+}

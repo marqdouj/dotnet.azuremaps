@@ -24,6 +24,11 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.3
+- `Map Events`. Implemented dynamic add/remove event support for:
+  - `Layer`
+  - `StyleControl`
+
 ### 10.3.2
 - Fixed issues in *.ts for Maps add/remove/get controls.
 
