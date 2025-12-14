@@ -51,7 +51,8 @@ namespace Sandbox.Components.Pages.Maps
                         Zoom = 10.5,
                         Pitch = 0,
                     },
-                }
+                },
+                Style = new StyleOptions { Style = MapStyle.Road },
             };
         }
 

@@ -1,4 +1,4 @@
-export { MapFactory } from "./map-factory/"
-export { Configuration } from "./map-interop/configuration";
-export { Layers } from "./map-interop/layers";
-export { Maps } from "./map-interop/maps";
+export { MapFactory } from "./core/factory"
+export { Configuration } from "./core/configuration"
+export { Layers } from "./core/layers"
+export { Maps } from "./core/maps"

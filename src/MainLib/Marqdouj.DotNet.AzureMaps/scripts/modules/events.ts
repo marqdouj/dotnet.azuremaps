@@ -1,9 +1,10 @@
 import * as atlas from "azure-maps-control";
-import { MapFactory } from "../map-factory"
-import { Logger, Extensions } from "../common"
-import { Controls } from "../map-interop/controls"
-import { Markers } from "../map-interop/markers"
-import { Popups } from "../map-interop/popups"
+import { Logger, LogLevel } from "./logger"
+import { Helpers } from "./helpers"
+import { MapFactory } from "../core/factory"
+import { MarkerManager } from "./markers"
+import { ControlManager } from "./controls"
+import { PopupManager } from "./popups"
 
 export class EventManager {
     static addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
@@ -12,13 +13,11 @@ export class EventManager {
         const azmap = MapFactory.getMap(mapId);
 
         if (!azmap) {
-            Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addEvents - map not found.");
+            Logger.logMessage(mapId, LogLevel.Error, "Events:addEvents - map not found.");
             return;
         }
 
         events ??= [];
-
-        Logger.logMessage(mapId, Logger.LogLevel.Trace, "addEvents", events, Object.values(events).filter(value => value.target === "map"));
 
         this.#addMapEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "map"));
         this.#addDataSourceEvents(dotNetRef, azmap, mapId, Object.values(events).filter(value => value.target === "datasource"));
@@ -35,7 +34,7 @@ export class EventManager {
         const azmap = MapFactory.getMap(mapId);
 
         if (!azmap) {
-            Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeEvents - map not found.");
+            Logger.logMessage(mapId, LogLevel.Error, "Events:removeEvents - map not found.");
             return;
         }
 
@@ -69,11 +68,11 @@ export class EventManager {
     static #addMapEventsConfig(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventConfig, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventConfig, value.type)).forEach((value) => {
 
             if (value.once) {
                 //not supported.
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "event not added. 'once' is not supported:", value);
+                Logger.logMessage(mapId, LogLevel.Error, "event not added. 'once' is not supported:", value);
             }
             else {
                 azmap.events.add(value.type as MapEventConfig, (config: atlas.MapConfiguration) => {
@@ -82,14 +81,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsData(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventData, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventData, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -117,14 +116,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsGeneral(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventGeneral, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventGeneral, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -138,14 +137,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsLayer(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventLayer, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventLayer, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -161,14 +160,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsMouse(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventMouse, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventMouse, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -184,14 +183,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsSource(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventSource, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventSource, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -207,14 +206,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsStyle(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventStyle, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventStyle, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             switch (value.type.toLowerCase() as MapEventStyle) {
@@ -249,14 +248,14 @@ export class EventManager {
                 default:
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsTouch(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventTouch, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventTouch, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -272,14 +271,14 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #addMapEventsWheel(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]) {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventWheel, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventWheel, value.type)).forEach((value) => {
             let result: MapEventInfo = { mapId: mapId, type: value.type };
 
             if (value.once) {
@@ -295,7 +294,7 @@ export class EventManager {
                 });
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
@@ -304,7 +303,7 @@ export class EventManager {
 
         events.forEach((value) => {
             azmap.events.remove(value.type, () => { });
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
         });
     }
 
@@ -314,7 +313,7 @@ export class EventManager {
     static #addDataSourceEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapEventDataSource, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventDataSource, value.type)).forEach((value) => {
             const ds = azmap.sources.getById(value.targetId) as atlas.source.DataSource;
 
             if (ds) {
@@ -359,14 +358,14 @@ export class EventManager {
                 }
 
                 if (wasAdded) {
-                    Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                    Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
                 }
                 else {
-                    Logger.logMessage(mapId, Logger.LogLevel.Trace, "event was not added - type not found:", value);
+                    Logger.logMessage(mapId, LogLevel.Trace, "event was not added - type not found:", value);
                 }
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addDataSourceEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:addDataSourceEvents - invalid TargetId.", value);
             }
         });
     }
@@ -377,10 +376,10 @@ export class EventManager {
 
             if (ds) {
                 azmap.events.remove(value.type, ds, () => { });
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeDataSourceEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:removeDataSourceEvents - invalid TargetId.", value);
             }
         });
     }
@@ -390,8 +389,8 @@ export class EventManager {
     static #addHtmlMarkerEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapHtmlMarkerEvent, value.type)).forEach((value) => {
-            const target = Markers.getMarker(mapId, value.targetId);
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapHtmlMarkerEvent, value.type)).forEach((value) => {
+            const target = MarkerManager.getMarker(mapId, value.targetId);
 
             if (target) {
                 let result: MapEventInfo = { mapId: mapId, type: value.type };
@@ -409,13 +408,13 @@ export class EventManager {
                     });
                 }
 
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addHtmlMarkerEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:addHtmlMarkerEvents - invalid TargetId.", value);
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
@@ -423,14 +422,14 @@ export class EventManager {
         if (events.length == 0) return;
 
         events.forEach((value) => {
-            const target = Markers.getMarker(mapId, value.targetId);
+            const target = MarkerManager.getMarker(mapId, value.targetId);
 
             if (target) {
                 azmap.events.remove(value.type, target, () => { });
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeHtmlMarkerEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:removeHtmlMarkerEvents - invalid TargetId.", value);
             }
         });
     }
@@ -440,16 +439,16 @@ export class EventManager {
     static #addLayerEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Logger.logMessage(mapId, Logger.LogLevel.Trace, "addLayerEvents:", events);
+        Logger.logMessage(mapId, LogLevel.Trace, "addLayerEvents:", events);
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapLayerEvent, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapLayerEvent, value.type)).forEach((value) => {
             const target = azmap.layers.getLayerById(value.targetId);
 
             if (target) {
                 let result: MapEventInfo = { mapId: mapId, type: value.type };
                 let wasAdded: boolean = false;
 
-                if (Extensions.isValueInEnum(MapEventTouch, value.type)) {
+                if (Helpers.isValueInEnum(MapEventTouch, value.type)) {
                     if (value.once) {
                         azmap.events.addOnce(value.type as MapEventTouch, target, (touchEvent: atlas.MapTouchEvent) => {
                             result.payload = { id: value.targetId, touch: this.#buildTouchEventPayload(touchEvent) };
@@ -466,7 +465,7 @@ export class EventManager {
                     wasAdded = true;
                 }
 
-                if (Extensions.isValueInEnum(MapEventLayer, value.type)) {
+                if (Helpers.isValueInEnum(MapEventLayer, value.type)) {
                     if (value.once) {
                         azmap.events.addOnce(value.type as MapEventLayer, target, (layer: atlas.layer.Layer) => {
                             result.payload = { id: layer.getId() };
@@ -483,7 +482,7 @@ export class EventManager {
                     wasAdded = true;
                 }
 
-                if (Extensions.isValueInEnum(MapEventMouse, value.type) || Extensions.isValueInEnum(MapLayerMouseEvent, value.type)) {
+                if (Helpers.isValueInEnum(MapEventMouse, value.type) || Helpers.isValueInEnum(MapLayerMouseEvent, value.type)) {
                     if (value.once) {
                         azmap.events.addOnce(value.type as MapEventMouse, target, (mouseEvent: atlas.MapMouseEvent) => {
                             result.payload = { id: value.targetId, mouse: this.#buildMouseEventPayload(mouseEvent) };
@@ -500,7 +499,7 @@ export class EventManager {
                     wasAdded = true;
                 }
 
-                if (Extensions.isValueInEnum(MapEventWheel, value.type)) {
+                if (Helpers.isValueInEnum(MapEventWheel, value.type)) {
                     if (value.once) {
                         azmap.events.addOnce(value.type as MapEventWheel, target, (wheelEvent: atlas.MapMouseWheelEvent) => {
                             result.payload = { id: value.targetId, wheel: this.#buildWheelEventPayload(wheelEvent) };
@@ -518,14 +517,14 @@ export class EventManager {
                 }
 
                 if (wasAdded) {
-                    Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                    Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
                 }
                 else {
-                    Logger.logMessage(mapId, Logger.LogLevel.Error, "event not added - type not implemented:", value);
+                    Logger.logMessage(mapId, LogLevel.Error, "event not added - type not implemented:", value);
                 }
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addLayerEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:addLayerEvents - invalid TargetId.", value);
             }
         });
     }
@@ -538,10 +537,10 @@ export class EventManager {
 
             if (target) {
                 azmap.events.remove(value.type, target, () => { });
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeLayerEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:removeLayerEvents - invalid TargetId.", value);
             }
         });
     }
@@ -551,7 +550,7 @@ export class EventManager {
     static #addShapeEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapShapeEvent, value.type)).forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapShapeEvent, value.type)).forEach((value) => {
             const ds = azmap.sources.getById(value.targetSourceId) as atlas.source.DataSource;
             const target = ds.getShapeById(value.targetId);
 
@@ -571,13 +570,13 @@ export class EventManager {
                     });
                 }
 
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addShapeEvents - invalid TargetId or TargetSourceId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:addShapeEvents - invalid TargetId or TargetSourceId.", value);
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
@@ -588,10 +587,10 @@ export class EventManager {
 
             if (target) {
                 azmap.events.remove(value.type, target, () => { });
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeShapeEvents - invalid TargetId or TargetSourceId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:removeShapeEvents - invalid TargetId or TargetSourceId.", value);
             }
         });
     }
@@ -601,8 +600,8 @@ export class EventManager {
     static #addStyleControlEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapStyleControlEvent, value.type)).forEach((value) => {
-            const target = Controls.getControlByByInteropId(mapId, value.targetId) as atlas.control.StyleControl;
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapStyleControlEvent, value.type)).forEach((value) => {
+            const target = ControlManager.getControl(mapId, value.targetId) as atlas.control.StyleControl;
 
             if (target) {
                 let result: MapEventInfo = { mapId: mapId, type: value.type };
@@ -620,26 +619,26 @@ export class EventManager {
                     });
                 }
 
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addShapeEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:addShapeEvents - invalid TargetId.", value);
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
     static #removeStyleControlEvents(azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         events.forEach((value) => {
-            const target = Controls.getControlByByInteropId(mapId, value.targetId) as atlas.control.StyleControl;
+            const target = ControlManager.getControl(mapId, value.targetId) as atlas.control.StyleControl;
 
             if (target) {
                 azmap.events.remove(value.type, target, () => { });
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removeStyleControlEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:removeStyleControlEvents - invalid TargetId.", value);
             }
         });
     }
@@ -649,8 +648,8 @@ export class EventManager {
     static #addPopupEvents(dotNetRef: any, azmap: atlas.Map, mapId: string, events: MapEvent[]): void {
         if (events.length == 0) return;
 
-        Object.values(events).filter(value => Extensions.isValueInEnum(MapPopupEvent, value.type)).forEach((value) => {
-            const target = Popups.getPopup(mapId, value.targetId);
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapPopupEvent, value.type)).forEach((value) => {
+            const target = PopupManager.getPopup(mapId, value.targetId);
 
             if (target) {
                 let result: MapEventInfo = { mapId: mapId, type: value.type };
@@ -668,13 +667,13 @@ export class EventManager {
                     });
                 }
 
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:addPopupEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:addPopupEvents - invalid TargetId.", value);
             }
 
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, "event added:", value);
+            Logger.logMessage(mapId, LogLevel.Trace, "event added:", value);
         });
     }
 
@@ -682,37 +681,37 @@ export class EventManager {
         if (events.length == 0) return;
 
         events.forEach((value) => {
-            const target = Popups.getPopup(mapId, value.targetId);
+            const target = PopupManager.getPopup(mapId, value.targetId);
 
             if (target) {
                 azmap.events.remove(value.type, target, () => { });
-                Logger.logMessage(mapId, Logger.LogLevel.Trace, "event removed:", value);
+                Logger.logMessage(mapId, LogLevel.Trace, "event removed:", value);
             }
             else {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, "EventManager:removePopupEvents - invalid TargetId.", value);
+                Logger.logMessage(mapId, LogLevel.Error, "Events:removePopupEvents - invalid TargetId.", value);
             }
         });
     }
     // #endregion
 
     static #isFeature(obj: any): obj is atlas.data.Feature<atlas.data.Geometry, any> {
-        return Extensions.isFeature(obj);
+        return Helpers.isFeature(obj);
     }
 
     static #isShape(obj: any): obj is atlas.Shape {
-        return Extensions.isShape(obj);
+        return Helpers.isShape(obj);
     }
 
     static #getFeatureResult(feature: atlas.data.Feature<atlas.data.Geometry, any>): object {
-        return Extensions.getFeatureResult(feature);
+        return Helpers.getFeatureResult(feature);
     }
 
     static #getShapeResult(shape: atlas.Shape): object {
-        return Extensions.getShapeResult(shape);
+        return Helpers.getShapeResult(shape);
     }
 
     static #buildShapeResults(shapes: Array<atlas.data.Feature<atlas.data.Geometry, any> | atlas.Shape>): object[] {
-        return Extensions.buildShapeResults(shapes);
+        return Helpers.buildShapeResults(shapes);
     }
 
     static #buildMouseEventPayload(mouseEvent: atlas.MapMouseEvent) {
@@ -865,7 +864,7 @@ enum MapEventTouch {
     TouchStart = 'touchstart'
 }
 
-enum MapHtmlMarkerEvent{
+enum MapHtmlMarkerEvent {
     Click = 'click',
     ContextMenu = 'contextmenu',
     DblClick = 'dblclick',

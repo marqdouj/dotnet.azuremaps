@@ -1,9 +1,10 @@
 import * as atlas from "azure-maps-control";
-import { MapFactory } from "../map-factory"
-import { Logger, Extensions } from "../common"
-import { MapLayerDef, DataSourceDef, MapFeature } from "../typings"
-import { Maps } from "./maps"
-import { FeatureManager } from "./features"
+import { Logger, LogLevel } from "../modules/logger"
+import { MapFactory } from "./factory"
+import { DataSourceDef, JsInteropDef } from "../modules/typings"
+import { Helpers } from "../modules/helpers"
+import { FeatureManager, MapFeatureDef } from "../modules/features"
+import { SourceManager } from "../modules/source"
 
 export class Layers {
     public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
@@ -12,17 +13,17 @@ export class Layers {
             return;
         }
 
-        if (Extensions.isEmptyOrNull(def.type)) {
-            Logger.logMessage(mapId, Logger.LogLevel.Error, `- CreateLayer: layer type is missing`);
+        if (Helpers.isEmptyOrNull(def.type)) {
+            Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: layer type is missing`);
             return;
         }
 
         const layerId = def.id;
 
-        if (Extensions.isNotEmptyOrNull(layerId)) {
+        if (Helpers.isNotEmptyOrNull(layerId)) {
             const lyr = map.layers.getLayerById(layerId);
             if (lyr) {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, `- CreateLayer: layer already exists where ID=${layerId}`);
+                Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: layer already exists where ID=${layerId}`);
                 return;
             }
         }
@@ -32,19 +33,19 @@ export class Layers {
         if (dsDef) {
             ds = new atlas.source.DataSource(dsDef.id, dsDef.options);
             if (!ds) {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, `- CreateLayer: Unable to create datasource.`, dsDef);
+                Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: Unable to create datasource.`, dsDef);
                 return;
             }
             map.sources.add(ds);
 
-            if (Extensions.isNotEmptyOrNull(dsDef.url)) {
+            if (Helpers.isNotEmptyOrNull(dsDef.url)) {
                 ds.importDataFromUrl(dsDef.url);
             }
         }
         else {
             ds = map.sources.getById(def.sourceId) as atlas.source.DataSource;
             if (!ds) {
-                Logger.logMessage(mapId, Logger.LogLevel.Error, `- CreateLayer: Unable to find datasource where ID=${def.sourceId}.`);
+                Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: Unable to find datasource where ID=${def.sourceId}.`);
                 return;
             }
         }
@@ -80,7 +81,7 @@ export class Layers {
                 map.layers.add(new atlas.layer.TileLayer(layerOptions, layerId), def.before);
                 break;
             default:
-                Logger.logMessage(mapId, Logger.LogLevel.Warn, `- CreateLayer: layer type '${def.type}' is not supported.`);
+                Logger.logMessage(mapId, LogLevel.Warn, `- CreateLayer: layer type '${def.type}' is not supported.`);
                 break;
         }
     }
@@ -94,19 +95,19 @@ export class Layers {
         const lyr = map.layers.getLayerById(id);
         if (lyr) {
             map.layers.remove(lyr);
-            Logger.logMessage(mapId, Logger.LogLevel.Debug, `- CreateLayer:- layer with id '${id}' was removed.`);
+            Logger.logMessage(mapId, LogLevel.Debug, `- CreateLayer:- layer with id '${id}' was removed.`);
         }
     }
 
     public static removeLayerAndDataSource(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
 
         this.removeLayer(mapId, def.id);
-        Maps.removeDatasource(mapId, dsDef.id);
+        SourceManager.removeDatasource(mapId, dsDef.id);
     }
 
     public static addMapFeature(
         mapId: string,
-        mapFeature: MapFeature,
+        mapFeature: MapFeatureDef,
         datasourceId: string,
         replace?: boolean) {
 
@@ -115,7 +116,7 @@ export class Layers {
 
     public static addMapFeatures(
         mapId: string,
-        mapFeatures: MapFeature[],
+        mapFeatures: MapFeatureDef[],
         datasourceId: string,
         replace?: boolean) {
 
@@ -124,7 +125,7 @@ export class Layers {
 
     public static updateMapFeature(
         mapId: string,
-        mapFeature: MapFeature,
+        mapFeature: MapFeatureDef,
         datasourceId: string) {
 
         FeatureManager.updateFeature(mapId, mapFeature, datasourceId);
@@ -132,9 +133,26 @@ export class Layers {
 
     public static updateMapFeatures(
         mapId: string,
-        mapFeatures: MapFeature[],
+        mapFeatures: MapFeatureDef[],
         datasourceId: string) {
 
         FeatureManager.updateFeatures(mapId, mapFeatures, datasourceId);
     }
+}
+
+
+interface MapLayerDef extends JsInteropDef {
+    type: 'Bubble' | 'HeatMap' | 'Image' | 'Line' | 'Polygon' | 'PolygonExtrusion' | 'Symbol' | 'Tile';
+    sourceId: string;
+    before?: string;
+    options?:
+    atlas.BubbleLayerOptions |
+    atlas.HeatMapLayerOptions |
+    atlas.ImageLayerOptions |
+    atlas.LineLayerOptions |
+    atlas.PolygonLayerOptions |
+    atlas.PolygonExtrusionLayerOptions |
+    atlas.SymbolLayerOptions |
+    atlas.TileLayerOptions |
+    atlas.WebGLLayerOptions;
 }

@@ -1,6 +1,5 @@
 import * as atlas from "azure-maps-control";
-import { MapFactory } from "../map-factory"
-import { MapOptionsSet, CameraOptionsSet, TCameraOptionsSet } from "../typings"
+import { MapFactory } from "./factory"
 
 export class Configuration {
     public static getCamera(mapId: string): any {
@@ -47,9 +46,7 @@ export class Configuration {
             return;
         }
 
-        console.debug("Setting map options - before:", options);
         let cameraOptions: TCameraOptionsSet = this.#buildCameraOptionsSet(options.camera);
-        console.debug("Setting map options - after:", cameraOptions);
         map.setCamera(cameraOptions);
 
         if (options.service) {
@@ -128,4 +125,19 @@ export class Configuration {
 
         return cameraOptions;
     }
+}
+
+type TCameraOptionsSet = (atlas.CameraOptions | (atlas.CameraBoundsOptions & { pitch?: number, bearing?: number })) & atlas.AnimationOptions;
+
+interface CameraOptionsSet {
+    camera?: atlas.CameraOptions;
+    cameraBounds?: atlas.CameraBoundsOptions & { pitch?: number, bearing?: number };
+    animation?: atlas.AnimationOptions;
+}
+
+interface MapOptionsSet {
+    camera?: CameraOptionsSet;
+    service?: atlas.ServiceOptions;
+    style?: atlas.StyleOptions;
+    userInteraction?: atlas.UserInteractionOptions;
 }

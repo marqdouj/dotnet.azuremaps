@@ -1,9 +1,10 @@
 import * as atlas from "azure-maps-control";
-import { MapFactory } from "../map-factory"
-import { Logger, Extensions } from "../common"
-import { HtmlMarkerDef, JsInteropObject } from "../typings"
+import { Logger, LogLevel } from "./logger"
+import { MapFactory } from "../core/factory"
+import { Helpers } from "./helpers"
+import { JsInteropDef, HtmlMarkerDef } from "./typings"
 
-export class Markers {
+export class MarkerManager {
     static add(mapId: string, markers: HtmlMarkerDef[]) {
         const map = MapFactory.getMap(mapId);
         if (!map) {
@@ -16,7 +17,7 @@ export class Markers {
                 options.popup = new atlas.Popup(options.popup.options)
             }
             let marker = new atlas.HtmlMarker(options);
-            const jsInterop: JsInteropObject = { id: markerDef.id, interopId: markerDef.interopId };
+            const jsInterop: JsInteropDef = { id: markerDef.id, interopId: markerDef.interopId };
             (marker as any).jsInterop = jsInterop;
 
             map.markers.add(marker);
@@ -43,7 +44,7 @@ export class Markers {
         });
     }
 
-    static getMarker(mapId: string, id: string ): atlas.HtmlMarker {
+    static getMarker(mapId: string, id: string): atlas.HtmlMarker {
         const map = MapFactory.getMap(mapId);
         if (!map) {
             return;
@@ -57,16 +58,16 @@ export class Markers {
         const marker = markers.findLast(value => this.#isInteropHtmlMarker(value, id));
 
         if (!marker) {
-            Logger.logMessage(mapId, Logger.LogLevel.Debug, `getMarker: marker not found where id = '${id}'`);
+            Logger.logMessage(mapId, LogLevel.Debug, `getMarker: marker not found where id = '${id}'`);
         }
 
         return marker;
     }
 
     static #isInteropHtmlMarker(obj: any, id?: string): obj is atlas.HtmlMarker {
-        let ok = obj instanceof atlas.HtmlMarker && (obj as any).jsInterop.interopId != undefined;
-        if (ok && Extensions.isNotEmptyOrNull(id)) {
-            ok = (obj as any).jsInterop.id === id || (obj as any).jsInterop.interopId === id;
+        let ok = obj && obj.jsInterop != undefined && obj.jsInterop.interopId != undefined;
+        if (ok && Helpers.isNotEmptyOrNull(id)) {
+            ok = obj.jsInterop.id === id || obj.jsInterop.interopId === id;
         }
         return ok;
     }

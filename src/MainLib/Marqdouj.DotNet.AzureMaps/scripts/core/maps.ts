@@ -1,9 +1,9 @@
-import { MapControl, DataSourceDef, HtmlMarkerDef, PopupDef } from "../typings"
-import { EventManager, MapEvent } from "../map-events"
-import { Controls } from "./controls"
-import { SourceManager } from "./source"
-import { Markers } from "./markers";
-import { Popups } from "./popups";
+import { ControlManager } from "../modules/controls"
+import { SourceManager } from "../modules/source"
+import { MarkerManager } from "../modules/markers"
+import { PopupManager } from "../modules/popups"
+import { EventManager, MapEvent } from "../modules/events"
+import { DataSourceDef, MapControlDef, HtmlMarkerDef, PopupDef } from "../modules/typings"
 
 export class Maps {
     public static addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
@@ -14,16 +14,16 @@ export class Maps {
         EventManager.removeEvents(mapId, events);
     }
 
-    public static addControls(mapId: string, controls: MapControl[]): void {
-        Controls.addControls(mapId, controls);
+    public static addControls(mapId: string, controls: MapControlDef[]): void {
+        ControlManager.add(mapId, controls);
     }
 
     public static getControls(mapId: string): object[] {
-        return Controls.getControls(mapId);
+        return ControlManager.getControls(mapId);
     }
 
-    public static removeControls(mapId: string, controls: MapControl[]): void {
-        Controls.removeControls(mapId, controls);
+    public static removeControls(mapId: string, controls: MapControlDef[]): void {
+        ControlManager.remove(mapId, controls);
     }
 
     public static clearDatasource(mapId: string, id: string): void {
@@ -43,18 +43,18 @@ export class Maps {
     }
 
     public static addMarkers(mapId: string, markers: HtmlMarkerDef[]) {
-        Markers.add(mapId, markers);
+        MarkerManager.add(mapId, markers);
     }
 
     public static removeMarkers(mapId: string, markers: HtmlMarkerDef[]) {
-        Markers.remove(mapId, markers);
+        MarkerManager.remove(mapId, markers);
     }
 
     public static addPopups(mapId: string, popups: PopupDef[]) {
-        Popups.add(mapId, popups);
+        PopupManager.add(mapId, popups);
     }
 
     public static removePopups(mapId: string, popups: PopupDef[]) {
-        Popups.remove(mapId, popups);
+        PopupManager.remove(mapId, popups);
     }
 }

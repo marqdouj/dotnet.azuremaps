@@ -1,14 +1,13 @@
 import * as atlas from "azure-maps-control";
-import { MapFactory } from "../map-factory"
-import { Logger } from "../common"
-import { MapFeature, TProperties } from "../typings"
+import { Logger, LogLevel } from "./logger"
+import { MapFactory } from "../core/factory"
+import { JsInteropDef } from "./typings"
 import { SourceManager } from "./source"
-import { GeoJSONType } from "../common"
 
 export class FeatureManager {
     public static addFeature(
         mapId: string,
-        mapFeature: MapFeature,
+        mapFeature: MapFeatureDef,
         datasourceId: string,
         replace?: boolean) {
 
@@ -17,7 +16,7 @@ export class FeatureManager {
             return;
         }
 
-        const ds = SourceManager.getDataSource(map, mapId, datasourceId); 
+        const ds = SourceManager.getDataSource(map, mapId, datasourceId);
         if (!ds)
             return;
 
@@ -26,7 +25,7 @@ export class FeatureManager {
 
     public static addFeatures(
         mapId: string,
-        mapFeatures: MapFeature[],
+        mapFeatures: MapFeatureDef[],
         datasourceId: string,
         replace?: boolean) {
 
@@ -48,7 +47,7 @@ export class FeatureManager {
     static #doAddFeature(
         map: atlas.Map,
         mapId: string,
-        mapFeature: MapFeature,
+        mapFeature: MapFeatureDef,
         ds: atlas.source.DataSource,
         replace?: boolean) {
 
@@ -78,11 +77,12 @@ export class FeatureManager {
         }
 
         if (!geom) {
-            Logger.logMessage(mapId, Logger.LogLevel.Error, `- adding feature error: geometry type '${mapFeature.geometry.type}' not supported`);
+            Logger.logMessage(mapId, LogLevel.Error, `adding feature error: geometry type '${mapFeature.geometry.type}' not supported`);
             return;
         }
 
-        const properties: TProperties = { ...mapFeature.properties, "interopId": mapFeature.interopId };
+        const jsInterop: JsInteropDef = { id: mapFeature.id, interopId: mapFeature.interopId };
+        const properties: TProperties = { ...mapFeature.properties, jsInterop: jsInterop };
 
         let feature = new atlas.data.Feature(geom, properties, mapFeature.id);
 
@@ -97,7 +97,7 @@ export class FeatureManager {
 
     public static updateFeature(
         mapId: string,
-        mapFeature: MapFeature,
+        mapFeature: MapFeatureDef,
         datasourceId: string) {
 
         const map = MapFactory.getMap(mapId);
@@ -105,7 +105,7 @@ export class FeatureManager {
             return;
         }
 
-        const ds = SourceManager.getDataSource(map, mapId, datasourceId); 
+        const ds = SourceManager.getDataSource(map, mapId, datasourceId);
 
         if (!ds)
             return;
@@ -118,7 +118,7 @@ export class FeatureManager {
 
     public static updateFeatures(
         mapId: string,
-        mapFeatures: MapFeature[],
+        mapFeatures: MapFeatureDef[],
         datasourceId: string) {
 
         const map = MapFactory.getMap(mapId);
@@ -138,4 +138,23 @@ export class FeatureManager {
             }
         });
     }
+}
+
+
+export enum GeoJSONType {
+    Point = 'point',
+    MultiPoint = 'multipoint',
+    LineString = 'linestring',
+    MultiLineString = 'multilinestring',
+    Polygon = 'polygon',
+    MultiPolygon = 'multipolygon'
+}
+
+type TProperties = { [key: string]: any };
+
+export interface MapFeatureDef extends JsInteropDef {
+    geometry: any;
+    bbox?: atlas.data.BoundingBox;
+    properties?: TProperties;
+    asShape: boolean;
 }

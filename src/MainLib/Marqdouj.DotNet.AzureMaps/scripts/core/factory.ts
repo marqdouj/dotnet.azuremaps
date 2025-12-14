@@ -1,8 +1,8 @@
 import * as atlas from "azure-maps-control";
-import { Logger } from "../common"
-import { MapControl, MapSettings, MapOptions, TMapOptions } from "../typings"
-import { Maps } from "../map-interop/maps";
-import { EventNotifications, MapEvent, MapEventInfo, MapEventAdd } from "../map-events"
+import { Logger, LogLevel } from "../modules/logger"
+import { MapOptions, MapSettings, MapControlDef } from "../modules/typings"
+import { ControlManager } from "../modules/controls"
+import { EventManager, EventNotifications, MapEvent, MapEventInfo, MapEventAdd } from "../modules/events"
 
 export class MapFactory {
     static #azmaps: Map<string, atlas.Map> = new Map<string, atlas.Map>();
@@ -12,35 +12,32 @@ export class MapFactory {
         mapId: string,
         settings: MapSettings,
         events?: MapEvent[],
-        controls?: MapControl[]): void {
+        controls?: MapControlDef[]): void {
 
-        Logger.currentLevel = settings.logLevel ?? Logger.LogLevel.Information;
+        Logger.currentLevel = settings.logLevel ?? LogLevel.Information;
 
         if (this.#azmaps.has(mapId)) {
-            Logger.logMessage(mapId, Logger.LogLevel.Warn, "Map already exists.");
+            Logger.logMessage(mapId, LogLevel.Warn, "Map already exists.");
             return;
         }
-
-        if (settings.inDevelopment)
-            Logger.logMessage(mapId, Logger.LogLevel.Trace, 'Settings-MapOptions:', settings.options);
 
         const options = this.#buildMapOptions(settings.authOptions, settings.options);
         const azmap = new atlas.Map(mapId, options);
         this.#azmaps.set(mapId, azmap);
-        Logger.logMessage(mapId, Logger.LogLevel.Debug, "was created.");
+        Logger.logMessage(mapId, LogLevel.Debug, "was created.");
 
         if (controls) {
-            Maps.addControls(mapId, controls);
+            ControlManager.add(mapId, controls);
         }
 
-        this.#addEvents(dotNetRef, mapId, events); 
+        this.#addEvents(dotNetRef, mapId, events);
     }
 
     static getMap(mapId: string): atlas.Map | undefined {
         const map = this.#azmaps.get(mapId);
 
         if (!map) {
-            Logger.logMessage(mapId, Logger.LogLevel.Debug, "was not found.");
+            Logger.logMessage(mapId, LogLevel.Debug, "was not found.");
         }
 
         return map;
@@ -48,12 +45,12 @@ export class MapFactory {
 
     static removeMap(mapId: string): void {
         if (this.#azmaps.delete(mapId)) {
-            Logger.logMessage(mapId, Logger.LogLevel.Debug, "was removed");
+            Logger.logMessage(mapId, LogLevel.Debug, "was removed");
         }
     }
 
-    static #buildMapOptions(authOptions: atlas.AuthenticationOptions, mapOptions?: MapOptions): TMapOptions {
-        let options: TMapOptions = {};
+    static #buildMapOptions(authOptions: atlas.AuthenticationOptions, mapOptions?: MapOptions): TBuildMapOptions {
+        let options: TBuildMapOptions = {};
 
         if (mapOptions) {
             //Camera and CameraBounds are mutually exclusive
@@ -86,7 +83,7 @@ export class MapFactory {
         const azmap = this.getMap(mapId);
 
         if (!azmap) {
-            Logger.logMessage(mapId, Logger.LogLevel.Error, "Cannot build events. Map not found.");
+            Logger.logMessage(mapId, LogLevel.Error, "Cannot build events. Map not found.");
             return;
         }
 
@@ -101,11 +98,11 @@ export class MapFactory {
                     payload: { message: event.error.message, name: event.error.name, stack: event.error.stack, cause: event.error.cause }
                 };
 
-                Logger.logMessage(mapId, Logger.LogLevel.Error, 'Map error', errorInfo);
+                Logger.logMessage(mapId, LogLevel.Error, 'Map error', errorInfo);
                 dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventError, errorInfo);
             });
 
-            Maps.addEvents(dotNetRef, mapId, events);
+            EventManager.addEvents(dotNetRef, mapId, events);
 
             const readyInfo: MapEventInfo = { mapId: mapId, type: MapEventAdd.Ready };
             dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventReady, readyInfo);
@@ -114,3 +111,4 @@ export class MapFactory {
     }
 }
 
+type TBuildMapOptions = atlas.ServiceOptions & atlas.StyleOptions & atlas.UserInteractionOptions & (atlas.CameraOptions | atlas.CameraBoundsOptions);

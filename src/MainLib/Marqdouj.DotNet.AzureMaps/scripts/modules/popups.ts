@@ -1,9 +1,10 @@
 import * as atlas from "azure-maps-control";
-import { MapFactory } from "../map-factory"
-import { Logger, Extensions } from "../common"
-import { PopupDef, JsInteropObject } from "../typings"
+import { Logger, LogLevel } from "./logger"
+import { MapFactory } from "../core/factory"
+import { Helpers } from "./helpers"
+import { JsInteropDef, PopupDef } from "./typings"
 
-export class Popups {
+export class PopupManager {
     static add(mapId: string, popups: PopupDef[]) {
         const map = MapFactory.getMap(mapId);
         if (!map) {
@@ -12,7 +13,7 @@ export class Popups {
 
         popups.forEach(popupDef => {
             let popup = new atlas.Popup(popupDef.options);
-            const jsInterop: JsInteropObject = { id: popupDef.id, interopId: popupDef.interopId };
+            const jsInterop: JsInteropDef = { id: popupDef.id, interopId: popupDef.interopId };
             (popup as any).jsInterop = jsInterop;
 
             map.popups.add(popup);
@@ -47,16 +48,16 @@ export class Popups {
         const popup = popups.findLast(value => this.#isInteropPopup(value, id));
 
         if (!popup) {
-            Logger.logMessage(mapId, Logger.LogLevel.Debug, `getPopup: popup not found where id = '${id}'`);
+            Logger.logMessage(mapId, LogLevel.Debug, `getPopup: popup not found where id = '${id}'`);
         }
 
         return popup;
     }
 
     static #isInteropPopup(obj: any, id?: string): obj is atlas.Popup {
-        let ok = obj instanceof atlas.Popup && (obj as any).jsInterop.interopId != undefined;
-        if (ok && Extensions.isNotEmptyOrNull(id)) {
-            ok = (obj as any).jsInterop.id === id || (obj as any).jsInterop.interopId === id;
+        let ok = obj && obj.jsInterop != undefined && obj.jsInterop.interopId != undefined;
+        if (ok && Helpers.isNotEmptyOrNull(id)) {
+            ok = obj.jsInterop.id === id || obj.jsInterop.interopId === id;
         }
         return ok;
     }
