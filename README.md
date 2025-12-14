@@ -24,6 +24,11 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.5
+- `IAzureMapContainer`.
+  - Added new event `Maps.AddEvents(IEnumerable<MapEventType> mapEvents)`.
+    Events will be added using the `MapEventDef` default values.
+
 ### 10.3.4
 - `HtmlMarker`. Added support for HtmlMarkers
 - `Popup`. Added support for Popups

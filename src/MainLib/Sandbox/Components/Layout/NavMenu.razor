@@ -6,10 +6,14 @@
     <nav class="sitenav" aria-labelledby="main-menu">
         <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
             <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
-            <FluentNavLink Href="map-basic" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Basic Map</FluentNavLink>
+            <FluentNavLink Href="map-basic" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Basic</FluentNavLink>
             <FluentNavLink Href="map-controls" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Controls</FluentNavLink>
-            <FluentNavLink Href="map-custom" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Custom Map</FluentNavLink>
+            <FluentNavLink Href="map-custom" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Custom</FluentNavLink>
             <FluentNavLink Href="map-events" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Events</FluentNavLink>
+            <FluentNavGroup Title="Events" Icon="@(new Icons.Regular.Size20.GroupList())">
+                <FluentNavLink Href="map-events-basic" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Basic</FluentNavLink>
+                @* <FluentNavLink Href="map-events-controls" Icon="@(new Icons.Regular.Size20.Map())" IconColor="Color.Accent">Controls</FluentNavLink> *@
+            </FluentNavGroup>
         </FluentNavMenu>
     </nav>
 </div>

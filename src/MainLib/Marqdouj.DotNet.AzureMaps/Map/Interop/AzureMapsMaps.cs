@@ -22,6 +22,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <param name="mapEvents"></param>
         /// <returns></returns>
         Task AddEvents(IEnumerable<MapEventDef> mapEvents);
+        Task AddEvents(IEnumerable<MapEventType> mapEvents);
         Task AddMarkers(IEnumerable<HtmlMarkerDef> markers);
         Task AddPopups(IEnumerable<PopupDef> Popups);
 
@@ -74,6 +75,12 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async Task AddControls(IEnumerable<MapControl> controls)
         {
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, controls.OrderBy(e => e.SortOrder).ToJson());
+        }
+
+        public async Task AddEvents(IEnumerable<MapEventType> mapEvents)
+        {
+            var events = mapEvents.Select(e => new MapEventDef(e, MapEventTarget.Map));
+            await AddEvents(events);
         }
 
         public async Task AddEvents(IEnumerable<MapEventDef> mapEvents)
