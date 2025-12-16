@@ -46,8 +46,8 @@ export class Helpers {
         return item;
     }
 
-    static buildEventResult(mapId: string, type: string, payload: any): MapEventResult {
-        return { mapId: mapId, type: type, payload: payload };
+    static buildEventResult(mapId: string, event: MapEventDef, payload: any): MapEventResult {
+        return { mapId: mapId, type: event.type, payload: { targetId: event.targetId, ...payload } };
     }
 
     static buildShapeResults(shapes: Array<atlas.data.Feature<atlas.data.Geometry, any> | atlas.Shape>): object[] {
@@ -64,12 +64,14 @@ export class Helpers {
     }
 
     static buildMouseEventPayload(mouseEvent: atlas.MapMouseEvent) {
-        return {
+        const mouse = {
             layerId: mouseEvent.layerId,
             pixel: mouseEvent.pixel,
             position: mouseEvent.position,
             shapes: this.buildShapeResults(mouseEvent.shapes)
         };
+
+        return { mouse: mouse };
     }
 
     static buildTargetedEventPayload(event: atlas.TargetedEvent) {

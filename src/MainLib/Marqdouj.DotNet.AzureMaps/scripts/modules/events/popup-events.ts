@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase"
 import { PopupManager } from "../popups"
 
 export class PopupEventFactory extends EventFactoryBase {
@@ -33,7 +33,7 @@ export class PopupEventFactory extends EventFactoryBase {
             let wasAdded: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, false);
 
                 if (callback) {
                     if (value.once) {
@@ -64,7 +64,7 @@ export class PopupEventFactory extends EventFactoryBase {
             let wasRemoved: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, true);
 
                 if (callback) {
                     azmap.events.remove(value.type as MapPopupEvent, target, callback);
@@ -80,28 +80,16 @@ export class PopupEventFactory extends EventFactoryBase {
     }
     // #endregion
 
-    #getCallback(value: MapEventDef) {
-        let callback: any;
+    #getCallback(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
 
-        switch (value.type.toLowerCase()) {
-            case MapPopupEvent.Close:
-                callback = this.#notifyMapPopupEvent_Close;
-                break;
-            case MapPopupEvent.Drag:
-                callback = this.#notifyMapPopupEvent_Drag;
-                break;
-            case MapPopupEvent.DragEnd:
-                callback = this.#notifyMapPopupEvent_DragEnd;
-                break;
-            case MapPopupEvent.DragStart:
-                callback = this.#notifyMapPopupEvent_DragStart;
-                break;
-            case MapPopupEvent.Open:
-                callback = this.#notifyMapPopupEvent_Open;
-                break;
-            default:
+        if (callback) {
+            return callback;
         }
 
+        callback = (callback: atlas.TargetedEvent) => this.#NotifyMapPopupEvent(callback, value);
+
+        this.addCallback(value, callback);
         return callback;
     }
 
@@ -109,17 +97,12 @@ export class PopupEventFactory extends EventFactoryBase {
         return PopupManager.getPopup(this.mapId, event.targetId);
     }
 
-    #NotifyMapPopupEvent = (callback: atlas.TargetedEvent, type: MapPopupEvent) => {
+    #NotifyMapPopupEvent = (callback: atlas.TargetedEvent, event: MapEventDef) => {
         let payload = Helpers.buildTargetedEventPayload(callback);
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventPopup, result);
     };
 
-    #notifyMapPopupEvent_Close = (callback: atlas.TargetedEvent) => this.#NotifyMapPopupEvent(callback, MapPopupEvent.Close);
-    #notifyMapPopupEvent_Drag = (callback: atlas.TargetedEvent) => this.#NotifyMapPopupEvent(callback, MapPopupEvent.Drag);
-    #notifyMapPopupEvent_DragEnd = (callback: atlas.TargetedEvent) => this.#NotifyMapPopupEvent(callback, MapPopupEvent.DragEnd);
-    #notifyMapPopupEvent_DragStart = (callback: atlas.TargetedEvent) => this.#NotifyMapPopupEvent(callback, MapPopupEvent.DragStart);
-    #notifyMapPopupEvent_Open = (callback: atlas.TargetedEvent) => this.#NotifyMapPopupEvent(callback, MapPopupEvent.Open);
 }
 
 enum MapPopupEvent {

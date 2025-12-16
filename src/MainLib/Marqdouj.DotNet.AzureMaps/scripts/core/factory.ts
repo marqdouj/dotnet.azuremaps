@@ -103,10 +103,13 @@ export class MapFactory {
         events ??= [];
 
         azmap.events.addOnce(MapEventAdd.Ready, event => {
+            const errorDef: MapEventDef = {target: "map", type: MapEventAdd.Error};
+            const readyDef: MapEventDef = { target: "map", type: MapEventAdd.Ready };
+
             //MapEventError - always subscribe.
             azmap.events.add(MapEventAdd.Error, event => {
                 const payload = { message: event.error.message, name: event.error.name, stack: event.error.stack, cause: event.error.cause };
-                let result = Helpers.buildEventResult(mapId, MapEventAdd.Ready, payload);
+                let result = Helpers.buildEventResult(mapId, errorDef, payload);
 
                 Logger.logMessage(mapId, LogLevel.Error, 'Map error', result);
                 dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventError, result);
@@ -114,7 +117,7 @@ export class MapFactory {
 
             Maps.addEvents(mapId, events);
 
-            let result = Helpers.buildEventResult(mapId, MapEventAdd.Ready, null);
+            let result = Helpers.buildEventResult(mapId, readyDef, null);
             dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventReady, result);
             dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapReady, result);
         });

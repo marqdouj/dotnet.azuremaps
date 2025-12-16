@@ -1,4 +1,4 @@
-import { EventFactoryBase } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase"
 import { MapEventFactory } from "./map-events"
 import { MarkerEventFactory } from "./marker-events"
 import { SourceEventFactory } from "./source-events"

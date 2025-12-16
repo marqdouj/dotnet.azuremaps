@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase";
 
 export class ShapeEventFactory extends EventFactoryBase {
     constructor(mapId: string) {
@@ -32,7 +32,7 @@ export class ShapeEventFactory extends EventFactoryBase {
             let wasAdded: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, false);
 
                 if (callback) {
                     if (value.once) {
@@ -63,7 +63,7 @@ export class ShapeEventFactory extends EventFactoryBase {
             let wasRemoved: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, true);
 
                 if (callback) {
                     azmap.events.remove(value.type as MapShapeEvent, target, callback);
@@ -77,18 +77,17 @@ export class ShapeEventFactory extends EventFactoryBase {
             }
         });
     }
-    // #endregion
 
-    #getCallback(value: MapEventDef) {
-        let callback: any;
+    #getCallback(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
 
-        switch (value.type.toLowerCase()) {
-            case MapShapeEvent.ShapeChanged:
-                callback = this.#notifyMapShapeEvent_ShapeChanged;
-                break;
-            default:
+        if (callback) {
+            return callback;
         }
 
+        callback = (callback: atlas.Shape) => this.#NotifyMapShapeEvent(callback, value);
+
+        this.addCallback(value, callback);
         return callback;
     }
 
@@ -98,13 +97,12 @@ export class ShapeEventFactory extends EventFactoryBase {
         return target;
     }
 
-    #NotifyMapShapeEvent = (callback: atlas.Shape, type: MapShapeEvent) => {
+    #NotifyMapShapeEvent = (callback: atlas.Shape, event: MapEventDef) => {
         let payload = Helpers.getShapeResult(callback);
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventShape, result);
     };
-
-    #notifyMapShapeEvent_ShapeChanged = (callback: atlas.Shape) => this.#NotifyMapShapeEvent(callback, MapShapeEvent.ShapeChanged);
+    // #endregion
 }
 
 enum MapShapeEvent {

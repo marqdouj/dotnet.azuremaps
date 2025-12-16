@@ -1,7 +1,8 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase, MapEventMouse, MapEventTouch, MapEventWheel } from "./common"
+import { MapEventMouse, MapEventTouch, MapEventWheel } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase";
 
 export class MapEventFactory extends EventFactoryBase {
     constructor(mapId: string) {
@@ -55,14 +56,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventConfig, value.type)).forEach((value) => {
             let wasAdded: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventConfig.MapConfigChanged:
-                    callback = this.#notifyMapEventConfig_MapConfigChanged;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackConfig(value, false);
 
             if (callback) {
                 if (value.once) {
@@ -85,14 +79,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         events.forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventConfig.MapConfigChanged:
-                    callback = this.#notifyMapEventConfig_MapConfigChanged;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackConfig(value, true);
 
             if (callback) {
                 azmap.events.remove(value.type, callback);
@@ -102,12 +89,25 @@ export class MapEventFactory extends EventFactoryBase {
         });
     }
 
-    #notifyNotifyMapEventConfig = (config: atlas.MapConfiguration, event: MapEventConfig) => {
+    #getCallbackConfig(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = (config: atlas.MapConfiguration) => this.#notifyNotifyMapEventConfig(config, value);
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyNotifyMapEventConfig = (config: atlas.MapConfiguration, event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, config);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventConfig, result);
     };
 
-    #notifyMapEventConfig_MapConfigChanged = (config: atlas.MapConfiguration) => this.#notifyNotifyMapEventConfig(config, MapEventConfig.MapConfigChanged);
     // #endregion
 
     // #region Data
@@ -119,20 +119,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventData, value.type)).forEach((value) => {
             let wasAdded: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventData.Data:
-                    callback = this.#notifyMapEventData_Data;
-                    break;
-                case MapEventData.SourceData:
-                    callback = this.#notifyMapEventData_SourceData;
-                    break;
-                case MapEventData.StyleData:
-                    callback = this.#notifyMapEventData_StyleData;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackData(value, false);
 
             if (callback) {
                 if (value.once) {
@@ -156,20 +143,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventData, value.type)).forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventData.Data:
-                    callback = this.#notifyMapEventData_Data;
-                    break;
-                case MapEventData.SourceData:
-                    callback = this.#notifyMapEventData_SourceData;
-                    break;
-                case MapEventData.StyleData:
-                    callback = this.#notifyMapEventData_StyleData;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackData(value, true);
 
             if (callback) {
                 azmap.events.remove(value.type, callback);
@@ -180,16 +154,24 @@ export class MapEventFactory extends EventFactoryBase {
         });
     }
 
-    #notifyMapEventData = (dataEvent: atlas.MapDataEvent, event: MapEventData) => {
+    #getCallbackData(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = (dataEvent: atlas.MapDataEvent) => this.#notifyMapEventData(dataEvent, value);
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventData = (dataEvent: atlas.MapDataEvent, event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, this.#buildMapDataEventPayload(dataEvent));
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventData, result);
     };
-
-    #notifyMapEventData_Data = (dataEvent: atlas.MapDataEvent) => this.#notifyMapEventData(dataEvent, MapEventData.Data);
-
-    #notifyMapEventData_SourceData = (dataEvent: atlas.MapDataEvent) => this.#notifyMapEventData(dataEvent, MapEventData.SourceData);
-
-    #notifyMapEventData_StyleData = (dataEvent: atlas.MapDataEvent) => this.#notifyMapEventData(dataEvent, MapEventData.StyleData);
 
     #buildMapDataEventPayload(dataEvent: atlas.MapDataEvent) {
         return {
@@ -210,18 +192,20 @@ export class MapEventFactory extends EventFactoryBase {
         const eventName = "addMapEventGeneral";
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventGeneral, value.type)).forEach((value) => {
-            if (value.once) {
-                azmap.events.addOnce(value.type as MapEventGeneral, () => {
-                    this.#notifyMapEventGeneral(value.type as MapEventGeneral);
-                });
-            }
-            else {
-                azmap.events.add(value.type as MapEventGeneral, () => {
-                    this.#notifyMapEventGeneral(value.type as MapEventGeneral);
-                });
+            let wasAdded: boolean = false;
+            const callback = this.#getCallbackGeneral(value, false);
+
+            if (callback) {
+                if (value.once) {
+                    azmap.events.addOnce(value.type as MapEventGeneral, callback);
+                }
+                else {
+                    azmap.events.add(value.type as MapEventGeneral, callback);
+                }
+                wasAdded = true;
             }
 
-            MapEventLogger.logEventAdd(this.mapId, eventName, true, value);
+            MapEventLogger.logEventAdd(this.mapId, eventName, wasAdded, value);
         });
     }
 
@@ -232,12 +216,33 @@ export class MapEventFactory extends EventFactoryBase {
         const eventName = "removeMapEventGeneral";
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventGeneral, value.type)).forEach((value) => {
-            azmap.events.remove(value.type, () => { });
-            MapEventLogger.logEventRemoved(this.mapId, eventName, true, value);
+            let wasRemoved = false;
+            const callback = this.#getCallbackGeneral(value, true);
+
+            if (callback) {
+                azmap.events.remove(value.type, callback);
+                wasRemoved = true;
+            }
+            
+            MapEventLogger.logEventRemoved(this.mapId, eventName, wasRemoved, value);
         });
     }
 
-    #notifyMapEventGeneral = (event: MapEventGeneral) => {
+    #getCallbackGeneral(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = () => { this.#notifyMapEventGeneral(value); };
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventGeneral = (event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, null);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEvent, result);
     };
@@ -252,7 +257,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventMouse, value.type)).forEach((value) => {
             let wasAdded: boolean = false;
-            let callback = this.#getCallBack(value);
+            let callback = this.#getCallBackMouse(value, false);
 
             if (callback) {
                 if (value.once) {
@@ -276,7 +281,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventMouse, value.type)).forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback = this.#getCallBack(value);
+            let callback = this.#getCallBackMouse(value, true);
 
             if (callback) {
                 azmap.events.remove(value.type, callback);
@@ -287,54 +292,24 @@ export class MapEventFactory extends EventFactoryBase {
         });
     }
 
-    #getCallBack(value: MapEventDef) {
-        let callback: any;
+    #getCallBackMouse(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
 
-        switch (value.type as MapEventMouse) {
-            case MapEventMouse.Click:
-                callback = this.#notifyMapEventMouse_Click;
-                break;
-            case MapEventMouse.ContextMenu:
-                callback = this.#notifyMapEventMouse_ContextMenu;
-                break;
-            case MapEventMouse.DblClick:
-                callback = this.#notifyMapEventMouse_DblClick;
-                break;
-            case MapEventMouse.MouseDown:
-                callback = this.#notifyMapEventMouse_MouseDown;
-                break;
-            case MapEventMouse.MouseMove:
-                callback = this.#notifyMapEventMouse_MouseMove;
-                break;
-            case MapEventMouse.MouseOut:
-                callback = this.#notifyMapEventMouse_MouseOut;
-                break;
-            case MapEventMouse.MouseOver:
-                callback = this.#notifyMapEventMouse_MouseOver;
-                break;
-            case MapEventMouse.MouseUp:
-                callback = this.#notifyMapEventMouse_MouseUp;
-                break;
-            default:
+        if (callback) {
+            return callback;
         }
 
+        callback = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, value);
+
+        this.addCallback(value, callback);
         return callback;
     }
 
-    #notifyMapEventMouse = (callback: atlas.MapMouseEvent, event: MapEventMouse) => {
+    #notifyMapEventMouse = (callback: atlas.MapMouseEvent, event: MapEventDef) => {
         let payload = Helpers.buildMouseEventPayload(callback);
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventMouse, result);
     };
-
-    #notifyMapEventMouse_Click = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.Click);
-    #notifyMapEventMouse_ContextMenu = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.ContextMenu);
-    #notifyMapEventMouse_DblClick = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.DblClick);
-    #notifyMapEventMouse_MouseDown = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.MouseDown);
-    #notifyMapEventMouse_MouseMove = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.MouseMove);
-    #notifyMapEventMouse_MouseOut = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.MouseOut);
-    #notifyMapEventMouse_MouseOver = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.MouseOver);
-    #notifyMapEventMouse_MouseUp = (callback: atlas.MapMouseEvent) => this.#notifyMapEventMouse(callback, MapEventMouse.MouseUp);
 
     // #endregion
 
@@ -347,17 +322,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventSource, value.type)).forEach((value) => {
             let wasAdded: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventSource.SourceAdded:
-                    callback = this.#notifyMapEventSource_SourceAdded;
-                    break;
-                case MapEventSource.SourceRemoved:
-                    callback = this.#notifyMapEventSource_SourceRemoved;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackSource(value, false);
 
             if (callback) {
                 if (value.once) {
@@ -381,17 +346,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventSource, value.type)).forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventSource.SourceAdded:
-                    callback = this.#notifyMapEventSource_SourceAdded;
-                    break;
-                case MapEventSource.SourceRemoved:
-                    callback = this.#notifyMapEventSource_SourceRemoved;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackSource(value, true);
 
             if (callback) {
                 azmap.events.remove(value.type, callback);
@@ -402,14 +357,25 @@ export class MapEventFactory extends EventFactoryBase {
         });
     }
 
-    #notifyMapEventSource(source: atlas.source.Source, event: MapEventSource) {
+    #getCallbackSource(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = (source: atlas.source.Source) => this.#notifyMapEventSource(source, value);
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventSource(source: atlas.source.Source, event: MapEventDef) {
         let payload = { id: source.getId(), jsInterop: Helpers.getJsInterop(source) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventSource, result);
     }
-
-    #notifyMapEventSource_SourceAdded = (source: atlas.source.Source) => this.#notifyMapEventSource(source, MapEventSource.SourceAdded);
-    #notifyMapEventSource_SourceRemoved = (source: atlas.source.Source) => this.#notifyMapEventSource(source, MapEventSource.SourceRemoved);
 
     // #endregion
 
@@ -421,27 +387,12 @@ export class MapEventFactory extends EventFactoryBase {
         const eventName = "addMapEventStyle";
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventStyle, value.type)).forEach((value) => {
-            let wasAdded: boolean = true;
+            let wasAdded: boolean = false;
+            const callback = this.#getCallbackStyle(value, false);
 
-            switch (value.type.toLowerCase()) {
-                case MapEventStyle.StyleChanged:
-                    if (value.once) {
-                        azmap.events.addOnce(MapEventStyle.StyleChanged, this.#notifyMapEventStyle_StyleChanged);
-                    }
-                    else {
-                        azmap.events.add(MapEventStyle.StyleChanged, this.#notifyMapEventStyle_StyleChanged);
-                    }
-                    break;
-                case MapEventStyle.StyleImageMissing:
-                    if (value.once) {
-                        azmap.events.addOnce(MapEventStyle.StyleImageMissing, this.#notifyMapEventStyle_StyleImageMissing);
-                    }
-                    else {
-                        azmap.events.add(MapEventStyle.StyleImageMissing, this.#notifyMapEventStyle_StyleImageMissing);
-                    }
-                    break;
-                default:
-                    wasAdded = false;
+            if (callback) {
+                azmap.events.addOnce(value.type as any, callback);
+                wasAdded = true;
             }
 
             MapEventLogger.logEventAdd(this.mapId, eventName, wasAdded, value);
@@ -455,31 +406,45 @@ export class MapEventFactory extends EventFactoryBase {
         const eventName = "removeMapEventStyle";
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventStyle, value.type)).forEach((value) => {
-            let wasRemoved: boolean = true;
+            let wasRemoved: boolean = false;
+            const callback = this.#getCallbackStyle(value, true);
 
-            switch (value.type.toLowerCase()) {
-                case MapEventStyle.StyleChanged:
-                    azmap.events.remove(value.type, this.#notifyMapEventStyle_StyleChanged);
-                    break;
-                case MapEventStyle.StyleImageMissing:
-                    azmap.events.remove(value.type, this.#notifyMapEventStyle_StyleImageMissing);
-                    break;
-                default:
-                    wasRemoved = false;
+            if (callback) {
+                azmap.events.remove(value.type, callback);
+                wasRemoved = true;
             }
 
             MapEventLogger.logEventRemoved(this.mapId, eventName, wasRemoved, value);
         });
     }
 
-    #notifyMapEventStyle(style: string, event: MapEventStyle) {
+    #getCallbackStyle(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        switch (value.type.toLowerCase()) {
+            case MapEventStyle.StyleChanged:
+                callback = (source: atlas.StyleChangedEvent) => this.#notifyMapEventStyle(source.style, value);
+                break;
+            case MapEventStyle.StyleImageMissing:
+                callback = (style: string) => this.#notifyMapEventStyle(style, value);
+                break;
+            default:
+        }
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventStyle(style: string, event: MapEventDef) {
         let payload = { style: style };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventStyle, result);
     }
-
-    #notifyMapEventStyle_StyleChanged = (source: atlas.StyleChangedEvent) => this.#notifyMapEventStyle(source.style, MapEventStyle.StyleChanged);
-    #notifyMapEventStyle_StyleImageMissing = (style: string) => this.#notifyMapEventStyle(style, MapEventStyle.StyleImageMissing);
     // #endregion
 
     // #region Touch
@@ -491,23 +456,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventTouch, value.type)).forEach((value) => {
             let wasAdded: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventTouch.TouchCancel:
-                    callback = this.#notifyMapEventTouch_TouchCancel;
-                    break;
-                case MapEventTouch.TouchEnd:
-                    callback = this.#notifyMapEventTouch_TouchEnd;
-                    break;
-                case MapEventTouch.TouchMove:
-                    callback = this.#notifyMapEventTouch_TouchMove;
-                    break;
-                case MapEventTouch.TouchStart:
-                    callback = this.#notifyMapEventTouch_TouchStart;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackTouch(value, false);
 
             if (callback) {
                 if (value.once) {
@@ -531,23 +480,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventTouch, value.type)).forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventTouch.TouchCancel:
-                    callback = this.#notifyMapEventTouch_TouchCancel;
-                    break;
-                case MapEventTouch.TouchEnd:
-                    callback = this.#notifyMapEventTouch_TouchEnd;
-                    break;
-                case MapEventTouch.TouchMove:
-                    callback = this.#notifyMapEventTouch_TouchMove;
-                    break;
-                case MapEventTouch.TouchStart:
-                    callback = this.#notifyMapEventTouch_TouchStart;
-                    break;
-                default:
-            }
+            const callback = this.#getCallbackTouch(value, true);
 
             if (callback) {
                 azmap.events.remove(value.type, callback);
@@ -558,19 +491,26 @@ export class MapEventFactory extends EventFactoryBase {
         });
     }
 
-    #notifyMapEventTouch = (callback: atlas.MapTouchEvent, type: MapEventTouch) => {
+    #getCallbackTouch(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = (callback: atlas.MapTouchEvent) => this.#notifyMapEventTouch(callback, value);
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventTouch = (callback: atlas.MapTouchEvent, event: MapEventDef) => {
         let payload = Helpers.buildTouchEventPayload(callback);
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventTouch, result);
     };
 
-    #notifyMapEventTouch_TouchCancel = (callback: atlas.MapTouchEvent) => this.#notifyMapEventTouch(callback, MapEventTouch.TouchCancel);
-
-    #notifyMapEventTouch_TouchEnd = (callback: atlas.MapTouchEvent) => this.#notifyMapEventTouch(callback, MapEventTouch.TouchEnd);
-
-    #notifyMapEventTouch_TouchMove = (callback: atlas.MapTouchEvent) => this.#notifyMapEventTouch(callback, MapEventTouch.TouchMove);
-
-    #notifyMapEventTouch_TouchStart = (callback: atlas.MapTouchEvent) => this.#notifyMapEventTouch(callback, MapEventTouch.TouchStart);
     // #endregion
 
     // #region Wheel
@@ -582,14 +522,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventWheel, value.type)).forEach((value) => {
             let wasAdded: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventWheel.Wheel:
-                    callback = this.#notifyMapEventWheel_Wheel;
-                    break;
-                default:
-            }
+            let callback = this.#getCallbackWheel(value, false);
 
             if (callback) {
                 if (value.once) {
@@ -613,14 +546,7 @@ export class MapEventFactory extends EventFactoryBase {
 
         Object.values(events).filter(value => Helpers.isValueInEnum(MapEventWheel, value.type)).forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback: any;
-
-            switch (value.type.toLowerCase()) {
-                case MapEventWheel.Wheel:
-                    callback = this.#notifyMapEventWheel_Wheel;
-                    break;
-                default:
-            }
+            let callback = this.#getCallbackWheel(value, true);
 
             if (callback) {
                 azmap.events.remove(value.type, callback);
@@ -631,13 +557,25 @@ export class MapEventFactory extends EventFactoryBase {
         });
     }
 
-    #notifyMapEventWheel = (callback: atlas.MapMouseWheelEvent, type: MapEventWheel) => {
+    #getCallbackWheel(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = (callback: atlas.MapMouseWheelEvent) => this.#notifyMapEventWheel(callback, value);
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventWheel = (callback: atlas.MapMouseWheelEvent, event: MapEventDef) => {
         let payload = Helpers.buildWheelEventPayload(callback);
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventWheel, result);
     };
-
-    #notifyMapEventWheel_Wheel = (callback: atlas.MapMouseWheelEvent) => this.#notifyMapEventWheel(callback, MapEventWheel.Wheel);
 
     // #endregion
 }

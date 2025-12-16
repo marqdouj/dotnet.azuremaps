@@ -33,6 +33,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         public string? Id { get; internal set; }
 
         [JsonInclude]
+        public string? TargetId { get; internal set; }
+
+        [JsonInclude]
         public JSInteropDef? JsInterop { get; internal set; }
     }
 }

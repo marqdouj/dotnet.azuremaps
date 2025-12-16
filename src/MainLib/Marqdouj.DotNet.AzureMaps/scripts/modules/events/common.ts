@@ -1,24 +1,4 @@
-import * as atlas from "azure-maps-control"
 import { Logger, LogLevel } from "../../modules/logger"
-import { MapContainerHelper } from "../../core/mapContainer"
-
-export class EventFactoryBase {
-    mapId: string;
-    #helper: MapContainerHelper;
-
-    constructor(mapId: string) {
-        this.mapId = mapId;
-        this.#helper = new MapContainerHelper(mapId);
-    }
-
-    getMap(): atlas.Map {
-        return this.#helper.getMap();
-    }
-
-    getDotNetRef(): any {
-        return this.#helper.getDotNetRef();
-    }
-}
 
 export class MapEventLogger {
     static logEventAdd(mapId: string, name: string, wasAdded: boolean, event: MapEventDef) {

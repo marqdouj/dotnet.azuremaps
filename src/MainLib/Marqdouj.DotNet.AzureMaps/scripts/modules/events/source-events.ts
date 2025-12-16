@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase"
 import { SourceManager } from "../source"
 
 export class SourceEventFactory extends EventFactoryBase {
@@ -33,7 +33,7 @@ export class SourceEventFactory extends EventFactoryBase {
             let wasAdded: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, false);
 
                 if (callback) {
                     if (value.once) {
@@ -64,7 +64,7 @@ export class SourceEventFactory extends EventFactoryBase {
             let wasRemoved: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, true);
 
                 if (callback) {
                     azmap.events.remove(value.type as any, target, callback);
@@ -79,22 +79,22 @@ export class SourceEventFactory extends EventFactoryBase {
         });
     }
 
-    #getCallback(value: MapEventDef) {
-        let callback: any;
+    #getCallback(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
 
         switch (value.type.toLowerCase()) {
             case MapEventDataSource.DataSourceUpdated:
-                callback = this.#NotifyMapDataSourceEvent_Updated;
-                break;
-            case MapEventDataSource.DataAdded:
-                callback = this.#notifyMapDataSourceEvent_DataAdded;
-                break;
-            case MapEventDataSource.DataRemoved:
-                callback = this.#notifyMapDataSourceEvent_DataRemoved;
+                callback = (callback: atlas.source.DataSource) => this.#NotifyMapDataSourceEvent_Updated(callback, value);
                 break;
             default:
+                callback = (callback: atlas.Shape[]) => this.#NotifyMapDataSourceEvent(callback, value);
         }
 
+        this.addCallback(value, callback);
         return callback;
     }
 
@@ -103,22 +103,17 @@ export class SourceEventFactory extends EventFactoryBase {
         return target;
     }
 
-    #NotifyMapDataSourceEvent_Updated = (callback: atlas.source.DataSource, type: MapEventDataSource) => {
+    #NotifyMapDataSourceEvent_Updated = (callback: atlas.source.DataSource, event: MapEventDef) => {
         let payload = { sourceId: callback.getId() };
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventDataSource, result);
     };
 
-    #notifyMapDataSourceEvent_DataSourceUpdated = (callback: atlas.source.DataSource) => this.#NotifyMapDataSourceEvent_Updated(callback, MapEventDataSource.DataSourceUpdated);
-
-    #NotifyMapDataSourceEvent = (callback: atlas.Shape[], type: MapEventDataSource) => {
+    #NotifyMapDataSourceEvent = (callback: atlas.Shape[], event: MapEventDef) => {
         let payload = { shapes: Helpers.buildShapeResults(callback) };
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventDataSource, result);
     };
-
-    #notifyMapDataSourceEvent_DataAdded = (callback: atlas.Shape[]) => this.#NotifyMapDataSourceEvent(callback, MapEventDataSource.DataAdded);
-    #notifyMapDataSourceEvent_DataRemoved = (callback: atlas.Shape[]) => this.#NotifyMapDataSourceEvent(callback, MapEventDataSource.DataRemoved);
     // #endregion
 }
 

@@ -120,7 +120,7 @@
             switch (e.Type)
             {
                 case MapEventType.Click:
-                    ToastService.Info($"OnMapEventMouse: Event={e.Type} Position={e.Payload?.Position}");
+                    ToastService.Info($"OnMapEventMouse: Event={e.Type} Position={e.Payload?.Mouse?.Position}");
                     break;
                 case MapEventType.MouseMove:
                 case MapEventType.MouseOut:
@@ -195,9 +195,9 @@
                     Shapes = [];
                     break;
                 default:
-                    Pixel = e?.Payload?.Pixel;
-                    Position = e?.Payload?.Position;
-                    Shapes = e?.Payload?.Shapes ?? [];
+                    Pixel = e?.Payload?.Mouse?.Pixel;
+                    Position = e?.Payload?.Mouse?.Position;
+                    Shapes = e?.Payload?.Mouse?.Shapes ?? [];
                     break;
             }
         }

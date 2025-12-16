@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase"
 import { ControlManager } from "../../modules/controls"
 
 export class StyleControlEventFactory extends EventFactoryBase {
@@ -33,14 +33,7 @@ export class StyleControlEventFactory extends EventFactoryBase {
 
             if (target) {
                 let wasAdded: boolean = false;
-                let callback: any;
-
-                switch (value.type.toLowerCase()) {
-                    case StyleControlEvent.StyleSelected:
-                        callback = this.#notifyStyleControlEvent_StyleSelected
-                        break;
-                    default:
-                }
+                const callback = this.#getCallback(value, false);
 
                 if (callback) {
                     if (value.once) {
@@ -70,14 +63,7 @@ export class StyleControlEventFactory extends EventFactoryBase {
 
             if (target) {
                 let wasRemoved: boolean = false;
-                let callback: any;
-
-                switch (value.type.toLowerCase()) {
-                    case StyleControlEvent.StyleSelected:
-                        callback = this.#notifyStyleControlEvent_StyleSelected;
-                        break;
-                    default:
-                }
+                const callback = this.#getCallback(value, true);
 
                 if (callback) {
                     azmap.events.remove(value.type, target, callback);
@@ -91,12 +77,24 @@ export class StyleControlEventFactory extends EventFactoryBase {
         });
     }
 
-    #notifyStyleControlEvent = (style: string, event: StyleControlEvent) => {
+    #getCallback(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = (style: string) => this.#notifyStyleControlEvent(style, value);
+
+        this.addCallback(value, callback);
+        return callback;
+    }
+
+    #notifyStyleControlEvent = (style: string, event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, { style: style });
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventStyle, result);
     };
 
-    #notifyStyleControlEvent_StyleSelected = (style: string) => this.#notifyStyleControlEvent(style, StyleControlEvent.StyleSelected);
     // #endregion
 }
 

@@ -1,7 +1,7 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase";
 import { MarkerManager } from "../markers";
 
 export class MarkerEventFactory extends EventFactoryBase {
@@ -33,7 +33,7 @@ export class MarkerEventFactory extends EventFactoryBase {
             let wasAdded: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, false);
 
                 if (callback) {
                     if (value.once) {
@@ -64,7 +64,7 @@ export class MarkerEventFactory extends EventFactoryBase {
             let wasRemoved: boolean = false;
 
             if (target) {
-                let callback = this.#getCallback(value);
+                const callback = this.#getCallback(value, true);
 
                 if (callback) {
                     azmap.events.remove(value.type as MapHtmlMarkerEvent, target, callback);
@@ -79,61 +79,16 @@ export class MarkerEventFactory extends EventFactoryBase {
         });
     }
 
-    #getCallback(value: MapEventDef) {
-        let callback: any;
+    #getCallback(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
 
-        switch (value.type.toLowerCase()) {
-            case MapHtmlMarkerEvent.Click:
-                callback = this.#notifyMapHtmlMarkerEvent_Click;
-                break;
-            case MapHtmlMarkerEvent.ContextMenu:
-                callback = this.#notifyMapHtmlMarkerEvent_ContextMenu;
-                break;
-            case MapHtmlMarkerEvent.DblClick:
-                callback = this.#notifyMapHtmlMarkerEvent_DblClick;
-                break;
-            case MapHtmlMarkerEvent.Drag:
-                callback = this.#notifyMapHtmlMarkerEvent_Drag;
-                break;
-            case MapHtmlMarkerEvent.DragEnd:
-                callback = this.#notifyMapHtmlMarkerEvent_DragEnd;
-                break;
-            case MapHtmlMarkerEvent.DragStart:
-                callback = this.#notifyMapHtmlMarkerEvent_DragStart;
-                break;
-            case MapHtmlMarkerEvent.KeyDown:
-                callback = this.#notifyMapHtmlMarkerEvent_KeyDown;
-                break;
-            case MapHtmlMarkerEvent.KeyPress:
-                callback = this.#notifyMapHtmlMarkerEvent_KeyPress;
-                break;
-            case MapHtmlMarkerEvent.KeyUp:
-                callback = this.#notifyMapHtmlMarkerEvent_KeyUp;
-                break;
-            case MapHtmlMarkerEvent.MouseDown:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseDown;
-                break;
-            case MapHtmlMarkerEvent.MouseEnter:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseEnter;
-                break;
-            case MapHtmlMarkerEvent.MouseLeave:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseLeave;
-                break;
-            case MapHtmlMarkerEvent.MouseMove:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseMove;
-                break;
-            case MapHtmlMarkerEvent.MouseOut:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseOut;
-                break;
-            case MapHtmlMarkerEvent.MouseOver:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseOver;
-                break;
-            case MapHtmlMarkerEvent.MouseUp:
-                callback = this.#notifyMapHtmlMarkerEvent_MouseUp;
-                break;
-            default:
+        if (callback) {
+            return callback;
         }
 
+        callback = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, value);
+
+        this.addCallback(value, callback);
         return callback;
     }
 
@@ -141,32 +96,11 @@ export class MarkerEventFactory extends EventFactoryBase {
         return MarkerManager.getMarker(this.mapId, event.targetId);
     }
 
-    #NotifyMapHtmlMarkerEvent = (callback: atlas.TargetedEvent, type: MapHtmlMarkerEvent) => {
+    #NotifyMapHtmlMarkerEvent = (callback: atlas.TargetedEvent, event: MapEventDef) => {
         let payload = Helpers.buildTargetedEventPayload(callback);
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventHtmlMarker, result);
     };
-
-    #notifyMapHtmlMarkerEvent_Click = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.Click);
-    #notifyMapHtmlMarkerEvent_ContextMenu = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.ContextMenu);
-    #notifyMapHtmlMarkerEvent_DblClick = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.DblClick);
-    #notifyMapHtmlMarkerEvent_MouseDown = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseDown);
-    #notifyMapHtmlMarkerEvent_MouseEnter = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseEnter);
-    #notifyMapHtmlMarkerEvent_MouseLeave = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseLeave);
-    #notifyMapHtmlMarkerEvent_MouseMove = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseMove);
-    #notifyMapHtmlMarkerEvent_MouseOut = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseOut);
-    #notifyMapHtmlMarkerEvent_MouseOver = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseOver);
-    #notifyMapHtmlMarkerEvent_MouseUp = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.MouseUp);
-
-
-    #notifyMapHtmlMarkerEvent_Drag = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.Drag);
-    #notifyMapHtmlMarkerEvent_DragEnd = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.DragEnd);
-    #notifyMapHtmlMarkerEvent_DragStart = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.DragStart);
-
-    #notifyMapHtmlMarkerEvent_KeyDown = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.KeyDown);
-    #notifyMapHtmlMarkerEvent_KeyPress = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.KeyPress);
-    #notifyMapHtmlMarkerEvent_KeyUp = (callback: atlas.TargetedEvent) => this.#NotifyMapHtmlMarkerEvent(callback, MapHtmlMarkerEvent.KeyUp);
-
     // #endregion
 }
 

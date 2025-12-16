@@ -26,7 +26,7 @@ An example of one of the methods to do this is in the demo.
 ## Release Notes
 ### 10.3.5
 - `IAzureMapContainer`.
-  - Added new event `Maps.AddEvents(IEnumerable<MapEventType> mapEvents)`.
+  - Added new method `Maps.AddEvents(IEnumerable<MapEventType> mapEvents)`.
     Events will be added using the `MapEventDef` default values.
 - `Map Events`. Fixed the issue where the events could be added but not removed.
    Events can now be added and removed.

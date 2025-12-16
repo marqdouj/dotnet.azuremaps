@@ -5,9 +5,14 @@ using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
-    public class MapEventMouseArgs : MapEventArgs<MapEventMousePayload> { }
+    public class MapEventMouseArgs : MapEventArgs<MapEventMouseArgsPayload> { }
 
-    public class MapEventMousePayload : MapEventPayloadBase
+    public class MapEventMouseArgsPayload : MapEventPayloadBase
+    {
+        public MapEventMousePayload? Mouse { get; set; }
+    }
+
+    public class MapEventMousePayload
     {
         /// <summary>
         /// The id of the layer the event is attached to.

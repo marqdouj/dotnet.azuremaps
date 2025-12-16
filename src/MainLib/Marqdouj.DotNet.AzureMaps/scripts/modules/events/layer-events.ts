@@ -1,7 +1,8 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { EventFactoryBase, MapEventMouse, MapEventTouch } from "./common"
+import { MapEventMouse, MapEventTouch } from "./common"
+import { EventFactoryBase } from "./EventFactoryBase";
 
 export class LayerEventFactory extends EventFactoryBase {
     constructor(mapId: string) {
@@ -29,8 +30,7 @@ export class LayerEventFactory extends EventFactoryBase {
 
         events.forEach((value) => {
             let wasAdded: boolean = false;
-            let callback = this.#getCallback(value);
-
+            const callback = this.#getCallback(value, false);
 
             if (callback) {
                 const isLayer = value.target === "layer";
@@ -73,7 +73,7 @@ export class LayerEventFactory extends EventFactoryBase {
 
         events.forEach((value) => {
             let wasRemoved: boolean = false;
-            let callback = this.#getCallback(value);
+            const callback = this.#getCallback(value, true);
 
             if (callback) {
                 const isLayer = value.target === "layer";
@@ -104,120 +104,76 @@ export class LayerEventFactory extends EventFactoryBase {
         }
     }
 
-    #getCallback(value: MapEventDef) {
-        let callback: any;
+    #getCallback(value: MapEventDef, removing: boolean) {
         const isLayer = value.target === "layer";
+        let callback: any = this.getCallback(value, removing);
+        
+        if (callback) {
+            return callback;
+        }
 
         switch (value.type as MapLayerEvent) {
             case MapLayerEvent.LayerAdded:
-                callback = isLayer ? this.#notifyMapEventLayer_LayerAdded : this.#notifyMapEvent_LayerAdded;
-                break;
             case MapLayerEvent.LayerRemoved:
-                callback = isLayer ? this.#notifyMapEventLayer_LayerRemoved : this.#notifyMapEvent_LayerRemoved;
+                callback = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, value, isLayer)
                 break;
             case MapLayerEvent.Click:
-                callback = this.#notifyMapEventLayerMouse_Click;
-                break;
             case MapLayerEvent.ContextMenu:
-                callback = this.#notifyMapEventLayerMouse_ContextMenu;
-                break;
             case MapLayerEvent.DblClick:
-                callback = this.#notifyMapEventLayerMouse_DblClick;
-                break;
             case MapLayerEvent.MouseDown:
-                callback = this.#notifyMapEventLayerMouse_MouseDown;
-                break;
             case MapLayerEvent.MouseEnter:
-                callback = this.#notifyMapEventLayerMouse_MouseEnter;
-                break;
             case MapLayerEvent.MouseLeave:
-                callback = this.#notifyMapEventLayerMouse_MouseLeave;
-                break;
             case MapLayerEvent.MouseMove:
-                callback = this.#notifyMapEventLayerMouse_MouseMove;
-                break;
             case MapLayerEvent.MouseOut:
-                callback = this.#notifyMapEventLayerMouse_MouseOut;
-                break;
             case MapLayerEvent.MouseOver:
-                callback = this.#notifyMapEventLayerMouse_MouseOver;
-                break;
             case MapLayerEvent.MouseUp:
-                callback = this.#notifyMapEventLayerMouse_MouseUp;
+                callback = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, value);
                 break;
             case MapLayerEvent.TouchCancel:
-                callback = this.#notifyMapEventLayerTouch_TouchCancel;
-                break;
             case MapLayerEvent.TouchEnd:
-                callback = this.#notifyMapEventLayerTouch_TouchEnd;
-                break;
             case MapLayerEvent.TouchMove:
-                callback = this.#notifyMapEventLayerTouch_TouchMove;
-                break;
             case MapLayerEvent.TouchStart:
-                callback = this.#notifyMapEventLayerTouch_TouchStart;
+                callback = callback = (callback: atlas.MapTouchEvent) => this.#NotifyMapEventLayerTouch(callback, value);
                 break;
             case MapLayerEvent.Wheel:
-                callback = this.#notifyMapEventLayerWheel_Wheel;
+                callback = (callback: atlas.MapMouseWheelEvent) => this.#notifyMapEventLayerWheel(callback, value);
                 break;
             default:
         }
 
+        this.addCallback(value, callback);
+
         return callback;
     }
 
-    #notifyMapEventLayer = (layer: atlas.layer.Layer, event: MapEventLayer, hasTarget: boolean) => {
-        let payload = { id: layer.getId(), jsInterop: Helpers.getJsInterop(layer) };
+    #notifyMapEventLayer = (layer: atlas.layer.Layer, event: MapEventDef, hasTarget: boolean) => {
+        let payload = { id: event.targetId, jsInterop: Helpers.getJsInterop(layer) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         let notify = hasTarget ? EventNotifications.NotifyMapEventLayer : EventNotifications.NotifyMapEvent;
         this.getDotNetRef().invokeMethodAsync(notify, result);
     };
 
-    #notifyMapEventLayer_LayerAdded = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, MapEventLayer.LayerAdded, true);
-    #notifyMapEventLayer_LayerRemoved = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, MapEventLayer.LayerRemoved, true);
-    #notifyMapEvent_LayerAdded = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, MapEventLayer.LayerAdded, false);
-    #notifyMapEvent_LayerRemoved = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, MapEventLayer.LayerRemoved, false);
-
-    #NotifyMapEventLayerTouch = (callback: atlas.MapTouchEvent, type: MapEventTouch) => {
-        let payload = { id: callback.layerId, touch: Helpers.buildTouchEventPayload(callback) };
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
-        this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
-    };
-
-    #notifyMapEventLayerTouch_TouchCancel = (callback: atlas.MapTouchEvent) => this.#NotifyMapEventLayerTouch(callback, MapEventTouch.TouchCancel);
-    #notifyMapEventLayerTouch_TouchEnd = (callback: atlas.MapTouchEvent) => this.#NotifyMapEventLayerTouch(callback, MapEventTouch.TouchEnd);
-    #notifyMapEventLayerTouch_TouchMove = (callback: atlas.MapTouchEvent) => this.#NotifyMapEventLayerTouch(callback, MapEventTouch.TouchMove);
-    #notifyMapEventLayerTouch_TouchStart = (callback: atlas.MapTouchEvent) => this.#NotifyMapEventLayerTouch(callback, MapEventTouch.TouchStart);
-
-    #notifyMapEventLayerMouse = (callback: atlas.MapMouseEvent, event: MapEventMouse | MapLayerMouseEvent) => {
-        let payload = { id: callback.layerId, mouse: Helpers.buildMouseEventPayload(callback) };
+    #NotifyMapEventLayerTouch = (callback: atlas.MapTouchEvent, event: MapEventDef,) => {
+        let payload = { id: event.targetId, touch: Helpers.buildTouchEventPayload(callback) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
     };
 
-    #notifyMapEventLayerMouse_Click = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.Click);
-    #notifyMapEventLayerMouse_ContextMenu = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.ContextMenu);
-    #notifyMapEventLayerMouse_DblClick = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.DblClick);
-    #notifyMapEventLayerMouse_MouseDown = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.MouseDown);
-    #notifyMapEventLayerMouse_MouseEnter = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapLayerMouseEvent.MouseEnter);
-    #notifyMapEventLayerMouse_MouseLeave = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapLayerMouseEvent.MouseLeave);
-    #notifyMapEventLayerMouse_MouseMove = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.MouseMove);
-    #notifyMapEventLayerMouse_MouseOut = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.MouseOut);
-    #notifyMapEventLayerMouse_MouseOver = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.MouseOver);
-    #notifyMapEventLayerMouse_MouseUp = (callback: atlas.MapMouseEvent) => this.#notifyMapEventLayerMouse(callback, MapEventMouse.MouseUp);
-
-    #notifyMapEventLayerWheel = (callback: atlas.MapMouseWheelEvent, type: string) => {
-        let payload = { wheel: Helpers.buildWheelEventPayload(callback) };
-        let result = Helpers.buildEventResult(this.mapId, type, payload);
+    #notifyMapEventLayerMouse = (callback: atlas.MapMouseEvent, event: MapEventDef) => {
+        let payload = { id: event.targetId, mouse: Helpers.buildMouseEventPayload(callback) };
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
     };
 
-    #notifyMapEventLayerWheel_Wheel = (callback: atlas.MapMouseWheelEvent) => this.#notifyMapEventLayerWheel(callback, MapLayerEvent.Wheel);
-
+    #notifyMapEventLayerWheel = (callback: atlas.MapMouseWheelEvent, event: MapEventDef) => {
+        let payload = { id: event.targetId, wheel: Helpers.buildWheelEventPayload(callback) };
+        let result = Helpers.buildEventResult(this.mapId, event, payload);
+        this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+    };
     // #endregion
 }
 
-export enum MapEventLayer {
+enum MapEventLayer {
     LayerAdded = 'layeradded',
     LayerRemoved = 'layerremoved'
 }
@@ -245,9 +201,4 @@ enum MapLayerEvent {
     Wheel = 'wheel',
 }
 
-//Events not included in MapEventMouse
-enum MapLayerMouseEvent {
-    MouseEnter = 'mouseenter',
-    MouseLeave = 'mouseleave',
-}
 
