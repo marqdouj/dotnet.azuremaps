@@ -1,4 +1,4 @@
-import * as atlas from "azure-maps-control";
+import * as atlas from "azure-maps-control"
 import { Logger, LogLevel } from "./logger"
 import { Helpers } from "./helpers"
 import { MapFactory } from "../core/factory"
@@ -86,7 +86,7 @@ export class ControlManager {
         const controls = map.controls.getControls();
         const result: JsInteropControl[] = [];
 
-        controls.filter(control => this.#isInteropControl(control)).forEach(control => {
+        controls.filter(control => Helpers.isInteropControl(control)).forEach(control => {
             const jsInterop = (control as any).jsInterop as JsInteropControl;
             if (jsInterop)
                 result.push(jsInterop);
@@ -96,20 +96,12 @@ export class ControlManager {
     }
 
     static #doGetControl(controls:atlas.Control[], mapId: string, id: string): atlas.Control {
-        const control = controls.findLast(value => this.#isInteropControl(value, id));
+        const control = controls.findLast(value => Helpers.isInteropControl(value, id));
 
         if (!control) {
             Logger.logMessage(mapId, LogLevel.Debug, `getControl: control not found where id = '${id}'`);
         }
 
         return control;
-    }
-
-    static #isInteropControl(obj: any, id?: string): obj is atlas.Control {
-        let ok = obj && obj.jsInterop != undefined && obj.jsInterop.interopId != undefined;
-        if (ok && Helpers.isNotEmptyOrNull(id)) {
-            ok = obj.jsInterop.id === id || obj.jsInterop.interopId === id;
-        }
-        return ok;
     }
 }

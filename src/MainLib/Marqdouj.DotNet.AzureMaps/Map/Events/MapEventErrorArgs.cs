@@ -4,7 +4,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     public class MapEventErrorArgs : MapEventArgs<MapEventErrorPayload> { }
 
-    public class MapEventErrorPayload
+    public class MapEventErrorPayload : MapEventPayloadBase
     {
        [JsonInclude] public string? Name { get; internal set; }
        [JsonInclude] public string? Message { get; internal set; }

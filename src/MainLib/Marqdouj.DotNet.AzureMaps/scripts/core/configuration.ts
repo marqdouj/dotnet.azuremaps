@@ -1,4 +1,4 @@
-import * as atlas from "azure-maps-control";
+import * as atlas from "azure-maps-control"
 import { MapFactory } from "./factory"
 
 export class Configuration {

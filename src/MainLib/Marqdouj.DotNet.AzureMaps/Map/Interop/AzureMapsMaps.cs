@@ -80,12 +80,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async Task AddEvents(IEnumerable<MapEventType> mapEvents)
         {
             var events = mapEvents.Select(e => new MapEventDef(e, MapEventTarget.Map));
-            await AddEvents(events);
         }
 
         public async Task AddEvents(IEnumerable<MapEventDef> mapEvents)
         {
-            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), mapReference.DotNetRef, MapId, mapEvents);
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, mapEvents);
         }
 
         public async Task RemoveEvents(IEnumerable<MapEventDef> mapEvents)

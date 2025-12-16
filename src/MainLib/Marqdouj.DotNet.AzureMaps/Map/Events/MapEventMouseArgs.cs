@@ -7,7 +7,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     public class MapEventMouseArgs : MapEventArgs<MapEventMousePayload> { }
 
-    public class MapEventMousePayload
+    public class MapEventMousePayload : MapEventPayloadBase
     {
         /// <summary>
         /// The id of the layer the event is attached to.

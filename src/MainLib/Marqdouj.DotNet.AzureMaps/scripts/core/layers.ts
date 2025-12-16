@@ -1,4 +1,4 @@
-import * as atlas from "azure-maps-control";
+import * as atlas from "azure-maps-control"
 import { Logger, LogLevel } from "../modules/logger"
 import { MapFactory } from "./factory"
 import { DataSourceDef, JsInteropDef } from "../modules/typings"
@@ -13,8 +13,10 @@ export class Layers {
             return;
         }
 
+        const eventName = "createLayer";
+
         if (Helpers.isEmptyOrNull(def.type)) {
-            Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: layer type is missing`);
+            Logger.logMessage(mapId, LogLevel.Error, `${eventName}: layer type is missing`);
             return;
         }
 
@@ -23,7 +25,7 @@ export class Layers {
         if (Helpers.isNotEmptyOrNull(layerId)) {
             const lyr = map.layers.getLayerById(layerId);
             if (lyr) {
-                Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: layer already exists where ID=${layerId}`);
+                Logger.logMessage(mapId, LogLevel.Error, `${eventName}: layer already exists where ID=${layerId}`);
                 return;
             }
         }
@@ -33,7 +35,7 @@ export class Layers {
         if (dsDef) {
             ds = new atlas.source.DataSource(dsDef.id, dsDef.options);
             if (!ds) {
-                Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: Unable to create datasource.`, dsDef);
+                Logger.logMessage(mapId, LogLevel.Error, `${eventName}: Unable to create datasource.`, dsDef);
                 return;
             }
             map.sources.add(ds);
@@ -45,44 +47,56 @@ export class Layers {
         else {
             ds = map.sources.getById(def.sourceId) as atlas.source.DataSource;
             if (!ds) {
-                Logger.logMessage(mapId, LogLevel.Error, `- CreateLayer: Unable to find datasource where ID=${def.sourceId}.`);
+                Logger.logMessage(mapId, LogLevel.Error, `${eventName}: Unable to find datasource where ID=${def.sourceId}.`);
                 return;
             }
         }
 
+        let layer: atlas.layer.Layer;
         const layerOptions = (def.options || {}) as any;
-        layerOptions.jsInterop = {
-            layerid: layerId,
-        };
 
         switch (def.type) {
             case 'Bubble':
-                map.layers.add(new atlas.layer.BubbleLayer(ds, layerId, layerOptions), def.before);
+                layer = new atlas.layer.BubbleLayer(ds, layerId, layerOptions);
                 break;
             case 'HeatMap':
-                map.layers.add(new atlas.layer.HeatMapLayer(ds, layerId, layerOptions), def.before);
+                layer = new atlas.layer.HeatMapLayer(ds, layerId, layerOptions);
                 break;
             case 'Image':
-                map.layers.add(new atlas.layer.ImageLayer(layerOptions, layerId), def.before);
+                layer = new atlas.layer.ImageLayer(layerOptions, layerId);
                 break;
             case 'Line':
-                map.layers.add(new atlas.layer.LineLayer(ds, layerId, layerOptions), def.before);
+                layer = new atlas.layer.LineLayer(ds, layerId, layerOptions);
                 break;
             case 'Polygon':
-                map.layers.add(new atlas.layer.PolygonLayer(ds, layerId, layerOptions), def.before);
+                layer = new atlas.layer.PolygonLayer(ds, layerId, layerOptions);
                 break;
             case 'PolygonExtrusion':
-                map.layers.add(new atlas.layer.PolygonExtrusionLayer(ds, layerId, layerOptions), def.before);
+                layer = new atlas.layer.PolygonExtrusionLayer(ds, layerId, layerOptions);
                 break;
             case 'Symbol':
-                map.layers.add(new atlas.layer.SymbolLayer(ds, layerId, layerOptions), def.before);
+                layer = new atlas.layer.SymbolLayer(ds, layerId, layerOptions);
                 break;
             case 'Tile':
-                map.layers.add(new atlas.layer.TileLayer(layerOptions, layerId), def.before);
+                layer = new atlas.layer.TileLayer(layerOptions, layerId);
                 break;
             default:
-                Logger.logMessage(mapId, LogLevel.Warn, `- CreateLayer: layer type '${def.type}' is not supported.`);
+               
                 break;
+        }
+
+        let wasAdded = false;
+        if (layer) {
+            const jsInterop: JsInteropDef = { id: def.id, interopId: def.interopId };
+            (layer as any).jsInterop = jsInterop;
+            map.layers.add(layer, def.before);
+            wasAdded = true;
+        }
+
+        if (wasAdded) {
+            Logger.logMessage(mapId, LogLevel.Trace, `${eventName}: layer added:`, layer);
+        } else {
+            Logger.logMessage(mapId, LogLevel.Error, `${eventName}: layer type '${def.type}' is not supported.`, def);
         }
     }
 
@@ -92,10 +106,12 @@ export class Layers {
             return;
         }
 
+        const eventName = "removeLayer";
+
         const lyr = map.layers.getLayerById(id);
         if (lyr) {
             map.layers.remove(lyr);
-            Logger.logMessage(mapId, LogLevel.Debug, `- CreateLayer:- layer with id '${id}' was removed.`);
+            Logger.logMessage(mapId, LogLevel.Debug, `${eventName}: layer with id '${id}' was removed.`);
         }
     }
 

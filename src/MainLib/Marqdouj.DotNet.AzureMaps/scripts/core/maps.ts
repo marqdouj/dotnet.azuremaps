@@ -2,16 +2,18 @@ import { ControlManager } from "../modules/controls"
 import { SourceManager } from "../modules/source"
 import { MarkerManager } from "../modules/markers"
 import { PopupManager } from "../modules/popups"
-import { EventManager, MapEvent } from "../modules/events"
 import { DataSourceDef, MapControlDef, HtmlMarkerDef, PopupDef } from "../modules/typings"
+import { MapFactory } from "./factory"
 
 export class Maps {
-    public static addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
-        EventManager.addEvents(dotNetRef, mapId, events);
+    public static addEvents(mapId: string, events: MapEventDef[]): void {
+        const mapContainer = MapFactory.getMapContainer(mapId);
+        mapContainer.events.addEvents(events);
     }
 
-    public static removeEvents(mapId: string, events: MapEvent[]): void {
-        EventManager.removeEvents(mapId, events);
+    public static removeEvents(mapId: string, events: MapEventDef[]): void {
+        const mapContainer = MapFactory.getMapContainer(mapId);
+        mapContainer.events.removeEvents(events);
     }
 
     public static addControls(mapId: string, controls: MapControlDef[]): void {

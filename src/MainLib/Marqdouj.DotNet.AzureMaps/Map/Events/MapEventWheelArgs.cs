@@ -4,8 +4,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     public class MapEventWheelArgs : MapEventArgs<MapEventWheelPayload> { }
 
-	public class MapEventWheelPayload
-	{
+	public class MapEventWheelPayload : MapEventPayloadBase
+    {
         /// <summary>
         /// Wheel event type.
         /// </summary>

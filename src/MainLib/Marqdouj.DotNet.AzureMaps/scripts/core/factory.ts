@@ -1,17 +1,20 @@
-import * as atlas from "azure-maps-control";
+import * as atlas from "azure-maps-control"
 import { Logger, LogLevel } from "../modules/logger"
 import { MapOptions, MapSettings, MapControlDef } from "../modules/typings"
 import { ControlManager } from "../modules/controls"
-import { EventManager, EventNotifications, MapEvent, MapEventInfo, MapEventAdd } from "../modules/events"
+import { MapContainer } from "./mapContainer"
+import { Helpers } from "../modules/helpers"
+import { EventNotifications } from "../modules/events/common"
+import { Maps } from "./maps"
 
 export class MapFactory {
-    static #azmaps: Map<string, atlas.Map> = new Map<string, atlas.Map>();
+    static #azmaps: Map<string, MapContainer> = new Map<string, MapContainer>();
     static getAuthTokenCallback: atlas.getAuthTokenCallback;
 
     static createMap(dotNetRef: any,
         mapId: string,
         settings: MapSettings,
-        events?: MapEvent[],
+        events?: MapEventDef[],
         controls?: MapControlDef[]): void {
 
         Logger.currentLevel = settings.logLevel ?? LogLevel.Information;
@@ -23,7 +26,7 @@ export class MapFactory {
 
         const options = this.#buildMapOptions(settings.authOptions, settings.options);
         const azmap = new atlas.Map(mapId, options);
-        this.#azmaps.set(mapId, azmap);
+        this.#azmaps.set(mapId, new MapContainer(dotNetRef, mapId, azmap));
         Logger.logMessage(mapId, LogLevel.Debug, "was created.");
 
         if (controls) {
@@ -34,18 +37,28 @@ export class MapFactory {
     }
 
     static getMap(mapId: string): atlas.Map | undefined {
-        const map = this.#azmaps.get(mapId);
+        const mapContainer = this.getMapContainer(mapId);
+        return mapContainer?.azMap;
+    }
 
-        if (!map) {
-            Logger.logMessage(mapId, LogLevel.Debug, "was not found.");
+    static getMapContainer(mapId: string): MapContainer | undefined {
+        const mapContainer = this.#azmaps.get(mapId);
+
+        if (!mapContainer) {
+            Logger.logMessage(mapId, LogLevel.Debug, "mapContainer was not found.");
         }
 
-        return map;
+        return mapContainer;
     }
 
     static removeMap(mapId: string): void {
-        if (this.#azmaps.delete(mapId)) {
-            Logger.logMessage(mapId, LogLevel.Debug, "was removed");
+        const mapContainer = this.#azmaps.get(mapId);
+
+        if (mapContainer) {
+            if (this.#azmaps.delete(mapId)) {
+                mapContainer.clear();
+                Logger.logMessage(mapId, LogLevel.Debug, "was removed");
+            }
         }
     }
 
@@ -79,7 +92,7 @@ export class MapFactory {
         return options;
     }
 
-    static #addEvents(dotNetRef: any, mapId: string, events: MapEvent[]): void {
+    static #addEvents(dotNetRef: any, mapId: string, events: MapEventDef[]): void {
         const azmap = this.getMap(mapId);
 
         if (!azmap) {
@@ -92,23 +105,25 @@ export class MapFactory {
         azmap.events.addOnce(MapEventAdd.Ready, event => {
             //MapEventError - always subscribe.
             azmap.events.add(MapEventAdd.Error, event => {
-                const errorInfo: MapEventInfo = {
-                    mapId: mapId,
-                    type: MapEventAdd.Ready,
-                    payload: { message: event.error.message, name: event.error.name, stack: event.error.stack, cause: event.error.cause }
-                };
+                const payload = { message: event.error.message, name: event.error.name, stack: event.error.stack, cause: event.error.cause };
+                let result = Helpers.buildEventResult(mapId, MapEventAdd.Ready, payload);
 
-                Logger.logMessage(mapId, LogLevel.Error, 'Map error', errorInfo);
-                dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventError, errorInfo);
+                Logger.logMessage(mapId, LogLevel.Error, 'Map error', result);
+                dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventError, result);
             });
 
-            EventManager.addEvents(dotNetRef, mapId, events);
+            Maps.addEvents(mapId, events);
 
-            const readyInfo: MapEventInfo = { mapId: mapId, type: MapEventAdd.Ready };
-            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventReady, readyInfo);
-            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapReady, readyInfo);
+            let result = Helpers.buildEventResult(mapId, MapEventAdd.Ready, null);
+            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventReady, result);
+            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapReady, result);
         });
     }
+}
+
+enum MapEventAdd {
+    Error = 'error',
+    Ready = 'ready',
 }
 
 type TBuildMapOptions = atlas.ServiceOptions & atlas.StyleOptions & atlas.UserInteractionOptions & (atlas.CameraOptions | atlas.CameraBoundsOptions);

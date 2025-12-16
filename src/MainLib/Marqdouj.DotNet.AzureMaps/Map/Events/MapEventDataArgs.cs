@@ -17,7 +17,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         Content
     }
 
-    public class MapEventDataPayload
+    public class MapEventDataPayload : MapEventPayloadBase
     {
         [JsonIgnore]
         public MapEventDataPayloadDataType? DataType => DataTypeJs.JsonToEnumN<MapEventDataPayloadDataType>();

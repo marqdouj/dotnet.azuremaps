@@ -40,7 +40,7 @@ namespace Sandbox
             config.Authentication.SubscriptionKey = configuration["AzureMaps:SubscriptionKey"];
 
             //Optional settings:
-            config.LogLevel = LogLevel.Trace;
+            config.LogLevel = LogLevel.Debug;
         }
 
         //private static void ConfigureForAad(IConfiguration configuration, MapConfiguration config)

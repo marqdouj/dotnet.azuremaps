@@ -2,8 +2,7 @@
 {
     public class MapEventShapeArgs : MapEventArgs<MapEventShapePayload> { }
 
-    public class MapEventShapePayload
+    public class MapEventShapePayload : MapEventPayloadBase
     {
-        public string? Id { get; set; }
     }
 }

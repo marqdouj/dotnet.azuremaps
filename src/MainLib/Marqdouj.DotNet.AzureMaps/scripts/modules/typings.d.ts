@@ -1,4 +1,4 @@
-import * as atlas from "azure-maps-control";
+import * as atlas from "azure-maps-control"
 import { LogLevel } from "./logger"
 
 interface JsInteropDef {

@@ -4,7 +4,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     public class MapEventDataSourceArgs : MapEventArgs<MapEventDataSourcePayload> { }
 
-    public class MapEventDataSourcePayload
+    public class MapEventDataSourcePayload : MapEventPayloadBase
     {
         /// <summary>
         /// DataSource Id associated with the event.

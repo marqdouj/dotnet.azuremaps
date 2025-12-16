@@ -4,12 +4,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     public class MapEventConfigArgs : MapEventArgs<MapEventConfigPayload> { }
 
-    public class MapEventConfigPayload
+    public class MapEventConfigPayload : MapEventPayloadBase
     {
         [JsonInclude] public string? Created { get; internal set; }
         [JsonInclude] public string? DefaultConfiguration { get; internal set; }
         [JsonInclude] public string? Description { get; internal set; }
-        [JsonInclude] public string? Id { get; internal set; }
         [JsonInclude] public List<MapEventConfigurationStyle>? Configurations { get; internal set; }
         [JsonInclude] public int? Version { get; internal set; }
     }

@@ -6,7 +6,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     public class MapEventTouchArgs : MapEventArgs<MapEventTouchPayload> { }
 
-    public class MapEventTouchPayload
+    public class MapEventTouchPayload : MapEventPayloadBase
     {
         /// <summary>
         /// The pixel coordinate at the center of all touch points on the map, relative to the top left corner.

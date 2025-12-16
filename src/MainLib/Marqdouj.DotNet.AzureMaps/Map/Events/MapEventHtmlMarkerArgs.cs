@@ -1,4 +1,4 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+﻿using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
@@ -6,8 +6,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
     {
     }
 
-    public class MapEventHtmlMarkerPayload
+    public class MapEventHtmlMarkerPayload : MapEventPayloadBase
     {
-        public JSInteropDef? Interop { get; set; }
+        [JsonInclude]
+        public string? Type { get; internal set; }
     }
 }

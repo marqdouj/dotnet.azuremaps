@@ -2,8 +2,7 @@
 {
     public class MapEventSourceArgs : MapEventArgs<MapEventSourcePayload> { }
 
-    public class MapEventSourcePayload
+    public class MapEventSourcePayload : MapEventPayloadBase
     {
-        public string? Id { get; set; }
     }
 }

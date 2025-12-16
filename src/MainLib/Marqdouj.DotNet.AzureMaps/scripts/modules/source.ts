@@ -1,4 +1,4 @@
-import * as atlas from "azure-maps-control";
+import * as atlas from "azure-maps-control"
 import { Logger, LogLevel } from "./logger"
 import { Helpers } from "./helpers"
 import { MapFactory } from "../core/factory"
