@@ -52,7 +52,7 @@ namespace Sandbox.Components.Pages.Maps
                         Pitch = 0,
                     },
                 },
-                Style = new StyleOptions { Style = MapStyle.Road },
+                Style = new(),
             };
         }
 

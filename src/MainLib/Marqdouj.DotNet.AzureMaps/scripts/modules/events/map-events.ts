@@ -27,6 +27,7 @@ export class MapEventFactory extends EventFactoryBase {
         this.#addMapEventConfig(events);
         this.#addMapEventData(events);
         this.#addMapEventGeneral(events);
+        this.#addMapEventLayer(events);
         this.#addMapEventMouse(events);
         this.#addMapEventSource(events);
         this.#addMapEventStyle(events);
@@ -40,6 +41,7 @@ export class MapEventFactory extends EventFactoryBase {
         this.#removeMapEventConfig(events);
         this.#removeMapEventData(events);
         this.#removeMapEventGeneral(events);
+        this.#removeMapEventLayer(events);
         this.#removeMapEventMouse(events);
         this.#removeMapEventSource(events);
         this.#removeMapEventStyle(events);
@@ -77,7 +79,7 @@ export class MapEventFactory extends EventFactoryBase {
         const azmap = this.getMap();
         const eventName = "removeMapEventConfig";
 
-        events.forEach((value) => {
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventConfig, value.type)).forEach((value) => {
             let wasRemoved: boolean = false;
             const callback = this.#getCallbackConfig(value, true);
 
@@ -106,6 +108,7 @@ export class MapEventFactory extends EventFactoryBase {
     #notifyNotifyMapEventConfig = (config: atlas.MapConfiguration, event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, config);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventConfig, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventConfig, event.type);
     };
 
     // #endregion
@@ -168,9 +171,10 @@ export class MapEventFactory extends EventFactoryBase {
         return callback;
     }
 
-    #notifyMapEventData = (dataEvent: atlas.MapDataEvent, event: MapEventDef) => {
-        let result = Helpers.buildEventResult(this.mapId, event, this.#buildMapDataEventPayload(dataEvent));
+    #notifyMapEventData = (callback: atlas.MapDataEvent, event: MapEventDef) => {
+        let result = Helpers.buildEventResult(this.mapId, event, this.#buildMapDataEventPayload(callback));
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventData, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventData, event.type);
     };
 
     #buildMapDataEventPayload(dataEvent: atlas.MapDataEvent) {
@@ -245,6 +249,72 @@ export class MapEventFactory extends EventFactoryBase {
     #notifyMapEventGeneral = (event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, null);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEvent, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEvent, event.type);
+    };
+    // #endregion
+
+    // #region Layer
+    #addMapEventLayer(events: MapEventDef[]) {
+        if (events.length == 0) return;
+
+        const azmap = this.getMap();
+        const eventName = "addMapEventLayer";
+
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventLayer, value.type)).forEach((value) => {
+            let wasAdded: boolean = false;
+            const callback = this.#getCallbackLayer(value, false);
+
+            if (callback) {
+                if (value.once) {
+                    azmap.events.addOnce(value.type as MapEventLayer, callback);
+                }
+                else {
+                    azmap.events.add(value.type as MapEventLayer, callback);
+                }
+                wasAdded = true;
+            }
+
+            MapEventLogger.logEventAdd(this.mapId, eventName, wasAdded, value);
+        });
+    }
+
+    #removeMapEventLayer(events: MapEventDef[]) {
+        if (events.length == 0) return;
+
+        const azmap = this.getMap();
+        const eventName = "removeMapEventLayer";
+
+        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventLayer, value.type)).forEach((value) => {
+            let wasRemoved = false;
+            const callback = this.#getCallbackLayer(value, true);
+
+            if (callback) {
+                azmap.events.remove(value.type, callback);
+                wasRemoved = true;
+            }
+
+            MapEventLogger.logEventRemoved(this.mapId, eventName, wasRemoved, value);
+        });
+    }
+
+    #getCallbackLayer(value: MapEventDef, removing: boolean) {
+        let callback: any = this.getCallback(value, removing);
+
+        if (callback) {
+            return callback;
+        }
+
+        callback = () => { this.#notifyMapEventLayer(value); };
+
+        this.addCallback(value, callback);
+
+        return callback;
+    }
+
+    #notifyMapEventLayer = (event: MapEventDef) => {
+        let result = Helpers.buildEventResult(this.mapId, event, null);
+        this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEvent, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEvent, event.type);
     };
     // #endregion
 
@@ -306,9 +376,12 @@ export class MapEventFactory extends EventFactoryBase {
     }
 
     #notifyMapEventMouse = (callback: atlas.MapMouseEvent, event: MapEventDef) => {
+        if (event.preventDefault)
+            callback.preventDefault();
         let payload = Helpers.buildMouseEventPayload(callback);
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventMouse, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventMouse, event.type);
     };
 
     // #endregion
@@ -375,6 +448,7 @@ export class MapEventFactory extends EventFactoryBase {
         let payload = { id: source.getId(), jsInterop: Helpers.getJsInterop(source) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventSource, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventSource, event.type);
     }
 
     // #endregion
@@ -444,6 +518,7 @@ export class MapEventFactory extends EventFactoryBase {
         let payload = { style: style };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventStyle, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventStyle, event.type);
     }
     // #endregion
 
@@ -506,9 +581,12 @@ export class MapEventFactory extends EventFactoryBase {
     }
 
     #notifyMapEventTouch = (callback: atlas.MapTouchEvent, event: MapEventDef) => {
+        if (event.preventDefault)
+            callback.preventDefault();
         let payload = Helpers.buildTouchEventPayload(callback);
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventTouch, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventTouch, event.type);
     };
 
     // #endregion
@@ -572,9 +650,12 @@ export class MapEventFactory extends EventFactoryBase {
     }
 
     #notifyMapEventWheel = (callback: atlas.MapMouseWheelEvent, event: MapEventDef) => {
+        if (event.preventDefault)
+            callback.preventDefault();
         let payload = Helpers.buildWheelEventPayload(callback);
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventWheel, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventWheel, event.type);
     };
 
     // #endregion
@@ -613,6 +694,11 @@ enum MapEventGeneral {
     Zoom = 'zoom',
     ZoomEnd = 'zoomend',
     ZoomStart = 'zoomstart'
+}
+
+enum MapEventLayer {
+    LayerAdded = 'layeradded',
+    LayerRemoved = 'layerremoved'
 }
 
 enum MapEventSource {

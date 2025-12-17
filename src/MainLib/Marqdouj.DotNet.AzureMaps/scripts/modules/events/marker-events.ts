@@ -100,6 +100,7 @@ export class MarkerEventFactory extends EventFactoryBase {
         let payload = Helpers.buildTargetedEventPayload(callback);
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventHtmlMarker, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventHtmlMarker, event.type);
     };
     // #endregion
 }

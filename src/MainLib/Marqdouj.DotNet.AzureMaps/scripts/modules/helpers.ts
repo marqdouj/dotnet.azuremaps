@@ -46,8 +46,8 @@ export class Helpers {
         return item;
     }
 
-    static buildEventResult(mapId: string, event: MapEventDef, payload: any): MapEventResult {
-        return { mapId: mapId, type: event.type, payload: { targetId: event.targetId, ...payload } };
+    static buildEventResult(mapId: string, event: MapEventDef, payload?: any): MapEventResult {
+        return { mapId: mapId, type: event.type, target: event.target, payload: { targetId: event.targetId, ...payload } };
     }
 
     static buildShapeResults(shapes: Array<atlas.data.Feature<atlas.data.Geometry, any> | atlas.Shape>): object[] {

@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
@@ -15,9 +16,22 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         [JsonPropertyName("type")]
         internal string? TypeJs { get => Type.EnumToJsonN(); set => Type = value.JsonToEnumN<MapEventType>(); }
 
+        [JsonIgnore]
+        public MapEventTarget? Target { get; internal set; }
+
+        [JsonInclude]
+        [JsonPropertyName("target")]
+        internal string? TargetJs { get => Target.EnumToJsonN(); set => Target = value.JsonToEnumN<MapEventTarget>(); }
+
+        /// <summary>
+        /// If true and the js event supports it, preventDefault will be applied to the event.
+        /// i.e. Mouse, Touch, and Wheel events.
+        /// </summary>
+        public Boolean PreventDefault { get; set; }
+
         public override string ToString()
         {
-            return $"MapID:{MapId} Type:{Type}";
+            return $"MapId:{MapId} Target:{Target} Type:{Type}";
         }
     }
 
@@ -37,5 +51,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
 
         [JsonInclude]
         public JSInteropDef? JsInterop { get; internal set; }
+
+        public override string ToString() => JsonSerializer.Serialize(this);
     }
 }

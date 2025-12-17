@@ -93,6 +93,7 @@ export class StyleControlEventFactory extends EventFactoryBase {
     #notifyStyleControlEvent = (style: string, event: MapEventDef) => {
         let result = Helpers.buildEventResult(this.mapId, event, { style: style });
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventStyle, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventStyle, event.type);
     };
 
     // #endregion

@@ -144,7 +144,7 @@
         try
         {
             if (mapContainer !=  null)
-            await mapContainer.DisposeAsync();
+                await mapContainer.DisposeAsync();
         }
         catch (JSDisconnectedException)
         {
@@ -160,6 +160,11 @@
     public EventCallback<IAzureMapContainer> OnMapReady { get; set; }
     [JSInvokable]
     public async Task NotifyMapReady(MapEventArgs e) => await OnMapReady.InvokeAsync(mapContainer);
+    #endregion
+
+    #region MapEventAny
+    [Parameter]
+    public EventCallback<MapEventArgs> OnMapEventAny { get; set; }
     #endregion
 
     [Parameter]
@@ -211,49 +216,49 @@
     public EventCallback<MapEventWheelArgs> OnMapEventWheel { get; set; }
 
     [JSInvokable]
-    public async Task NotifyMapEvent(MapEventArgs e) => await OnMapEvent.InvokeAsync(e);
+    public async Task NotifyMapEvent(MapEventArgs e) { await OnMapEvent.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventConfig(MapEventConfigArgs e) => await OnMapEventConfig.InvokeAsync(e);
+    public async Task NotifyMapEventConfig(MapEventConfigArgs e) { await OnMapEventConfig.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventData(MapEventDataArgs e) => await OnMapEventData.InvokeAsync(e);
+    public async Task NotifyMapEventData(MapEventDataArgs e) { await OnMapEventData.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventDataSource(MapEventDataSourceArgs e) => await OnMapEventDataSource.InvokeAsync(e);
+    public async Task NotifyMapEventDataSource(MapEventDataSourceArgs e) { await OnMapEventDataSource.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventError(MapEventErrorArgs e) => await OnMapEventError.InvokeAsync(e);
+    public async Task NotifyMapEventError(MapEventErrorArgs e) { await OnMapEventError.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventHtmlMarker(MapEventHtmlMarkerArgs e) => await OnMapEventHtmlMarker.InvokeAsync(e);
+    public async Task NotifyMapEventHtmlMarker(MapEventHtmlMarkerArgs e) { await OnMapEventHtmlMarker.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventLayer(MapEventLayerArgs e) => await OnMapEventLayer.InvokeAsync(e);
+    public async Task NotifyMapEventLayer(MapEventLayerArgs e) { await OnMapEventLayer.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventMouse(MapEventMouseArgs e) => await OnMapEventMouse.InvokeAsync(e);
+    public async Task NotifyMapEventMouse(MapEventMouseArgs e) { await OnMapEventMouse.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
     public async Task NotifyMapEventReady(MapEventArgs e) => await OnMapEventReady.InvokeAsync(e);
 
     [JSInvokable]
-    public async Task NotifyMapEventPopup(MapEventPopupArgs e) => await OnMapEventPopup.InvokeAsync(e);
+    public async Task NotifyMapEventPopup(MapEventPopupArgs e) { await OnMapEventPopup.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventShape(MapEventShapeArgs e) => await OnMapEventShape.InvokeAsync(e);
+    public async Task NotifyMapEventShape(MapEventShapeArgs e) { await OnMapEventShape.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventSource(MapEventSourceArgs e) => await OnMapEventSource.InvokeAsync(e);
+    public async Task NotifyMapEventSource(MapEventSourceArgs e) { await OnMapEventSource.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventStyle(MapEventStyleArgs e) => await OnMapEventStyle.InvokeAsync(e);
+    public async Task NotifyMapEventStyle(MapEventStyleArgs e) { await OnMapEventStyle.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventTouch(MapEventTouchArgs e) => await OnMapEventTouch.InvokeAsync(e);
+    public async Task NotifyMapEventTouch(MapEventTouchArgs e) { await OnMapEventTouch.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     [JSInvokable]
-    public async Task NotifyMapEventWheel(MapEventWheelArgs e) => await OnMapEventWheel.InvokeAsync(e);
+    public async Task NotifyMapEventWheel(MapEventWheelArgs e) { await OnMapEventWheel.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
     #endregion
 }

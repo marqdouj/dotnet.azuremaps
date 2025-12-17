@@ -1,5 +1,4 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {

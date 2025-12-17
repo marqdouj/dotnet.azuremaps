@@ -24,6 +24,28 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.6
+- `Map Events - **Obsolete**`.
+  - `OnMapEventReady`. Do not use this event. It will be removed in a future version.
+    - `OnMapReady`. Use this event instead.
+- `Map Events - **New**`.
+  - `OnMapEventAny`. Allows you to subscribe to a single event to receive any
+    map event, instead of subscribing to a specific map event. The receiving event
+    will need to cast the MapEventArgs to the specific MapEventArgs type (if required).
+    - Does not apply to `OnMapReady`.
+- `Map Events - **Enums**`. Added enums that represent subsets of MapEventType that apply to a specific MapEventTarget.
+  The enums are castable to/from MapEventType. `MapEventTarget` extension methods have been added to return 
+  an IEnumerable of `MapEventType` or `MapEventDef` that is applicable for a specific target.
+  - `MapEventTypeDataSource`.
+  - `MapEventTypeLayer`.
+  - `MapEventTypeHtmlMarker`.
+  - `MapEventTypePopup`.
+  - `MapEventTypeShape`.
+  - `MapEventTypeStyleControl`.
+- `MapEventDef`. Added `PreventDefault` property. If true, applied to Mouse, Touch, and Wheel events.
+- `Map Events - **Issues**`.
+  - `Click Event`. Fixed issue where map click event might fire twice.
+
 ### 10.3.5
 - `IAzureMapContainer`.
   - Added new method `Maps.AddEvents(IEnumerable<MapEventType> mapEvents)`.

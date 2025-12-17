@@ -25,6 +25,10 @@ export class MapEventLogger {
     static logOnceNotSupported(mapId: string, name: string, event: MapEventDef) {
         Logger.logMessage(mapId, LogLevel.Error, `${name}: 'once' is not supported:`, event);
     }
+
+    static logNotifyFired(mapId: string, name: string, ...optionalParams: any[]) {
+        Logger.logMessage(mapId, LogLevel.Trace, `${name}: event was fired.`, optionalParams);
+    }
 }
 
 export enum EventNotifications {

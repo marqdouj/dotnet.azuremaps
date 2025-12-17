@@ -24,6 +24,7 @@ export class EventFactoryBase {
         const eventId = this.#getCallbackId(value);
         if (!this.#eventMap.has(eventId)) {
             this.#eventMap.set(eventId, callback);
+            Logger.logMessage(this.mapId, LogLevel.Trace, "EventFactoryBase:adding event:", eventId);
         }
     }
 
@@ -33,7 +34,7 @@ export class EventFactoryBase {
             const callback = this.#eventMap.get(eventId);
             if (removing) {
                 const wasRemoved = this.#eventMap.delete(eventId);
-                Logger.logMessage(this.mapId, LogLevel.Trace, "removing event:", eventId, wasRemoved);
+                Logger.logMessage(this.mapId, LogLevel.Trace, "EventFactoryBase:removing event:", eventId, wasRemoved);
             }
             return callback;
         }

@@ -1,7 +1,6 @@
 import * as atlas from "azure-maps-control"
 import { Helpers } from "../helpers"
 import { EventNotifications, MapEventLogger } from "./common"
-import { MapEventMouse, MapEventTouch } from "./common"
 import { EventFactoryBase } from "./EventFactoryBase";
 
 export class LayerEventFactory extends EventFactoryBase {
@@ -12,13 +11,17 @@ export class LayerEventFactory extends EventFactoryBase {
     addEvents(events: MapEventDef[]) {
         if (events.length == 0) return;
 
-        this.#addLayerEvents(Object.values(events).filter(value => (value.target === "layer" || value.target === "map") && Helpers.isValueInEnum(MapLayerEvent, value.type)));
+        this.#addLayerEvents(this.#getEvents(events));
     }
 
     removeEvents(events: MapEventDef[]) {
         if (events.length == 0) return;
 
-        this.#removeLayerEvents(Object.values(events).filter(value => (value.target === "layer" || value.target === "map") && Helpers.isValueInEnum(MapLayerEvent, value.type)));
+        this.#removeLayerEvents(this.#getEvents(events));
+    }
+
+    #getEvents(events: MapEventDef[]) {
+        return Object.values(events).filter(value => value.target === "layer" && Helpers.isValueInEnum(MapLayerEvent, value.type));
     }
 
     // #region Layer
@@ -33,31 +36,18 @@ export class LayerEventFactory extends EventFactoryBase {
             const callback = this.#getCallback(value, false);
 
             if (callback) {
-                const isLayer = value.target === "layer";
-
-                if (isLayer) {
-                    const target = this.#getTarget(azmap, value);
-                    if (target) {
-                        if (value.once) {
-                            azmap.events.addOnce(value.type as MapEventLayer, target, callback);
-                        }
-                        else {
-                            azmap.events.add(value.type as MapEventLayer, target, callback);
-                        }
-                        wasAdded = true;
-                    }
-                    else {
-                        MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
-                    }
-                }
-                else {
+                const target = this.#getTarget(azmap, value);
+                if (target) {
                     if (value.once) {
-                        azmap.events.addOnce(value.type as any, callback);
+                        azmap.events.addOnce(value.type as any, target, callback);
                     }
                     else {
-                        azmap.events.add(value.type as any, callback);
+                        azmap.events.add(value.type as any, target, callback);
                     }
                     wasAdded = true;
+                }
+                else {
+                    MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
                 }
             }
 
@@ -78,19 +68,13 @@ export class LayerEventFactory extends EventFactoryBase {
             if (callback) {
                 const isLayer = value.target === "layer";
 
-                if (isLayer) {
-                    const target = this.#getTarget(azmap, value);
-                    if (target) {
-                        azmap.events.remove(value.type, target, callback);
-                        wasRemoved = true;
-                    } 
-                    else {
-                        MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
-                    }
+                const target = this.#getTarget(azmap, value);
+                if (target) {
+                    azmap.events.remove(value.type, target, callback);
+                    wasRemoved = true;
                 }
                 else {
-                    azmap.events.remove(value.type, callback);
-                    wasRemoved = true;
+                    MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
                 }
             }
 
@@ -105,7 +89,6 @@ export class LayerEventFactory extends EventFactoryBase {
     }
 
     #getCallback(value: MapEventDef, removing: boolean) {
-        const isLayer = value.target === "layer";
         let callback: any = this.getCallback(value, removing);
         
         if (callback) {
@@ -115,7 +98,7 @@ export class LayerEventFactory extends EventFactoryBase {
         switch (value.type as MapLayerEvent) {
             case MapLayerEvent.LayerAdded:
             case MapLayerEvent.LayerRemoved:
-                callback = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, value, isLayer)
+                callback = (layer: atlas.layer.Layer) => this.#notifyMapEventLayer(layer, value)
                 break;
             case MapLayerEvent.Click:
             case MapLayerEvent.ContextMenu:
@@ -146,36 +129,40 @@ export class LayerEventFactory extends EventFactoryBase {
         return callback;
     }
 
-    #notifyMapEventLayer = (layer: atlas.layer.Layer, event: MapEventDef, hasTarget: boolean) => {
+    #notifyMapEventLayer = (layer: atlas.layer.Layer, event: MapEventDef) => {
         let payload = { id: event.targetId, jsInterop: Helpers.getJsInterop(layer) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
-        let notify = hasTarget ? EventNotifications.NotifyMapEventLayer : EventNotifications.NotifyMapEvent;
-        this.getDotNetRef().invokeMethodAsync(notify, result);
+        this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventLayer);
     };
 
     #NotifyMapEventLayerTouch = (callback: atlas.MapTouchEvent, event: MapEventDef,) => {
+        if (event.preventDefault)
+            callback.preventDefault();
         let payload = { id: event.targetId, touch: Helpers.buildTouchEventPayload(callback) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventLayer, event.type);
     };
 
     #notifyMapEventLayerMouse = (callback: atlas.MapMouseEvent, event: MapEventDef) => {
+        if (event.preventDefault)
+            callback.preventDefault();
         let payload = { id: event.targetId, mouse: Helpers.buildMouseEventPayload(callback) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventLayer, event.type);
     };
 
     #notifyMapEventLayerWheel = (callback: atlas.MapMouseWheelEvent, event: MapEventDef) => {
+        if (event.preventDefault)
+            callback.preventDefault();
         let payload = { id: event.targetId, wheel: Helpers.buildWheelEventPayload(callback) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventLayer, event.type);
     };
     // #endregion
-}
-
-enum MapEventLayer {
-    LayerAdded = 'layeradded',
-    LayerRemoved = 'layerremoved'
 }
 
 enum MapLayerEvent {

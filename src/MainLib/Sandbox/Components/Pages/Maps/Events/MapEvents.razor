@@ -1,0 +1,174 @@
+﻿@page "/map-events-map"
+@rendermode InteractiveServer
+@inject ILogger<BasicEvents> Logger
+@inject IToastService ToastService
+
+<PageTitle>Map Events</PageTitle>
+
+<FluentLayout>
+    <MapPageHeader Header="Map Events" HRefCode="@hRefSource">
+        <FluentLabel>
+            This example demonstrates dynamically adding/removing the map events.
+            <br /><br />
+            Subscribe/Unsubscribe to events in the list. When the event is fired a notification will be written to the Console.
+            <br /><br />
+            Use the "Reset Map" button to reset the map to its initial state.
+        </FluentLabel>
+    </MapPageHeader>
+
+    <FluentToolbar>
+        <FluentButton IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="10"/>
+        <FluentLabel>Subscribe/Unsubscribe Events =>></FluentLabel>
+        <FluentButton IconStart="@(new Icons.Regular.Size20.CheckboxChecked())" Title="Subscribe" OnClick="@(() => SelectAllEvents(true))" />
+        <FluentButton IconStart="@(new Icons.Regular.Size20.CheckboxUnchecked())" Title="Unsubscribe" OnClick="@(() => SelectAllEvents(false))" />
+        </FluentToolbar>
+
+    <FluentStack>
+        <FluentCard Height="@mapHeight" Width="300px" Style="overflow:auto">
+            <div>
+                <FluentStack Orientation="Orientation.Vertical">
+                    @foreach (var item in mapEvents)
+                    {
+                        <FluentCheckbox @bind-Value:get="@item.IsLoaded" @bind-Value:set="@((e) => OnMapEventsCheckedChanged(e, item.Type))">@item.Name</FluentCheckbox>
+                    }
+                </FluentStack>
+            </div>
+
+        </FluentCard>
+        <FluentCard Height="@mapHeight" Width="@mapWidth">
+            <AzureMap Id="@mapId" 
+                      OnMapEventAny="@OnMapEventAny"
+                      Controls="@MapHelpers.GetDefaultControls()"
+                      OnMapReady="@OnMapReady"
+                      Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+        </FluentCard>
+    </FluentStack>
+</FluentLayout>
+
+
+@code {
+    private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Events/MapEvents.razor");
+    private IAzureMapContainer? mapContainer;
+    private string mapHeight = "400px";
+    private string mapWidth = "100%";
+    private string mapId = "mapEvents"; //Optional; used here in demo to shorten the Id when wrting to the Console.
+    private readonly List<MapEventViewModel> mapEvents 
+        = MapEventTarget.Map.GetMapEventDefs().Select(e => new MapEventViewModel(e)).ToList();
+
+    protected override void OnInitialized()
+    {
+        //remove for now in this demo.
+        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.LayerAdded));
+        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.LayerRemoved));
+        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.MapConfigurationChanged));
+        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.SourceAdded));
+        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.SourceRemoved));
+        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.TokenAcquired));
+
+
+    }
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventAny(MapEventArgs args)
+    {
+        try
+        {
+            Console.WriteLine($"OnMapEventAny: {args}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task SelectAllEvents(bool selected)
+    {
+        try
+        {
+            if (selected)
+            {
+                var unSubscribed = mapEvents.Where(e => e.IsNotLoaded).Select(e => e.EventDef);
+                await mapContainer!.Maps.AddEvents(unSubscribed);
+            }
+            else
+            {
+                var subscribed = mapEvents.Where(e => e.IsLoaded).Select(e => e.EventDef);
+                await mapContainer!.Maps.RemoveEvents(subscribed);
+            }
+
+            foreach (var item in mapEvents)
+                item.IsLoaded = selected;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventsCheckedChanged(bool value, MapEventType? type)
+    {
+        try
+        {
+            var item = mapEvents.First(e => e.Type == type);
+            if (item.IsLoaded == value)
+                return;
+
+            if (value)
+            {
+                await mapContainer!.Maps.AddEvents(new List<MapEventDef> { item.EventDef });
+            }
+            else
+            {
+                await mapContainer!.Maps.RemoveEvents(new List<MapEventDef> { item.EventDef });
+            }
+
+            item.IsLoaded = value;
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+    private class MapEventViewModel(MapEventDef eventDef)
+    {
+        public MapEventDef EventDef { get; } = eventDef;
+        public string? Name => EventDef.Type.ToString();
+        public MapEventType? Type => EventDef.Type;
+        public bool IsLoaded { get; set; }
+        public bool IsNotLoaded => !IsLoaded;
+    }
+}

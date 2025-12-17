@@ -117,9 +117,9 @@ export class MapFactory {
 
             Maps.addEvents(mapId, events);
 
-            let result = Helpers.buildEventResult(mapId, readyDef, null);
-            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventReady, result);
+            let result = Helpers.buildEventResult(mapId, readyDef);
             dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapReady, result);
+            dotNetRef.invokeMethodAsync(EventNotifications.NotifyMapEventReady, result); //obsolete: will be removed in future version
         });
     }
 }

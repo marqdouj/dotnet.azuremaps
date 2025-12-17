@@ -107,12 +107,14 @@ export class SourceEventFactory extends EventFactoryBase {
         let payload = { sourceId: callback.getId() };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventDataSource, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventDataSource, event.type);
     };
 
     #NotifyMapDataSourceEvent = (callback: atlas.Shape[], event: MapEventDef) => {
         let payload = { shapes: Helpers.buildShapeResults(callback) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventDataSource, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventDataSource, event.type);
     };
     // #endregion
 }

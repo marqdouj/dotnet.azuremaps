@@ -34,10 +34,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         /// </summary>
         [JsonInclude] public List<MapEventShape>? Shapes { get; internal set; }
 
-        public override string ToString()
-        {
-            return JsonSerializer.Serialize(this);
-        }
+        public override string ToString() => JsonSerializer.Serialize(this);
     }
 
     public enum MapEventShapeSource

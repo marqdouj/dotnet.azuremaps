@@ -101,6 +101,7 @@ export class ShapeEventFactory extends EventFactoryBase {
         let payload = Helpers.getShapeResult(callback);
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventShape, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventShape, event.type);
     };
     // #endregion
 }
