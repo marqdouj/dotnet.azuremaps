@@ -5,7 +5,10 @@ using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
-    public class MapEventMouseArgs : MapEventArgs<MapEventMouseArgsPayload> { }
+    public class MapEventMouseArgs : MapEventArgs<MapEventMouseArgsPayload>
+    {
+        public override string ToString() => JsonSerializer.Serialize(this);
+    }
 
     public class MapEventMouseArgsPayload : MapEventPayloadBase
     {

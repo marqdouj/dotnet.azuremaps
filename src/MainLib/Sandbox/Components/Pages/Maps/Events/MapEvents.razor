@@ -89,6 +89,7 @@
         {
             if (mapContainer == null) return;
 
+            await SelectAllEvents(false);
             await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
 
         }

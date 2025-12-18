@@ -1,10 +1,14 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
-    public class MapEventTouchArgs : MapEventArgs<MapEventTouchPayload> { }
+    public class MapEventTouchArgs : MapEventArgs<MapEventTouchPayload>
+    {
+        public override string ToString() => JsonSerializer.Serialize(this);
+    }
 
     public class MapEventTouchPayload : MapEventPayloadBase
     {

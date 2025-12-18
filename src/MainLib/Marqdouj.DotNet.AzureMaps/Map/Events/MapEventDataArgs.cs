@@ -1,9 +1,13 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
-    public class MapEventDataArgs : MapEventArgs<MapEventDataPayload> { }
+    public class MapEventDataArgs : MapEventArgs<MapEventDataPayload>
+    {
+        public override string ToString() => JsonSerializer.Serialize(this);
+    }
 
     public enum MapEventDataPayloadDataType
     {

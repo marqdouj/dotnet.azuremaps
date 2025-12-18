@@ -23,12 +23,6 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         [JsonPropertyName("target")]
         internal string? TargetJs { get => Target.EnumToJsonN(); set => Target = value.JsonToEnumN<MapEventTarget>(); }
 
-        /// <summary>
-        /// If true and the js event supports it, preventDefault will be applied to the event.
-        /// i.e. Mouse, Touch, and Wheel events.
-        /// </summary>
-        public Boolean PreventDefault { get; set; }
-
         public override string ToString()
         {
             return $"MapId:{MapId} Target:{Target} Type:{Type}";

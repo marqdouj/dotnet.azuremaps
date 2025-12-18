@@ -239,15 +239,15 @@ export class MapEventFactory extends EventFactoryBase {
             return callback;
         }
 
-        callback = () => { this.#notifyMapEventGeneral(value); };
+        callback = (callback: atlas.MapEvent) => { this.#notifyMapEventGeneral(callback, value); };
 
         this.addCallback(value, callback);
 
         return callback;
     }
 
-    #notifyMapEventGeneral = (event: MapEventDef) => {
-        let result = Helpers.buildEventResult(this.mapId, event, null);
+    #notifyMapEventGeneral = (callback: atlas.MapEvent, event: MapEventDef) => {
+        let result = Helpers.buildEventResult(this.mapId, event);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEvent, result);
         MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEvent, event.type);
     };

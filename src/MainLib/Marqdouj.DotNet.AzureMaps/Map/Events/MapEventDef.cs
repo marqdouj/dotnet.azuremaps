@@ -86,6 +86,12 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Events
         internal string? TargetJs { get => Target.EnumToJsonN(); set => Target = value.JsonToEnumN<MapEventTarget>(); }
 
         /// <summary>
+        /// If true and the js event supports it, preventDefault will be applied to the event.
+        /// i.e. Mouse, Touch, and Wheel events.
+        /// </summary>
+        public Boolean PreventDefault { get; set; }
+
+        /// <summary>
         /// Required for any Target other than 'Map'.
         /// For the StyleControl use the 'InteropId'
         /// </summary>

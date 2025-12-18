@@ -1,8 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
-    public class MapEventDataSourceArgs : MapEventArgs<MapEventDataSourcePayload> { }
+    public class MapEventDataSourceArgs : MapEventArgs<MapEventDataSourcePayload>
+    {
+        public override string ToString() => JsonSerializer.Serialize(this);
+    }
 
     public class MapEventDataSourcePayload : MapEventPayloadBase
     {

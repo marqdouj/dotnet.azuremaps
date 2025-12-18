@@ -1,0 +1,147 @@
+﻿@page "/map-events-controls"
+@rendermode InteractiveServer
+@inject ILogger<ControlEvents> Logger
+@inject IToastService ToastService
+
+<PageTitle>Control Events</PageTitle>
+
+<FluentLayout>
+    <MapPageHeader Header="Control Events" HRefCode="@hRefSource">
+        <FluentLabel>
+            This example demonstrates dynamically adding/removing the StyleControl and it's StyleSelected event.
+            <br /><br />
+            Load/Unload the StyleControl with the 'Style Control' checkbox.
+            <br />
+            Add/Remove the StyleControl events with the 'Style Events' checkbox.
+            <br /><br />
+            When the StyleControl is loaded and it's events are active, 
+            if you change the map style using the StyleControl, the AzureMap will raise an 'OnMapEventStyle' notification.
+            This page has subscribed to that event, and will display a toast notification when the event is received.
+            <br /><br />
+            Use the "Reset Map" button to reset the map to its initial state.
+        </FluentLabel>
+    </MapPageHeader>
+
+    <FluentToolbar>
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="8" />
+        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@styleControl.Loaded" @bind-Value:set="OnStyleControlCheckedChanged">Style Control</FluentCheckbox>
+        <FluentCheckbox Disabled="@disableStyleEvents" @bind-Value:get="@addStyleControlEvents" @bind-Value:set="OnStyleEventsCheckedChanged">Style Events</FluentCheckbox>
+    </FluentToolbar>
+
+    <AzureMap OnMapReady="@OnMapReady"
+              OnMapEventStyle="OnMapEventStyle"
+              Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+               Transparent="false">
+    <FluentProgressRing />
+</FluentOverlay>
+
+<style>
+    .display-events-div {
+        overflow: auto;
+        height: 300px;
+        width: 100%;
+    }
+</style>
+
+@code {
+    private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Events/ControlEvents.razor");
+    private bool overlay;
+    private bool disabled => overlay || mapContainer == null;
+    private bool disableStyleEvents => disabled || !styleControl.Loaded;
+    private IAzureMapContainer? mapContainer;
+    private readonly MapControlViewModel styleControl = new MapControlViewModel(MapHelpers.GetDefaultControl(MapControlType.Style));
+    private readonly List<MapEventDef> styleEvents = new List<MapEventDef> { new MapEventDef(MapEventType.StyleSelected, MapEventTarget.StyleControl) };
+    private bool addStyleControlEvents;
+
+    protected override void OnInitialized()
+    {
+        styleEvents.First().TargetId = styleControl.Control.InteropId;
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await mapContainer.Maps.RemoveControls(new List<MapControl> { styleControl.Control });
+            styleControl.Loaded = false;
+            addStyleControlEvents = false;
+
+            await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventStyle(MapEventStyleArgs e)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            Console.WriteLine($"OnMapEventStyle: {e}");
+            ToastService.Info($"OnMapEventStyle: Event={e.Type} Style={e.Payload?.Style}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnStyleControlCheckedChanged(bool value)
+    {
+        if (value)
+        {
+            await mapContainer!.Maps.AddControls(new List<MapControl> { styleControl.Control });
+            styleControl.Loaded = true;
+        }
+        else
+        {
+            await mapContainer!.Maps.RemoveControls(new List<MapControl> { styleControl.Control });
+            styleControl.Loaded = false;
+            addStyleControlEvents = false;
+        }
+    }
+
+    private async Task OnStyleEventsCheckedChanged(bool value)
+    {
+        if (styleControl.IsNotLoaded)
+        {
+            addStyleControlEvents = false;
+            return;
+        }
+
+        if (value)
+        {
+            await mapContainer!.Maps.AddEvents(styleEvents);
+            addStyleControlEvents = true;
+        }
+        else
+        {
+            await mapContainer!.Maps.RemoveEvents(styleEvents);
+            addStyleControlEvents = false;
+        }
+    }
+}

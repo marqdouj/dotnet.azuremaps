@@ -24,6 +24,11 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.7
+- `Map Events`.
+  - `PreventDefault`. Incorrectly added it to `MapEventArgs`.
+    Moved it to `MapEventDef` where it belongs.
+
 ### 10.3.6
 - `Map Events - **Obsolete**`.
   - `OnMapEventReady`. Do not use this event. It will be removed in a future version.
