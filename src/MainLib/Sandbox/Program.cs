@@ -14,7 +14,7 @@ builder.Services.AddFluentUIComponents();
 builder.Services.AddMapConfiguration(builder.Configuration);
 
 //Simulates getting data from an API.
-builder.Services.AddScoped<IDataService, DataService>();
+builder.Services.AddScoped<IMapDataService, DataService>();
 
 var app = builder.Build();
 

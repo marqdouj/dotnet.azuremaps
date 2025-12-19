@@ -29,6 +29,10 @@ export class MapEventLogger {
     static logNotifyFired(mapId: string, name: string, ...optionalParams: any[]) {
         Logger.logMessage(mapId, LogLevel.Trace, `${name}: event was fired.`, optionalParams);
     }
+
+    static logTrace(mapId: string, message: string, ...optionalParams: any[]) {
+        Logger.logMessage(mapId, LogLevel.Trace, message, optionalParams);
+    }
 }
 
 export enum EventNotifications {
@@ -37,6 +41,7 @@ export enum EventNotifications {
     NotifyMapEventData = 'NotifyMapEventData',
     NotifyMapEventDataSource = 'NotifyMapEventDataSource',
     NotifyMapEventError = 'NotifyMapEventError',
+    NotifyMapEventGeneral = 'NotifyMapEventGeneral',
     NotifyMapEventHtmlMarker = 'NotifyMapEventHtmlMarker',
     NotifyMapEventLayer = 'NotifyMapEventLayer',
     NotifyMapEventMouse = 'NotifyMapEventMouse',

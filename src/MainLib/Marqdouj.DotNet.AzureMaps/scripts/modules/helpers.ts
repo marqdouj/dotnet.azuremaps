@@ -63,6 +63,14 @@ export class Helpers {
         return results;
     }
 
+    static buildLayerPayload(layer: atlas.layer.Layer) {
+        return { id: layer.getId(), jsInterop: Helpers.getJsInterop(layer) };
+    }
+
+    static buildDataSourcePayload(source: atlas.source.DataSource) {
+        return { id: source.getId(), jsInterop: Helpers.getJsInterop(source) };
+    }
+
     static buildMouseEventPayload(mouseEvent: atlas.MapMouseEvent) {
         const mouse = {
             layerId: mouseEvent.layerId,

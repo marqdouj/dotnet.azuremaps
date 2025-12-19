@@ -1,4 +1,5 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Layers;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Events;
+using Marqdouj.DotNet.AzureMaps.Map.Layers;
 using Microsoft.JSInterop;
 using System.Runtime.CompilerServices;
 
@@ -20,7 +21,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// Creates a new map layer on the client using the specified layer definition.
         /// </summary>
         /// <param name="layerDef">The definition of the map layer to create.</param>
-        Task CreateLayer(MapLayerDef layerDef);
+        /// <param name="events">MapEventDefs for the layer and it's datasource. 
+        /// TargetId is not required; it will be resolved when creating the layer</param>
+        Task CreateLayer(MapLayerDef layerDef, IEnumerable<MapEventDef>? events = null);
 
         /// <summary>
         /// Removes the specified layer from the map.
@@ -44,9 +47,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         private string MapId => mapReference.MapId;
         private IJSRuntime JsRuntime => mapReference.JsRuntime;
 
-        public async Task CreateLayer(MapLayerDef layerDef)
+        public async Task CreateLayer(MapLayerDef layerDef, IEnumerable<MapEventDef>? events = null)
         {
-            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, layerDef, layerDef.DataSource);
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, layerDef, layerDef.DataSource, events);
         }
 
         public async Task RemoveLayer(string layerId)

@@ -2,7 +2,7 @@
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Common
 {
-    public abstract class JSInteropDef
+    public class JSInteropDef
     {
         /// <summary>
         /// Custom Id for the object (Optional).

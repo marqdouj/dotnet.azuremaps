@@ -33,10 +33,16 @@ export class LayerEventFactory extends EventFactoryBase {
 
         events.forEach((value) => {
             let wasAdded: boolean = false;
+            const target = this.#getTarget(azmap, value);
+
+            if (!target) {
+                MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
+                return;
+            }
+
             const callback = this.#getCallback(value, false);
 
             if (callback) {
-                const target = this.#getTarget(azmap, value);
                 if (target) {
                     if (value.once) {
                         azmap.events.addOnce(value.type as any, target, callback);
@@ -45,9 +51,6 @@ export class LayerEventFactory extends EventFactoryBase {
                         azmap.events.add(value.type as any, target, callback);
                     }
                     wasAdded = true;
-                }
-                else {
-                    MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
                 }
             }
 
@@ -63,12 +66,16 @@ export class LayerEventFactory extends EventFactoryBase {
 
         events.forEach((value) => {
             let wasRemoved: boolean = false;
+            const target = this.#getTarget(azmap, value);
+
+            if (!target) {
+                MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
+                return;
+            }
+
             const callback = this.#getCallback(value, true);
 
             if (callback) {
-                const isLayer = value.target === "layer";
-
-                const target = this.#getTarget(azmap, value);
                 if (target) {
                     azmap.events.remove(value.type, target, callback);
                     wasRemoved = true;
@@ -90,7 +97,7 @@ export class LayerEventFactory extends EventFactoryBase {
 
     #getCallback(value: MapEventDef, removing: boolean) {
         let callback: any = this.getCallback(value, removing);
-        
+
         if (callback) {
             return callback;
         }
@@ -129,11 +136,10 @@ export class LayerEventFactory extends EventFactoryBase {
         return callback;
     }
 
-    #notifyMapEventLayer = (layer: atlas.layer.Layer, event: MapEventDef) => {
-        let payload = { id: event.targetId, jsInterop: Helpers.getJsInterop(layer) };
-        let result = Helpers.buildEventResult(this.mapId, event, payload);
+    #notifyMapEventLayer = (callback: atlas.layer.Layer, event: MapEventDef) => {
+        let result = Helpers.buildEventResult(this.mapId, event, Helpers.buildLayerPayload(callback));
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventLayer, result);
-        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventLayer);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventLayer, event.type);
     };
 
     #NotifyMapEventLayerTouch = (callback: atlas.MapTouchEvent, event: MapEventDef,) => {

@@ -12,13 +12,17 @@ export class SourceEventFactory extends EventFactoryBase {
     addEvents(events: MapEventDef[]) {
         if (events.length == 0) return;
 
-        this.#addDataSourceEvents(Object.values(events).filter(value => value.target === "datasource"));
+        this.#addDataSourceEvents(this.#getEvents(events));
     }
 
     removeEvents(events: MapEventDef[]) {
         if (events.length == 0) return;
 
-        this.#removeDataSourceEvents(Object.values(events).filter(value => value.target === "datasource"));
+        this.#removeDataSourceEvents(this.#getEvents(events));
+    }
+
+    #getEvents(events: MapEventDef[]) {
+        return Object.values(events).filter(value => value.target === "datasource" && Helpers.isValueInEnum(MapEventDataSource, value.type));
     }
 
     // #region DataSource
@@ -28,7 +32,7 @@ export class SourceEventFactory extends EventFactoryBase {
         const azmap = this.getMap();
         const eventName = "addDataSourceEvents";
 
-        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventDataSource, value.type)).forEach((value) => {
+        events.forEach((value) => {
             const target = this.#getTarget(azmap, value);
             let wasAdded: boolean = false;
 
@@ -59,7 +63,7 @@ export class SourceEventFactory extends EventFactoryBase {
         const azmap = this.getMap();
         const eventName = "removeDataSourceEvents";
 
-        Object.values(events).filter(value => Helpers.isValueInEnum(MapEventDataSource, value.type)).forEach((value) => {
+        events.forEach((value) => {
             const target = this.#getTarget(azmap, value);
             let wasRemoved: boolean = false;
 
@@ -104,8 +108,7 @@ export class SourceEventFactory extends EventFactoryBase {
     }
 
     #NotifyMapDataSourceEvent_Updated = (callback: atlas.source.DataSource, event: MapEventDef) => {
-        let payload = { sourceId: callback.getId() };
-        let result = Helpers.buildEventResult(this.mapId, event, payload);
+        let result = Helpers.buildEventResult(this.mapId, event, Helpers.buildDataSourcePayload(callback));
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventDataSource, result);
         MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventDataSource, event.type);
     };
@@ -114,7 +117,7 @@ export class SourceEventFactory extends EventFactoryBase {
         let payload = { shapes: Helpers.buildShapeResults(callback) };
         let result = Helpers.buildEventResult(this.mapId, event, payload);
         this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventDataSource, result);
-        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventDataSource, event.type);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventDataSource, event.type, result);
     };
     // #endregion
 }

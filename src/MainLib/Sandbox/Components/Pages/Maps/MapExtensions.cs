@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Events;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
 using Marqdouj.DotNet.AzureMaps.Map.Interop;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
@@ -9,7 +10,7 @@ namespace Sandbox.Components.Pages.Maps
 {
     internal static class MapExtensions
     {
-        public static async Task<List<MapFeatureDef>> GetDefaultSymbolLayerFeatures(this IDataService dataService)
+        public static async Task<List<MapFeatureDef>> GetDefaultSymbolLayerFeatures(this IMapDataService dataService)
         {
             var results = new List<MapFeatureDef>();
             var data = await dataService.GetSymbolLayerData();
@@ -36,23 +37,30 @@ namespace Sandbox.Components.Pages.Maps
             return results;
         }
 
-        public static async Task<MapLayerDef> AddBasicMapLayer(this IAzureMapContainer mapInterop, IDataService dataService, MapLayerType layerType)
+        public static async Task<MapLayerDef> AddBasicMapLayer(
+            this IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            MapLayerType layerType,
+            IEnumerable<MapEventDef>? events = null)
         {
             return layerType switch
             {
-                MapLayerType.Bubble => await AddBubbleLayer(mapInterop, dataService),
-                MapLayerType.HeatMap => await AddHeatMapLayer(mapInterop, dataService),
-                MapLayerType.Image => await AddImageLayer(mapInterop, dataService),
-                MapLayerType.Line => await AddLineLayer(mapInterop, dataService),
-                MapLayerType.Polygon => await AddPolygonLayer(mapInterop, dataService),
-                MapLayerType.PolygonExtrusion => await AddPolygonExtLayer(mapInterop, dataService),
-                MapLayerType.Symbol => await AddSymbolLayer(mapInterop, dataService),
-                MapLayerType.Tile => await AddTileLayer(mapInterop, dataService),
+                MapLayerType.Bubble => await AddBubbleLayer(mapInterop, dataService, null, events),
+                MapLayerType.HeatMap => await AddHeatMapLayer(mapInterop, dataService, events),
+                MapLayerType.Image => await AddImageLayer(mapInterop, dataService, events),
+                MapLayerType.Line => await AddLineLayer(mapInterop, dataService, null, events),
+                MapLayerType.Polygon => await AddPolygonLayer(mapInterop, dataService, null, events),
+                MapLayerType.PolygonExtrusion => await AddPolygonExtLayer(mapInterop, dataService, null, events),
+                MapLayerType.Symbol => await AddSymbolLayer(mapInterop, dataService, null, events),
+                MapLayerType.Tile => await AddTileLayer(mapInterop, dataService, null, events),
                 _ => throw new ArgumentOutOfRangeException(nameof(layerType)),
             };
         }
 
-        private static async Task<MapLayerDef> AddTileLayer(IAzureMapContainer mapInterop, IDataService dataService, TileLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddTileLayer(IAzureMapContainer mapInterop,
+                                                            IMapDataService dataService,
+                                                            TileLayerOptions? options = null,
+                                                            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new TileLayerDef();
 
@@ -73,14 +81,18 @@ namespace Sandbox.Components.Pages.Maps
 
             layerDef.Options.TileUrl = await dataService.GetTileLayerUrl();
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             await mapInterop.Configuration.ZoomTo(new Position(-122.426181, 47.608070), 10.75);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddSymbolLayer(IAzureMapContainer mapInterop, IDataService dataService, SymbolLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddSymbolLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            SymbolLayerOptions? options = null,
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new SymbolLayerDef();
 
@@ -93,7 +105,7 @@ namespace Sandbox.Components.Pages.Maps
                 layerDef.Options!.IconOptions!.Image = IconImage.Pin_Red;
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             var features = await dataService.GetDefaultSymbolLayerFeatures();
             await mapInterop.Layers.AddMapFeatures(features, layerDef.DataSource.Id);
@@ -104,7 +116,11 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddPolygonExtLayer(IAzureMapContainer mapInterop, IDataService dataService, PolygonExtLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddPolygonExtLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            PolygonExtLayerOptions? options = null,
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new PolygonExtLayerDef();
 
@@ -122,7 +138,7 @@ namespace Sandbox.Components.Pages.Maps
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             var data = await dataService.GetPolygonExtLayerData();
             var feature = new MapFeatureDef(new Polygon(data))
@@ -145,7 +161,11 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddPolygonLayer(IAzureMapContainer mapInterop, IDataService dataService, PolygonLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddPolygonLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            PolygonLayerOptions? options = null, 
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new PolygonLayerDef();
 
@@ -162,7 +182,7 @@ namespace Sandbox.Components.Pages.Maps
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             var data = await dataService.GetPolygonLayerData();
             var feature = new MapFeatureDef(new Polygon(data))
@@ -181,7 +201,11 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddLineLayer(IAzureMapContainer mapInterop, IDataService dataService, LineLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddLineLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            LineLayerOptions? options = null, 
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new LineLayerDef
             {
@@ -201,7 +225,7 @@ namespace Sandbox.Components.Pages.Maps
                 };
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             var data = await dataService.GetLineLayerData();
             var feature = new MapFeatureDef(new LineString(data))
@@ -219,7 +243,10 @@ namespace Sandbox.Components.Pages.Maps
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddImageLayer(IAzureMapContainer mapInterop, IDataService dataService)
+        private static async Task<MapLayerDef> AddImageLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new ImageLayerDef();
 
@@ -230,27 +257,34 @@ namespace Sandbox.Components.Pages.Maps
                 Coordinates = data.Coordinates,
             };
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             await mapInterop.Configuration.ZoomTo(new Position(-74.172363, 40.735657), 11);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddHeatMapLayer(IAzureMapContainer mapInterop, IDataService dataService)
+        private static async Task<MapLayerDef> AddHeatMapLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService, 
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new HeatMapLayerDef();
 
             layerDef.DataSource.Url = await dataService.GetHeatMapLayerUrl();
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             await mapInterop.Configuration.ZoomTo(new Position(-122.33, 47.6), 1);
 
             return layerDef;
         }
 
-        private static async Task<MapLayerDef> AddBubbleLayer(IAzureMapContainer mapInterop, IDataService dataService, BubbleLayerOptions? options = null)
+        private static async Task<MapLayerDef> AddBubbleLayer(
+            IAzureMapContainer mapInterop,
+            IMapDataService dataService,
+            BubbleLayerOptions? options = null, 
+            IEnumerable<MapEventDef>? events = null)
         {
             var layerDef = new BubbleLayerDef();
 
@@ -259,7 +293,7 @@ namespace Sandbox.Components.Pages.Maps
                 layerDef.Options = options;
             }
 
-            await mapInterop.Layers.CreateLayer(layerDef);
+            await mapInterop.Layers.CreateLayer(layerDef, events);
 
             var data = await dataService.GetBubbleLayerData();
             MapFeatureDef featureDef = new(new MultiPoint(data))

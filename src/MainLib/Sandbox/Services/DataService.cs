@@ -3,7 +3,7 @@ using Marqdouj.DotNet.AzureMaps.Map.Layers;
 
 namespace Sandbox.Services
 {
-    public interface IDataService
+    public interface IMapDataService
     {
         Task<List<Position>> GetBubbleLayerData();
         Task<string> GetHeatMapLayerUrl();
@@ -18,7 +18,7 @@ namespace Sandbox.Services
     /// <summary>
     /// Simulates getting data from an API.
     /// </summary>
-    internal class DataService : IDataService
+    internal class DataService : IMapDataService
     {
         public async Task<List<Position>> GetBubbleLayerData()
         {

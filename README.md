@@ -24,6 +24,15 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.3.8
+- `Map Events`.
+  - `Layers`. Fixed issue with deserialization of Layer event payload.
+  - `MapEventArgs`. 
+    - Added layer event payload for Map events LayerAdded/LayerRemoved.
+    - Override ToString() to return serialized JSON of the event.
+- `IAzureMapContainer`.
+  - `Maps.CreateLayer`. Added parameter for layer/datasource events.
+
 ### 10.3.7
 - `Map Events`.
   - `PreventDefault`. Incorrectly added it to `MapEventArgs`.

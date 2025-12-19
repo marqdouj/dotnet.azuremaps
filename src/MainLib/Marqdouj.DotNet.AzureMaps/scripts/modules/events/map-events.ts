@@ -304,17 +304,17 @@ export class MapEventFactory extends EventFactoryBase {
             return callback;
         }
 
-        callback = () => { this.#notifyMapEventLayer(value); };
+        callback = (callback: atlas.layer.Layer) => { this.#notifyMapEventLayer(callback, value); };
 
         this.addCallback(value, callback);
 
         return callback;
     }
 
-    #notifyMapEventLayer = (event: MapEventDef) => {
-        let result = Helpers.buildEventResult(this.mapId, event, null);
-        this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEvent, result);
-        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEvent, event.type);
+    #notifyMapEventLayer = (callback: atlas.layer.Layer, event: MapEventDef) => {
+        let result = Helpers.buildEventResult(this.mapId, event, Helpers.buildLayerPayload(callback));
+        this.getDotNetRef().invokeMethodAsync(EventNotifications.NotifyMapEventGeneral, result);
+        MapEventLogger.logNotifyFired(this.mapId, EventNotifications.NotifyMapEventGeneral, event.type);
     };
     // #endregion
 

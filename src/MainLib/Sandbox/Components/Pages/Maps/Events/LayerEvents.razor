@@ -1,17 +1,19 @@
-﻿@page "/map-events-map"
+﻿@page "/map-events-layer"
 @rendermode InteractiveServer
-@inject ILogger<MapEvents> Logger
+@inject ILogger<LayerEvents> Logger
 @inject IToastService ToastService
 @inject IMapDataService DataService
 
-<PageTitle>Map Events</PageTitle>
+<PageTitle>Layer Events</PageTitle>
 
 <FluentLayout>
-    <MapPageHeader Header="Map Events" HRefCode="@hRefSource">
+    <MapPageHeader Header="Layer Events" HRefCode="@hRefSource">
         <FluentLabel>
-            This example demonstrates dynamically adding/removing map events.
+            This example demonstrates dynamically adding/removing layer (and it's DataSource ) events.
             <br /><br />
             When a subscribed event is fired a notification will be written to the Console.
+            <br />
+            NOTE: 'PreventDefault' is set to 'true' for all layer events (where applicable).
             <br /><br />
             Use the "Reset Map" button to reset the map to its initial state.
         </FluentLabel>
@@ -19,7 +21,7 @@
 
     <FluentToolbar>
         <FluentButton IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
-        <FluentSpacer Width="10"/>
+        <FluentSpacer Width="10" />
         <FluentLabel>Events:</FluentLabel>
         <FluentButton IconStart="@(new Icons.Regular.Size20.CheckboxChecked())" Title="Subscribe" OnClick="@(() => SelectAllEvents(true))" />
         <FluentButton IconStart="@(new Icons.Regular.Size20.CheckboxUnchecked())" Title="Unsubscribe" OnClick="@(() => SelectAllEvents(false))" />
@@ -31,16 +33,16 @@
         <FluentCard Height="@mapHeight" Width="300px" Style="overflow:auto">
             <div>
                 <FluentStack Orientation="Orientation.Vertical">
-                    @foreach (var item in mapEvents)
+                    @foreach (var item in layerEvents)
                     {
-                        <FluentCheckbox @bind-Value:get="@item.IsLoaded" @bind-Value:set="@((e) => OnMapEventsCheckedChanged(e, item.Type))">@item.Name</FluentCheckbox>
+                        <FluentCheckbox @bind-Value:get="@item.IsChecked" @bind-Value:set="@((e) => OnMapEventsCheckedChanged(e, item.Type))">@item.Name</FluentCheckbox>
                     }
                 </FluentStack>
             </div>
 
         </FluentCard>
         <FluentCard Height="@mapHeight" Width="@mapWidth">
-            <AzureMap Id="@mapId" 
+            <AzureMap Id="@mapId"
                       OnMapEventAny="@OnMapEventAny"
                       Controls="@MapHelpers.GetDefaultControls()"
                       OnMapReady="@OnMapReady"
@@ -51,22 +53,16 @@
 
 
 @code {
-    private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Events/MapEvents.razor");
+    private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Events/LayerEvents.razor");
     private IAzureMapContainer? mapContainer;
     private string mapHeight = "400px";
     private string mapWidth = "100%";
-    private string mapId = "mapEvents"; //Optional; used here in demo to shorten the Id when wrting to the Console.
-    private readonly List<MapEventViewModel> mapEvents 
-        = MapEventTarget.Map.GetMapEventDefs().Select(e => new MapEventViewModel(e)).ToList();
+    private string mapId = "layerEvents"; //Optional; used here in demo to shorten the Id when wrting to the Console.
+    private readonly List<MapEventViewModel> layerEvents
+        = MapEventTarget.Layer.GetMapEventDefs().Select(e => new MapEventViewModel(e)).ToList(); 
     private MapLayerDef? layerDef;
     private bool layerLoaded => layerDef != null;
-
-    protected override void OnInitialized()
-    {
-        //remove for now in this demo.
-        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.MapConfigurationChanged));
-        mapEvents.Remove(mapEvents.First(e => e.Type == MapEventType.TokenAcquired));
-    }
+    private bool layerNotLoaded => !layerLoaded;
 
     private async Task OnMapReady(IAzureMapContainer mapContainer)
     {
@@ -88,7 +84,6 @@
         {
             if (mapContainer == null) return;
 
-            await SelectAllEvents(false);
             await RemoveLayer();
             await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
 
@@ -118,19 +113,10 @@
     {
         try
         {
-            if (selected)
-            {
-                var unSubscribed = mapEvents.Where(e => e.IsNotLoaded).Select(e => e.EventDef);
-                await mapContainer!.Maps.AddEvents(unSubscribed);
-            }
-            else
-            {
-                var subscribed = mapEvents.Where(e => e.IsLoaded).Select(e => e.EventDef);
-                await mapContainer!.Maps.RemoveEvents(subscribed);
-            }
+            foreach (var item in layerEvents)
+                item.IsChecked = selected;
 
-            foreach (var item in mapEvents)
-                item.IsLoaded = selected;
+            await SubscribeEvents();
         }
         catch (Exception ex)
         {
@@ -139,25 +125,32 @@
         }
     }
 
+    private async Task SubscribeEvents()
+    {
+        if (layerLoaded)
+        {
+            var unSubscribed = layerEvents.Where(e => e.IsChecked && e.IsNotLoaded).ToList();
+            await mapContainer!.Maps.AddEvents(unSubscribed.Select(e => e.EventDef));
+
+            foreach (var item in unSubscribed)
+                item.IsLoaded = true;
+
+            var subscribed = layerEvents.Where(e => e.IsNotChecked && e.IsLoaded).ToList();
+            await mapContainer!.Maps.RemoveEvents(subscribed.Select(e => e.EventDef));
+
+            foreach (var item in subscribed)
+                item.IsLoaded = false;
+        }
+    }
+
     private async Task OnMapEventsCheckedChanged(bool value, MapEventType? type)
     {
         try
         {
-            var item = mapEvents.First(e => e.Type == type);
-            if (item.IsLoaded == value)
-                return;
+            var item = layerEvents.First(e => e.Type == type);
+            item.IsChecked = value;
 
-            if (value)
-            {
-                await mapContainer!.Maps.AddEvents(new List<MapEventDef> { item.EventDef });
-            }
-            else
-            {
-                await mapContainer!.Maps.RemoveEvents(new List<MapEventDef> { item.EventDef });
-            }
-
-            item.IsLoaded = value;
-
+            await SubscribeEvents();
         }
         catch (Exception ex)
         {
@@ -175,10 +168,6 @@
 
             if (value)
             {
-                await OnMapEventsCheckedChanged(true, MapEventType.SourceAdded);
-                await OnMapEventsCheckedChanged(true, MapEventType.SourceRemoved);
-                await OnMapEventsCheckedChanged(true, MapEventType.LayerAdded);
-                await OnMapEventsCheckedChanged(true, MapEventType.LayerRemoved);
                 await AddLayer(MapLayerType.Symbol);
             }
             else
@@ -199,7 +188,16 @@
         {
             if (mapContainer == null) return;
 
-            layerDef = await mapContainer.AddBasicMapLayer(DataService, layerType);
+            var subscribed = layerEvents.Where(e => e.IsChecked).ToList();
+            layerDef = await mapContainer.AddBasicMapLayer(DataService, layerType, subscribed.Select(e => e.EventDef));
+            foreach (var item in subscribed)
+                item.IsLoaded = true;
+            foreach (var item in layerEvents)
+            {
+                item.EventDef.TargetId = layerDef.Id;
+                item.EventDef.PreventDefault = true;
+            }
+
         }
         catch (Exception ex)
         {
@@ -217,6 +215,9 @@
         {
             await mapContainer.Layers.RemoveLayer(layerDef);
             layerDef = null;
+
+            foreach (var item in layerEvents)
+                item.IsLoaded = false;
         }
     }
 }

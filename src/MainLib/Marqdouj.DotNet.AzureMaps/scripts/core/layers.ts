@@ -5,9 +5,10 @@ import { DataSourceDef, JsInteropDef } from "../modules/typings"
 import { Helpers } from "../modules/helpers"
 import { FeatureManager, MapFeatureDef } from "../modules/features"
 import { SourceManager } from "../modules/source"
+import { Maps } from "./maps"
 
 export class Layers {
-    public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef) {
+    public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef, events?: MapEventDef[]) {
         const map = MapFactory.getMap(mapId);
         if (!map) {
             return;
@@ -33,19 +34,15 @@ export class Layers {
         let ds: atlas.source.DataSource;
 
         if (dsDef) {
-            ds = new atlas.source.DataSource(dsDef.id, dsDef.options);
+            SourceManager.createDatasource(mapId, dsDef, events);
+            ds = SourceManager.getDataSource(map, mapId, dsDef.id);
             if (!ds) {
                 Logger.logMessage(mapId, LogLevel.Error, `${eventName}: Unable to create datasource.`, dsDef);
                 return;
             }
-            map.sources.add(ds);
-
-            if (Helpers.isNotEmptyOrNull(dsDef.url)) {
-                ds.importDataFromUrl(dsDef.url);
-            }
         }
         else {
-            ds = map.sources.getById(def.sourceId) as atlas.source.DataSource;
+            ds = SourceManager.getDataSource(map, mapId, dsDef.id);
             if (!ds) {
                 Logger.logMessage(mapId, LogLevel.Error, `${eventName}: Unable to find datasource where ID=${def.sourceId}.`);
                 return;
@@ -91,6 +88,14 @@ export class Layers {
             (layer as any).jsInterop = jsInterop;
             map.layers.add(layer, def.before);
             wasAdded = true;
+
+            if (events) {
+                const dsEvents = Object.values(events).filter(value => value.target === "layer");
+                dsEvents.forEach((value) => {
+                    value.targetId = def.id;
+                });
+                Maps.addEvents(mapId, dsEvents);
+            }
         }
 
         if (wasAdded) {

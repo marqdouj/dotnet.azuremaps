@@ -2,7 +2,8 @@ import * as atlas from "azure-maps-control"
 import { Logger, LogLevel } from "./logger"
 import { Helpers } from "./helpers"
 import { MapFactory } from "../core/factory"
-import { DataSourceDef } from "./typings"
+import { DataSourceDef, JsInteropDef } from "./typings"
+import { Maps } from "../core/maps"
 
 export class SourceManager {
     static getDataSourceShapes(mapId: string, id: string) {
@@ -34,7 +35,7 @@ export class SourceManager {
         }
     }
 
-    static createDatasource(mapId: string, source: DataSourceDef): void {
+    static createDatasource(mapId: string, source: DataSourceDef, events?: MapEventDef[]): void {
         const map = MapFactory.getMap(mapId);
         if (!map) {
             return;
@@ -47,7 +48,18 @@ export class SourceManager {
         }
 
         const newDs = new atlas.source.DataSource(source.id, source.options);
+        const jsInterop: JsInteropDef = { id: source.id, interopId: source.interopId };
+        (newDs as any).jsInterop = jsInterop;
+
         map.sources.add(newDs);
+
+        if (events) {
+            const dsEvents = Object.values(events).filter(value => value.target === "datasource");
+            dsEvents.forEach((value) => {
+                value.targetId = source.id;
+            });
+            Maps.addEvents(mapId, dsEvents);
+        }
 
         if (source.url) {
             newDs.importDataFromUrl(source.url);
