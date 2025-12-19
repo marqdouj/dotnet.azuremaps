@@ -64,6 +64,12 @@
     private bool layerLoaded => layerDef != null;
     private bool layerNotLoaded => !layerLoaded;
 
+    protected override void OnInitialized()
+    {
+        foreach (var item in layerEvents)
+            item.EventDef.PreventDefault = true;
+    }
+
     private async Task OnMapReady(IAzureMapContainer mapContainer)
     {
         try
@@ -182,6 +188,7 @@
         }
     }
 
+    
     private async Task AddLayer(MapLayerType layerType)
     {
         try
@@ -193,10 +200,7 @@
             foreach (var item in subscribed)
                 item.IsLoaded = true;
             foreach (var item in layerEvents)
-            {
                 item.EventDef.TargetId = layerDef.Id;
-                item.EventDef.PreventDefault = true;
-            }
 
         }
         catch (Exception ex)

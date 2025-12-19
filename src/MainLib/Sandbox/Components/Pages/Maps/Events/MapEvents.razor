@@ -199,7 +199,8 @@
         {
             if (mapContainer == null) return;
 
-            layerDef = await mapContainer.AddBasicMapLayer(DataService, layerType);
+            var subscribed = mapEvents.Where(e => e.IsLoaded).Select(e => e.EventDef);
+            layerDef = await mapContainer.AddBasicMapLayer(DataService, layerType, events:subscribed);
         }
         catch (Exception ex)
         {
