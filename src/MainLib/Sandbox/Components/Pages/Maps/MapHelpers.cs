@@ -65,6 +65,7 @@ namespace Sandbox.Components.Pages.Maps
                  GetDefaultControl(MapControlType.Pitch),
                  GetDefaultControl(MapControlType.Compass),
                  GetDefaultControl(MapControlType.Style),
+                 GetDefaultControl(MapControlType.Traffic),
                  GetDefaultControl(MapControlType.Scale)
             };
 
@@ -88,6 +89,7 @@ namespace Sandbox.Components.Pages.Maps
                 MapControlType.Pitch => new PitchControl(MapControlPosition.Top_Right),
                 MapControlType.Scale => new ScaleControl(MapControlPosition.Bottom_Right),
                 MapControlType.Style => new StyleControl(MapControlPosition.Top_Right),
+                MapControlType.Traffic => new TrafficControl(MapControlPosition.Top_Right),
                 MapControlType.Zoom => new ZoomControl(MapControlPosition.Top_Right),
                 _ => throw new ArgumentOutOfRangeException(nameof(controlType)),
             };

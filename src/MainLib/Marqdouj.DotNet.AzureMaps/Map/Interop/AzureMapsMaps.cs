@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Configuration;
 using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.Events;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
@@ -43,6 +44,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// </summary>
         Task<List<MapControl>> GetControls();
         Task<List<MapEventShape>> GetDataSourceShapes(string sourceId);
+        Task<TrafficOptions> GetTraffic();
 
         /// <summary>
         /// Removes the specified controls from the map.
@@ -64,6 +66,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         Task RemoveEvents(IEnumerable<MapEventDef> mapEvents);
         Task RemoveMarkers(IEnumerable<HtmlMarkerDef> markers);
         Task RemovePopups(IEnumerable<PopupDef> Popups);
+        Task SetTraffic(TrafficOptions? options);
     }
 
     internal sealed class AzureMapsMaps(AzureMapReference mapReference) : IAzureMapsMaps
@@ -141,6 +144,25 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         public async Task RemovePopups(IEnumerable<PopupDef> Popups)
         {
             await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, Popups);
+        }
+
+        /// <summary>
+        /// Get the traffic options for the map.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<TrafficOptions> GetTraffic()
+        {
+            return await JsRuntime.InvokeAsync<TrafficOptions>(GetMapInteropMethod(), MapId);
+        }
+
+        /// <summary>
+        /// Set the traffic options for the map.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public async Task SetTraffic(TrafficOptions? options)
+        {
+            await JsRuntime.InvokeVoidAsync(GetMapInteropMethod(), MapId, options);
         }
 
         private static string GetMapInteropMethod([CallerMemberName] string name = "")

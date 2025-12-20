@@ -40,7 +40,7 @@ interface MapSettings {
 }
 
 interface MapControlDef extends JsInteropDef {
-    type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'zoom';
+    type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'traffic' | 'zoom';
     position: atlas.ControlPosition;
     options: atlas.CompassControlOptions
     | atlas.FullscreenControlOptions

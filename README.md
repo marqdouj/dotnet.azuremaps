@@ -24,6 +24,14 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.4.0
+- `IAzureMapContainer`.
+  - `Maps`. Add new methods:
+    - `GetTraffic`. Gets the traffic settings for the map.
+    - `SetTraffic`. Sets the traffic settings for the map.
+- `MapControls`.
+  - `TrafficControl`. Added new control to manage traffic settings for the map.
+
 ### 10.3.8
 - `Map Events`.
   - `Layers`. Fixed issue with deserialization of Layer event payload.

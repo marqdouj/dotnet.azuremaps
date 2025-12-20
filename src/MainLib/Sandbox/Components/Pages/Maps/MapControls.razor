@@ -35,6 +35,9 @@
                     case MapControlType.Style:
                         <FluentCheckbox Disabled="@disabled" @bind-Value:get="@style.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
                         break;
+                    case MapControlType.Traffic:
+                        <FluentCheckbox Disabled="@disabled" @bind-Value:get="@traffic.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
+                        break;
                     case MapControlType.Zoom:
                         <FluentCheckbox Disabled="@disabled" @bind-Value:get="@zoom.Loaded" @bind-Value:set="@(e => OnCheckedChanged(e, layerType))">@layerType</FluentCheckbox>
                         break;
@@ -65,6 +68,7 @@
     private MapControlViewModel pitch => controls.First(c => c.Control.Type == MapControlType.Pitch);
     private MapControlViewModel scale => controls.First(c => c.Control.Type == MapControlType.Scale);
     private MapControlViewModel style => controls.First(c => c.Control.Type == MapControlType.Style);
+    private MapControlViewModel traffic => controls.First(c => c.Control.Type == MapControlType.Traffic);
     private MapControlViewModel zoom => controls.First(c => c.Control.Type == MapControlType.Zoom);
 
     private async Task OnMapReady(IAzureMapContainer mapContainer)

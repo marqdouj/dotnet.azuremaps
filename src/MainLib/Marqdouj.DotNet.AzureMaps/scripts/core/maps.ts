@@ -1,3 +1,4 @@
+import * as atlas from "azure-maps-control"
 import { ControlManager } from "../modules/controls"
 import { SourceManager } from "../modules/source"
 import { MarkerManager } from "../modules/markers"
@@ -58,5 +59,23 @@ export class Maps {
 
     public static removePopups(mapId: string, popups: PopupDef[]) {
         PopupManager.remove(mapId, popups);
+    }
+
+    public static getTraffic(mapId: string): atlas.TrafficOptions {
+        const map = MapFactory.getMap(mapId);
+        if (!map) {
+            return;
+        }
+
+        return map.getTraffic();
+    }
+
+    public static setTraffic(mapId: string, options: atlas.TrafficOptions) {
+        const map = MapFactory.getMap(mapId);
+        if (!map) {
+            return;
+        }
+
+        map.setTraffic(options);
     }
 }

@@ -112,6 +112,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Controls
         Style,
 
         /// <summary>
+        /// A control for displaying traffic on the map.
+        /// </summary>
+        Traffic,
+
+        /// <summary>
         /// A control for changing the zoom of the map.
         /// </summary>
         Zoom,
