@@ -1,4 +1,6 @@
-﻿namespace Marqdouj.DotNet.AzureMaps.Map.Events
+﻿using Marqdouj.DotNet.AzureMaps.Map.Interop;
+
+namespace Marqdouj.DotNet.AzureMaps.Map.Events
 {
     /// <summary>
     /// Represents all types of events that can be subscribed to.
@@ -66,6 +68,11 @@
         DataRemoved,
 
         //Layer
+        /// <summary>
+        /// This event must be subscribed to when creating the layer.
+        /// Once the layer has been added to the map, this event will not fire.
+        /// <see cref="IAzureMapsLayers.CreateLayer"/>."/>
+        /// </summary>
         LayerAdded,
         LayerRemoved,
 

@@ -86,16 +86,14 @@ export class Layers {
         if (layer) {
             const jsInterop: JsInteropDef = { id: def.id, interopId: def.interopId };
             (layer as any).jsInterop = jsInterop;
-            map.layers.add(layer, def.before);
-            wasAdded = true;
 
             if (events) {
-                const dsEvents = Object.values(events).filter(value => value.target === "layer");
-                dsEvents.forEach((value) => {
-                    value.targetId = def.id;
-                });
-                Maps.addEvents(mapId, dsEvents);
+                const mapContainer = MapFactory.getMapContainer(mapId);
+                mapContainer.events.addLayerEvents(events, layer);
             }
+
+            map.layers.add(layer, def.before);
+            wasAdded = true;
         }
 
         if (wasAdded) {

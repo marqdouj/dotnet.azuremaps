@@ -24,6 +24,15 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.5.0
+- `IAzureMapContainer`.
+  - `Layers`.
+    - `LayerAdded Event`. When events are passed to the `CreateLayer` method, 
+       they were added to the layer after it was added to the map; 
+       which meant that this event would not fire.
+       Events are now added to the layer before it is added to the map.
+  
+
 ### 10.4.0
 - `IAzureMapContainer`.
   - `Maps`. Add new methods:

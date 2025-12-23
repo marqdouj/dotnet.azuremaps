@@ -8,16 +8,16 @@ export class LayerEventFactory extends EventFactoryBase {
         super(mapId);
     }
 
-    addEvents(events: MapEventDef[]) {
+    addEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
         if (events.length == 0) return;
 
-        this.#addLayerEvents(this.#getEvents(events));
+        this.#addLayerEvents(this.#getEvents(events), layer);
     }
 
-    removeEvents(events: MapEventDef[]) {
+    removeEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
         if (events.length == 0) return;
 
-        this.#removeLayerEvents(this.#getEvents(events));
+        this.#removeLayerEvents(this.#getEvents(events), layer);
     }
 
     #getEvents(events: MapEventDef[]) {
@@ -25,15 +25,20 @@ export class LayerEventFactory extends EventFactoryBase {
     }
 
     // #region Layer
-    #addLayerEvents(events: MapEventDef[]) {
+    #addLayerEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
         if (events.length == 0) return;
 
         const azmap = this.getMap();
         const eventName = "addLayerEvents";
 
-        events.forEach((value) => {
+        events.forEach((event) => {
             let wasAdded: boolean = false;
-            const target = this.#getTarget(azmap, value);
+            let value: MapEventDef = { ...event };
+            const target = layer ?? this.#getTarget(azmap, value);
+
+            if (layer) {
+                value.targetId = layer.getId();
+            }
 
             if (!target) {
                 MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);
@@ -58,15 +63,20 @@ export class LayerEventFactory extends EventFactoryBase {
         });
     }
 
-    #removeLayerEvents(events: MapEventDef[]) {
+    #removeLayerEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
         if (events.length == 0) return;
 
         const azmap = this.getMap();
         const eventName = "removeLayerEvents";
 
-        events.forEach((value) => {
+        events.forEach((event) => {
             let wasRemoved: boolean = false;
-            const target = this.#getTarget(azmap, value);
+            let value: MapEventDef = { ...event };
+            const target = layer ?? this.#getTarget(azmap, value);
+
+            if (layer) {
+                value.targetId = layer.getId();
+            }
 
             if (!target) {
                 MapEventLogger.logInvalidTargetId(this.mapId, eventName, value);

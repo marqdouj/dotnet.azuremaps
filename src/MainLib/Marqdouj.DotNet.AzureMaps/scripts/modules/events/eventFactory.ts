@@ -1,3 +1,4 @@
+import * as atlas from "azure-maps-control";
 import { EventFactoryBase } from "./EventFactoryBase"
 import { MapEventFactory } from "./map-events"
 import { MarkerEventFactory } from "./marker-events"
@@ -39,6 +40,11 @@ export class EventFactory extends EventFactoryBase {
         this.popupEvents.addEvents(events);
     }
 
+    addLayerEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
+        if (events.length == 0) return;
+        this.layerEvents.addEvents(events, layer);
+    }
+
     removeEvents(events: MapEventDef[]) {
         if (events.length == 0) return;
 
@@ -49,5 +55,10 @@ export class EventFactory extends EventFactoryBase {
         this.layerEvents.removeEvents(events);
         this.shapeEvents.removeEvents(events);
         this.popupEvents.removeEvents(events);
+    }
+
+    removeLayerEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
+        if (events.length == 0) return;
+        this.layerEvents.removeEvents(events, layer);
     }
 }
