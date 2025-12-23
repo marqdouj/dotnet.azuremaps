@@ -3,7 +3,6 @@ import { Logger, LogLevel } from "./logger"
 import { Helpers } from "./helpers"
 import { MapFactory } from "../core/factory"
 import { DataSourceDef, JsInteropDef } from "./typings"
-import { Maps } from "../core/maps"
 
 export class SourceManager {
     static getDataSourceShapes(mapId: string, id: string) {
@@ -51,15 +50,12 @@ export class SourceManager {
         const jsInterop: JsInteropDef = { id: source.id, interopId: source.interopId };
         (newDs as any).jsInterop = jsInterop;
 
-        map.sources.add(newDs);
-
         if (events) {
-            const dsEvents = Object.values(events).filter(value => value.target === "datasource");
-            dsEvents.forEach((value) => {
-                value.targetId = source.id;
-            });
-            Maps.addEvents(mapId, dsEvents);
+            const mapContainer = MapFactory.getMapContainer(mapId);
+            mapContainer.events.addDataSourceEvents(events, newDs);
         }
+
+        map.sources.add(newDs);
 
         if (source.url) {
             newDs.importDataFromUrl(source.url);

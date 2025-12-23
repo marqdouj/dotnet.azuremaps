@@ -40,6 +40,12 @@ export class EventFactory extends EventFactoryBase {
         this.popupEvents.addEvents(events);
     }
 
+    addDataSourceEvents(events: MapEventDef[], ds?: atlas.source.DataSource) {
+        if (events.length == 0) return;
+
+        this.sourceEvents.addEvents(events, ds);
+    }
+
     addLayerEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {
         if (events.length == 0) return;
         this.layerEvents.addEvents(events, layer);
@@ -55,6 +61,11 @@ export class EventFactory extends EventFactoryBase {
         this.layerEvents.removeEvents(events);
         this.shapeEvents.removeEvents(events);
         this.popupEvents.removeEvents(events);
+    }
+
+    removeDataSourceEvents(events: MapEventDef[], ds?: atlas.source.DataSource) {
+        if (events.length == 0) return;
+        this.sourceEvents.removeEvents(events, ds);
     }
 
     removeLayerEvents(events: MapEventDef[], layer?: atlas.layer.Layer) {

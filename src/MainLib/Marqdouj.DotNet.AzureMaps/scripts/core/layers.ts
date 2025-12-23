@@ -5,7 +5,6 @@ import { DataSourceDef, JsInteropDef } from "../modules/typings"
 import { Helpers } from "../modules/helpers"
 import { FeatureManager, MapFeatureDef } from "../modules/features"
 import { SourceManager } from "../modules/source"
-import { Maps } from "./maps"
 
 export class Layers {
     public static createLayer(mapId: string, def: MapLayerDef, dsDef?: DataSourceDef, events?: MapEventDef[]) {

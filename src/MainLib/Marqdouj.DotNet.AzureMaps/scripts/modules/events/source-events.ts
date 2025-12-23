@@ -9,16 +9,16 @@ export class SourceEventFactory extends EventFactoryBase {
         super(mapId);
     }
 
-    addEvents(events: MapEventDef[]) {
+    addEvents(events: MapEventDef[], ds?: atlas.source.DataSource) {
         if (events.length == 0) return;
 
-        this.#addDataSourceEvents(this.#getEvents(events));
+        this.#addDataSourceEvents(this.#getEvents(events), ds);
     }
 
-    removeEvents(events: MapEventDef[]) {
+    removeEvents(events: MapEventDef[], ds?: atlas.source.DataSource) {
         if (events.length == 0) return;
 
-        this.#removeDataSourceEvents(this.#getEvents(events));
+        this.#removeDataSourceEvents(this.#getEvents(events), ds);
     }
 
     #getEvents(events: MapEventDef[]) {
@@ -26,15 +26,19 @@ export class SourceEventFactory extends EventFactoryBase {
     }
 
     // #region DataSource
-    #addDataSourceEvents(events: MapEventDef[]) {
+    #addDataSourceEvents(events: MapEventDef[], ds?: atlas.source.DataSource) {
         if (events.length == 0) return;
 
         const azmap = this.getMap();
         const eventName = "addDataSourceEvents";
 
         events.forEach((value) => {
-            const target = this.#getTarget(azmap, value);
+            const target = ds ?? this.#getTarget(azmap, value);
             let wasAdded: boolean = false;
+
+            if (ds) {
+                value.targetId = ds.getId();
+            }
 
             if (target) {
                 const callback = this.#getCallback(value, false);
@@ -57,15 +61,19 @@ export class SourceEventFactory extends EventFactoryBase {
         });
     }
 
-    #removeDataSourceEvents(events: MapEventDef[]) {
+    #removeDataSourceEvents(events: MapEventDef[], ds?: atlas.source.DataSource) {
         if (events.length == 0) return;
 
         const azmap = this.getMap();
         const eventName = "removeDataSourceEvents";
 
         events.forEach((value) => {
-            const target = this.#getTarget(azmap, value);
+            const target = ds ?? this.#getTarget(azmap, value);
             let wasRemoved: boolean = false;
+
+            if (ds) {
+                value.targetId = ds.getId();
+            }
 
             if (target) {
                 const callback = this.#getCallback(value, true);

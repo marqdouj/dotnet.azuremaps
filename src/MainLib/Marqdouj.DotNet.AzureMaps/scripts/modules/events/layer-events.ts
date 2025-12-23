@@ -31,9 +31,8 @@ export class LayerEventFactory extends EventFactoryBase {
         const azmap = this.getMap();
         const eventName = "addLayerEvents";
 
-        events.forEach((event) => {
+        events.forEach((value) => {
             let wasAdded: boolean = false;
-            let value: MapEventDef = { ...event };
             const target = layer ?? this.#getTarget(azmap, value);
 
             if (layer) {
@@ -69,9 +68,8 @@ export class LayerEventFactory extends EventFactoryBase {
         const azmap = this.getMap();
         const eventName = "removeLayerEvents";
 
-        events.forEach((event) => {
+        events.forEach((value) => {
             let wasRemoved: boolean = false;
-            let value: MapEventDef = { ...event };
             const target = layer ?? this.#getTarget(azmap, value);
 
             if (layer) {
