@@ -1,0 +1,177 @@
+﻿@page "/map-events-markers"
+@rendermode InteractiveServer
+@inject ILogger<MarkerEvents> Logger
+@inject IToastService ToastService
+@inject IMapDataService DataService 
+
+<PageTitle>Html Marker Events</PageTitle>
+
+<FluentLayout>
+    <MapPageHeader Header="Html Marker Events" HRefCode="@hRefSource">
+        <FluentLabel>
+            This example demonstrates dynamically adding/removing HtmlMarker events.
+            <br /><br />
+            When a subscribed event is fired a notification will be written to the Console.
+            <br />
+            NOTE: 'PreventDefault' is not supported for HtmlMarker events.
+            <br /><br />
+            Use the "Reset Map" button to reset the map to its initial state.
+        </FluentLabel>
+    </MapPageHeader>
+
+    <FluentToolbar>
+        <FluentButton IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="10" />
+        <FluentLabel>Events:</FluentLabel>
+        <FluentButton IconStart="@(new Icons.Regular.Size20.CheckboxChecked())" Title="Subscribe" OnClick="@(() => SelectAllEvents(true))" />
+        <FluentButton IconStart="@(new Icons.Regular.Size20.CheckboxUnchecked())" Title="Unsubscribe" OnClick="@(() => SelectAllEvents(false))" />
+        <FluentSpacer Width="10" />
+    </FluentToolbar>
+
+    <FluentStack>
+        <FluentCard Height="@mapHeight" Width="300px" Style="overflow:auto">
+            <div>
+                <FluentStack Orientation="Orientation.Vertical">
+                    @foreach (var item in markerEvents)
+                    {
+                        <FluentCheckbox @bind-Value:get="@item.IsChecked" @bind-Value:set="@((e) => OnMapEventsCheckedChanged(e, item.Type))">@item.Name</FluentCheckbox>
+                    }
+                </FluentStack>
+            </div>
+
+        </FluentCard>
+        <FluentCard Height="@mapHeight" Width="@mapWidth">
+            <AzureMap Id="@mapId"
+                      OnMapEventAny="@OnMapEventAny"
+                      Controls="@MapHelpers.GetDefaultControls()"
+                      OnMapReady="@OnMapReady"
+                      Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+        </FluentCard>
+    </FluentStack>
+</FluentLayout>
+
+
+@code {
+    private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Events/MarkerEvents.razor");
+    private IAzureMapContainer? mapContainer;
+    private string mapHeight = "400px";
+    private string mapWidth = "100%";
+    private string mapId = "markerEvents"; //Optional; used here in demo to shorten the Id when wrting to the Console.
+    private readonly List<MapEventViewModel> markerEvents
+        = MapEventTarget.HtmlMarker.GetMapEventDefs().Select(e => new MapEventViewModel(e)).ToList();
+    private readonly HtmlMarkerDef markerDef = new HtmlMarkerDef
+    {
+        Options = new HtmlMarkerOptions
+        {
+            Color = "#FF5733",
+            Draggable = true,
+            HtmlContent = "<div style='width:24px;height:24px;background-color:#FF5733;border-radius:50%;border:2px solid white;box-shadow:0 0 5px rgba(0,0,0,0.3);'></div>",
+            Text = "●",
+        }
+    };
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+
+            var data = (await DataService.GetLineLayerData()).First();
+            markerDef.Options!.Position = data;
+
+            foreach (var markerEvent in markerEvents)
+                markerEvent.EventDef.TargetId = markerDef.Id;
+
+            await this.mapContainer.Maps.AddMarkers(new List<HtmlMarkerDef> {markerDef});
+            await ResetMap();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await SelectAllEvents(false);
+            var options = MapHelpers.GetDefaultSetMapOptions();
+            options.Camera!.Camera!.Center = markerDef.Options!.Position;
+            options.Camera.Camera!.Zoom = 12;
+            await mapContainer.Configuration.SetMapOptions(options);
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task OnMapEventAny(MapEventArgs args)
+    {
+        try
+        {
+            Console.WriteLine($"OnMapEventAny: {args}");
+            Console.WriteLine();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task SelectAllEvents(bool selected)
+    {
+        try
+        {
+            foreach (var item in markerEvents)
+                item.IsChecked = selected;
+
+            await SubscribeEvents();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task SubscribeEvents()
+    {
+        var unSubscribed = markerEvents.Where(e => e.IsChecked && e.IsNotLoaded).ToList();
+        var eventDefs = unSubscribed.Select(e => e.EventDef).ToList();
+        await mapContainer!.Maps.AddEvents(unSubscribed.Select(e => e.EventDef));
+
+        foreach (var item in unSubscribed)
+            item.IsLoaded = true;
+
+        var subscribed = markerEvents.Where(e => e.IsNotChecked && e.IsLoaded).ToList();
+        await mapContainer!.Maps.RemoveEvents(subscribed.Select(e => e.EventDef));
+
+        foreach (var item in subscribed)
+            item.IsLoaded = false;
+    }
+
+    private async Task OnMapEventsCheckedChanged(bool value, MapEventType? type)
+    {
+        try
+        {
+            var item = markerEvents.First(e => e.Type == type);
+            item.IsChecked = value;
+
+            await SubscribeEvents();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+}
