@@ -1,0 +1,24 @@
+﻿<FluentCard>
+    <div style="max-height:200px;overflow:auto">
+        <FluentDataGrid Items="@Events.AsQueryable()"
+                        TGridItem="MapEventArgsViewModel"
+                        GenerateHeader="@GenerateHeaderOption.Sticky"
+                        MultiLine="true"
+                        ResizableColumns="true"
+                        AutoFit="true">
+            <ChildContent>
+                <PropertyColumn Property="@(p => p.Args.Type)" />
+                <PropertyColumn Property="@(p => p.Args.Target)" />
+                <PropertyColumn Property="@(p => p.TimeStamp)" />
+                <PropertyColumn Property="@(p => p.Value)" />
+            </ChildContent>
+            <EmptyContent />
+        </FluentDataGrid>
+    </div>
+
+</FluentCard>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<MapEventArgsViewModel> Events { get; set; }
+}

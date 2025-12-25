@@ -11,7 +11,8 @@
         <FluentLabel>
             This example demonstrates dynamically adding/removing HtmlMarker events.
             <br /><br />
-            When a subscribed event is fired a notification will be written to the Console.
+            When a subscribed event is fired a notification will be written to the <code>Console</code>
+            and the last 20 events to the <code>Event Viewer</code> below the map.
             <br />
             NOTE: 'PreventDefault' is not supported for HtmlMarker events.
             <br /><br />
@@ -28,35 +29,41 @@
         <FluentSpacer Width="10" />
     </FluentToolbar>
 
-    <FluentStack>
-        <FluentCard Height="@mapHeight" Width="300px" Style="overflow:auto">
-            <div>
-                <FluentStack Orientation="Orientation.Vertical">
-                    @foreach (var item in markerEvents)
-                    {
-                        <FluentCheckbox @bind-Value:get="@item.IsChecked" @bind-Value:set="@((e) => OnMapEventsCheckedChanged(e, item.Type))">@item.Name</FluentCheckbox>
-                    }
-                </FluentStack>
-            </div>
+    <FluentStack Orientation="Orientation.Vertical">
+        <FluentStack>
+            <FluentCard Height="@mapHeight" Width="300px" Style="overflow:auto">
+                <div>
+                    <FluentStack Orientation="Orientation.Vertical">
+                        @foreach (var item in markerEvents)
+                        {
+                            <FluentCheckbox @bind-Value:get="@item.IsChecked" @bind-Value:set="@((e) => OnMapEventsCheckedChanged(e, item.Type))">@item.Name</FluentCheckbox>
+                        }
+                    </FluentStack>
+                </div>
 
-        </FluentCard>
-        <FluentCard Height="@mapHeight" Width="@mapWidth">
-            <AzureMap Id="@mapId"
-                      OnMapEventAny="@OnMapEventAny"
-                      Controls="@MapHelpers.GetDefaultControls()"
-                      OnMapReady="@OnMapReady"
-                      Options="@MapHelpers.GetDefaultCreateMapOptions()" />
-        </FluentCard>
+            </FluentCard>
+            <FluentCard Height="@mapHeight" Width="@mapWidth">
+                <AzureMap Id="@mapId"
+                          OnMapEventAny="@OnMapEventAny"
+                          Controls="@MapHelpers.GetDefaultControls()"
+                          OnMapReady="@OnMapReady"
+                          Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+            </FluentCard>
+        </FluentStack>
+        <FluentLabel>Marker Events:</FluentLabel>
+        <EventViewer Events="@events"/>
     </FluentStack>
+
 </FluentLayout>
 
 
 @code {
     private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Events/MarkerEvents.razor");
     private IAzureMapContainer? mapContainer;
-    private string mapHeight = "400px";
+    private string mapHeight = "300px";
     private string mapWidth = "100%";
     private string mapId = "markerEvents"; //Optional; used here in demo to shorten the Id when wrting to the Console.
+    private List<MapEventArgsViewModel> events = new();
     private readonly List<MapEventViewModel> markerEvents
         = MapEventTarget.HtmlMarker.GetMapEventDefs().Select(e => new MapEventViewModel(e)).ToList();
     private readonly HtmlMarkerDef markerDef = new HtmlMarkerDef
@@ -100,6 +107,7 @@
             if (mapContainer == null) return;
 
             await SelectAllEvents(false);
+            events.Clear();
             var options = MapHelpers.GetDefaultSetMapOptions();
             options.Camera!.Camera!.Center = markerDef.Options!.Position;
             options.Camera.Camera!.Zoom = 12;
@@ -117,6 +125,10 @@
     {
         try
         {
+            events.Insert(0, new MapEventArgsViewModel(args));
+            if (events.Count > 20)
+                events = events.Take(20).ToList();
+
             Console.WriteLine($"OnMapEventAny: {args}");
             Console.WriteLine();
         }
