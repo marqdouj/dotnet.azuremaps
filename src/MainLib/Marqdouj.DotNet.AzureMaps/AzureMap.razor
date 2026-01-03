@@ -19,7 +19,7 @@
     private bool hasInvalidMessage => !string.IsNullOrWhiteSpace(validateMessage) || !string.IsNullOrWhiteSpace(issuesMessage);
     private string? validateMessage => settings.IsValid ? "" : $"Invalid settings for the map: {settings.ValidationMessage}";
     private string? issuesMessage;
-    private AzureMapContainer? mapContainer;
+    private MapContainer? mapContainer;
 
     #region Parameters
 
@@ -33,7 +33,7 @@
     /// Azure Map controls, i.e. Style, Zoom, etc.
     /// These controls are added when the map is initialized.
     /// You can also add/remove controls manually
-    /// any time after OnMapEventReady is invoked.
+    /// any time after OnMapReady is invoked.
     /// </summary>
     [Parameter]
     public IEnumerable<MapControl>? Controls { get; set; }
@@ -198,9 +198,6 @@
     public EventCallback<MapEventMouseArgs> OnMapEventMouse { get; set; }
 
     [Parameter]
-    public EventCallback<MapEventArgs> OnMapEventReady { get; set; }
-
-    [Parameter]
     public EventCallback<MapEventPopupArgs> OnMapEventPopup { get; set; }
 
     [Parameter]
@@ -244,9 +241,6 @@
 
     [JSInvokable]
     public async Task NotifyMapEventMouse(MapEventMouseArgs e) { await OnMapEventMouse.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
-
-    [JSInvokable]
-    public async Task NotifyMapEventReady(MapEventArgs e) => await OnMapEventReady.InvokeAsync(e);
 
     [JSInvokable]
     public async Task NotifyMapEventPopup(MapEventPopupArgs e) { await OnMapEventPopup.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }

@@ -7,7 +7,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <PackageIcon>DMNuGet.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>10.5.0</Version>
+    <Version>10.6.0-Preview-1.0</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Blazor implemenation of the Azure Maps SDK</Title>
@@ -31,7 +31,7 @@
   
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="call npm install" />
-    <Exec Command="call npm run build:prod --stats-error-details" />
+    <Exec Command="call npm run build:prod" />
   </Target>
 	
   <ItemGroup>

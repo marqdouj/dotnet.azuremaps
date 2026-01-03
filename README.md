@@ -24,6 +24,13 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+
+### 10.6.0
+- `JSInterop`. Internal refactor of JSInterop scripts to improve performance and functionality.
+- `AzureMap`.
+  - `OnMapEventReady`. This event is obsolete and has been removed. Use the `OnMapReady` event.
+  - `MapInterop`. This class is obsolete and has been removed.
+
 ### 10.5.0
 - `IAzureMapContainer`.
   - `Layers`.
@@ -32,7 +39,6 @@ An example of one of the methods to do this is in the demo.
        which meant that this event would not fire.
        Events are now added to the layer before it is added to the map.
   
-
 ### 10.4.0
 - `IAzureMapContainer`.
   - `Maps`. Add new methods:

@@ -2,13 +2,12 @@
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Layers
 {
-    public class DataSourceDef() : ICloneable
+    public class DataSourceDef : SourceDef, ICloneable
     {
-        /// <summary>
-        /// Datasource Id (If applicable).
-        /// Not all layer types require a data source (Image, Tile, and WebGL).
-        /// </summary>
-        public string Id { get; set; } = MapExtensions.GetRandomCssId();
+        public DataSourceDef()
+        {
+            Type = SourceType.DataSource;
+        }
 
         /// <summary>
         /// URL to fetch the data from (If applicable).
