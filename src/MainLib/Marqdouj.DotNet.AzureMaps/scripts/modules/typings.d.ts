@@ -1,5 +1,12 @@
 import * as atlas from "azure-maps-control"
-import { LogLevel } from "./logger"
+import { EventsMap } from "./events/EventsMap";
+
+interface IMapReference {
+    readonly dotNetRef: any;
+    readonly eventsMap: EventsMap;
+    readonly map: atlas.Map;
+    readonly mapId: string;
+}
 
 interface JsInteropDef {
     id: string,
@@ -8,35 +15,6 @@ interface JsInteropDef {
 
 interface JsInteropControl extends JsInteropDef {
     type: string,
-}
-
-interface DataSourceDef extends JsInteropDef {
-    url: string;
-    options?: atlas.DataSourceOptions;
-}
-
-interface HtmlMarkerDef extends JsInteropDef {
-    options: atlas.HtmlMarkerOptions;
-    togglePopupOnClick: boolean;
-}
-
-interface PopupDef extends JsInteropDef {
-    options: atlas.PopupOptions;
-}
-
-interface MapOptions {
-    camera?: atlas.CameraOptions;
-    cameraBounds?: atlas.CameraBoundsOptions;
-    service?: atlas.ServiceOptions;
-    style?: atlas.StyleOptions;
-    userInteraction?: atlas.UserInteractionOptions;
-}
-
-interface MapSettings {
-    authOptions: atlas.AuthenticationOptions;
-    options?: MapOptions;
-    logLevel?: LogLevel;
-    inDevelopment?: boolean;
 }
 
 interface MapControlDef extends JsInteropDef {
@@ -51,3 +29,20 @@ interface MapControlDef extends JsInteropDef {
     controlOptions: atlas.ControlOptions;
 }
 
+type TEventTarget = 'map' | 'datasource' | 'htmlmarker' | 'layer' | 'shape' | 'stylecontrol' | 'popup';
+
+interface MapEventDef {
+    type: string;
+    once?: boolean;
+    target: TEventTarget;
+    targetId?: string;
+    targetSourceId?: string;
+    preventDefault?: boolean;
+}
+
+interface MapEventResult {
+    mapId: string;
+    type: string;
+    target: TEventTarget;
+    payload?: object;
+}

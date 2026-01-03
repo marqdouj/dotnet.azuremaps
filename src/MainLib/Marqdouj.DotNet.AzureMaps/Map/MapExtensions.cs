@@ -1,15 +1,30 @@
-﻿using Marqdouj.DotNet.AzureMaps.Map.Controls;
+﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
 using Marqdouj.DotNet.AzureMaps.Map.GeoJson;
 using System.Runtime.CompilerServices;
 
 namespace Marqdouj.DotNet.AzureMaps.Map
 {
+    internal enum JsModule
+    {
+        MapFactory,
+        Maps,
+        Controls,
+        Events,
+        Features,
+        Layers,
+        Markers,
+        Popups,
+        Sources,
+    }
+
     internal static class MapExtensions
     {
         internal const string LIBRARY_NAME = "marqdoujAzureMaps";
 
-        internal static string GetMapInteropMethod(string module, [CallerMemberName] string name = "")
-            => $"{MapExtensions.LIBRARY_NAME}.MapInterop.{module}.{name.ToJsonName()}";
+        private static string GetNamespace(this JsModule jsModule) => jsModule.ToString();
+
+        internal static string GetJsModuleMethod(JsModule module, [CallerMemberName] string name = "")
+            => $"{LIBRARY_NAME}.{module.GetNamespace()}.{name.ToJsonName()}";
 
         /// <summary>
         /// Generates a valid Css Id using a Guid.
@@ -37,9 +52,6 @@ namespace Marqdouj.DotNet.AzureMaps.Map
         {
             return ToJsonName(value.ToString());
         }
-
-        internal static List<object>? ToJson(this IEnumerable<MapControl>? controls)
-            => controls?.Select(e => (object)e).ToList();
 
         internal static void EnsureCount(this List<double> items, int min, int? max = null, double addDefault = 0)
         {
@@ -75,36 +87,51 @@ namespace Marqdouj.DotNet.AzureMaps.Map
             }
         }
 
-        public static string EnumToJson<T>(this T value) where T : Enum
+        internal static string EnumToJson<T>(this T value) where T : Enum
         {
             return value.ToString().ToLower().Replace("_", "-");
         }
 
-        public static string? EnumToJsonN<T>(this T? value) where T : struct, Enum
+        internal static string? EnumToJsonN<T>(this T? value) where T : struct, Enum
         {
             return value?.ToString().ToLower().Replace("_", "-");
         }
 
-        public static List<string> EnumToJson<T>(this IEnumerable<T>? items) where T : Enum
+        internal static List<string> EnumToJson<T>(this IEnumerable<T>? items) where T : Enum
             => items?.Select(e => e.EnumToJson()).Distinct().OrderBy(e => e).ToList() ?? [];
 
-        public static T JsonToEnum<T>(this string? value, T defaultValue = default!) where T : Enum
+        internal static T JsonToEnum<T>(this string? value, T defaultValue = default!) where T : Enum
         {
             value = value?.Replace("-", "_");
             return Enum.TryParse(typeof(T), value, true, out var result) ? (T)result : defaultValue;
         }
 
-        public static T? JsonToEnumN<T>(this string? value, T? defaultValue = (T?)null) where T : struct, Enum
+        internal static T? JsonToEnumN<T>(this string? value, T? defaultValue = (T?)null) where T : struct, Enum
         {
             value = value?.Replace("-", "_");
             return Enum.TryParse(typeof(T), value, true, out var result) ? (T)result : defaultValue;
         }
 
-        public static List<T> JsonToEnum<T>(this IEnumerable<string>? items) where T : Enum
+        internal static List<T> JsonToEnum<T>(this IEnumerable<string>? items) where T : Enum
         {
             var toProcess = items?.Where(e => !string.IsNullOrWhiteSpace(e)).Distinct().ToList();
             var values = toProcess?.Select(e => e.JsonToEnum<T>()).ToList() ?? [];
             return [.. values.Select(e => e)];
+        }
+
+        internal static void EnsureHasId(this JSInteropDef item)
+        {
+            if (string.IsNullOrWhiteSpace(item.Id))
+                item.Id = MapExtensions.GetRandomCssId();
+        }
+
+        internal static void EnsureHasId<T>(this IEnumerable<T> items) where T : JSInteropDef
+        {
+            if (items is null)
+                return;
+
+            foreach (var item in items)
+                item.EnsureHasId();
         }
     }
 }

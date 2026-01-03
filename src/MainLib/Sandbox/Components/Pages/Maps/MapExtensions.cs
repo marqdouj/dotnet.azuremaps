@@ -108,7 +108,7 @@ namespace Sandbox.Components.Pages.Maps
             await mapInterop.Layers.CreateLayer(layerDef, events);
 
             var features = await dataService.GetDefaultSymbolLayerFeatures();
-            await mapInterop.Layers.AddMapFeatures(features, layerDef.DataSource.Id);
+            await mapInterop.Layers.AddMapFeatures(features, layerDef.DataSource.Id!);
 
             var pt = (Point)features[0].Geometry;
             await mapInterop.Configuration.ZoomTo(pt.Coordinates, 11);
@@ -151,7 +151,7 @@ namespace Sandbox.Components.Pages.Maps
                 AsShape = true
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id!);
             await mapInterop.Configuration.ZoomTo(data[0][0], 11);
 
             var camera = await mapInterop.Configuration.GetCamera();
@@ -195,7 +195,7 @@ namespace Sandbox.Components.Pages.Maps
                 AsShape = true
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id!);
             await mapInterop.Configuration.ZoomTo(data[0][0], 11);
 
             return layerDef;
@@ -237,7 +237,7 @@ namespace Sandbox.Components.Pages.Maps
                 }
             };
 
-            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id);
+            await mapInterop.Layers.AddMapFeature(feature, layerDef.DataSource.Id!);
             await mapInterop.Configuration.ZoomTo(data[0], 10);
 
             return layerDef;
@@ -304,7 +304,7 @@ namespace Sandbox.Components.Pages.Maps
                         { "demo", true },
                     }
             };
-            await mapInterop.Layers.AddMapFeature(featureDef, layerDef.DataSource.Id);
+            await mapInterop.Layers.AddMapFeature(featureDef, layerDef.DataSource.Id!);
             await mapInterop.Configuration.ZoomTo(data[0], 11);
 
             return layerDef;
