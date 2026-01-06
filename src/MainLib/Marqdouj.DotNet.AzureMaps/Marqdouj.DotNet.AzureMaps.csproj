@@ -4,7 +4,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <PackageIcon>DMNuGet.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Version>10.6.1</Version>
