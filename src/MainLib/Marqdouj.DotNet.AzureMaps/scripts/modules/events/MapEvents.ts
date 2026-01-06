@@ -19,15 +19,7 @@ export class MapEvents {
     }
 
     #getEventDefs(events: MapEventDef[]) {
-        return Object.values(events).filter(value => value.target === "map" &&
-            (
-            Helpers.isValueInEnum(MapEventConfig, value.type) ||
-            Helpers.isValueInEnum(MapEventData, value.type) ||
-            Helpers.isValueInEnum(MapEventGeneral, value.type) ||
-            Helpers.isValueInEnum(MapEventLayer, value.type) ||
-            Helpers.isValueInEnum(MapEventSource, value.type) ||
-            Helpers.isValueInEnum(MapEventStyle, value.type)
-            ));
+        return Object.values(events).filter(value => value.target === "map" );
     }
 
     #addMapEvents(mapRef: IMapReference, events: MapEventDef[]) {

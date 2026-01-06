@@ -24,6 +24,11 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.6.1
+- `Missing Events`. During the internal refactor, some map events were missed. These events have been added back:
+  - `MapMouse`
+  - `MapTouch`
+  - `MapWheel`
 
 ### 10.6.0
 - `JSInterop`. Internal refactor of JSInterop scripts to improve performance and functionality.
