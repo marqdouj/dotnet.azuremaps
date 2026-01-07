@@ -4,8 +4,9 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build:dev": "webpack --mode=development",
-    "build:prod": "webpack --mode=production"
+    "build:tsc": "tsc",
+    "build:webpack": "webpack",
+    "build": "npm run build:tsc && npm run build:webpack"
   },
   "devDependencies": {
     "azure-maps-control": "3.7.1",

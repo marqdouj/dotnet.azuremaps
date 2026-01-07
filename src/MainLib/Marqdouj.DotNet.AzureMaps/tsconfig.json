@@ -12,6 +12,7 @@
   "compileOnSave": true,
   "exclude": [
     "node_modules",
-    "wwwroot"
+    "wwwroot",
+    "tsgen"
   ]
 }

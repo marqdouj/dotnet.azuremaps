@@ -19,18 +19,18 @@
     <Description>Provides basic Azure Maps SDK functionality via Blazor/JSInterop</Description>
   </PropertyGroup>
 
-  <Target Name="RemoveTSGenFiles" AfterTargets="GetTypeScriptOutputForPublishing">
-    <ItemGroup>
-      <Content Remove="tsgen\**" />
-      <None Include="tsgen\**">
-        <Pack>False</Pack>
-      </None>
-    </ItemGroup>
-  </Target>
+  <!--
+  Configure Microsoft.TypeScript.MSBuild to not do the build - let tsc handle that.
+  NOTE: Microsoft.TypeScript.MSBuild is not required, 
+  I just use is so I get the IDE features like 'node_modules' included in the project.
+  --> 
+  <PropertyGroup>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+  </PropertyGroup>
   
+  <!--Build the output based on the scripts in package.json-->
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="call npm install" />
-    <Exec Command="call npm run build:prod" />
+    <Exec Command="call npm run build" />
   </Target>
 	
   <ItemGroup>
@@ -50,7 +50,6 @@
     <None Include="package-lock.json" />
     <None Include="package.json" />
   </ItemGroup>
-
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />

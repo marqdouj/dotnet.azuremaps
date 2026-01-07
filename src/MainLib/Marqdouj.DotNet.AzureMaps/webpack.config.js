@@ -1,6 +1,7 @@
 ﻿const path = require('path');
 
 module.exports = {
+    mode: 'production',
     entry: './scripts/index.ts',
     module: {
         rules: [
@@ -18,6 +19,7 @@ module.exports = {
     output: {
         filename: 'marqdouj-azuremaps.js',
         path: path.resolve(__dirname, 'wwwroot'),
+        clean: true,
         library: 'marqdoujAzureMaps',
     },
     externals: {
