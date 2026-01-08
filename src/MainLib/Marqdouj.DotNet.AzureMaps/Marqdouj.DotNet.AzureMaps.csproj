@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageIcon>DMNuGet.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>10.6.1</Version>
+    <Version>10.7.0-Preview-1.0</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Blazor implemenation of the Azure Maps SDK</Title>
@@ -19,18 +19,14 @@
     <Description>Provides basic Azure Maps SDK functionality via Blazor/JSInterop</Description>
   </PropertyGroup>
 
-  <!--
-  Configure Microsoft.TypeScript.MSBuild to not do the build - let tsc handle that.
-  NOTE: Microsoft.TypeScript.MSBuild is not required, 
-  I just use is so I get the IDE features like 'node_modules' included in the project.
-  --> 
-  <PropertyGroup>
-    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
-  </PropertyGroup>
+  <Target Name="NpmBuild" BeforeTargets="CoreCompile">
+    <Exec Command="call npm run build:webpack" />
+  </Target>
   
-  <!--Build the output based on the scripts in package.json-->
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="call npm run build" />
+  <Target Name="RemoveTsGenAsContent" AfterTargets="CoreCompile">
+    <ItemGroup>
+      <Content Remove="tsgen\**" />
+    </ItemGroup>
   </Target>
 	
   <ItemGroup>
