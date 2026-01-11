@@ -24,8 +24,8 @@
     @* Add the script for Marqdouj.DotNet.AzureMaps *@
     <script src="./_content/Marqdouj.DotNet.AzureMaps/marqdouj-azuremaps.js"></script>
 
-    @* Add the script required for SasTokeb (if applicable) *@
-    <script type="text/javascript">
+    @* Add the script required for SasToken (if applicable) *@
+@*     <script type="text/javascript">
         marqdoujAzureMaps.MapFactory.getAuthTokenCallback = (resolve, reject, map) => {
             DotNet.invokeMethodAsync('Sandbox', 'GetSasToken')
             .then(function (response) {
@@ -34,7 +34,7 @@
                 resolve(token);
             });
         };
-    </script>
+    </script> *@
 
     @* Add the script required for Anonymous authentication (if applicable) *@
     @* <script type="text/javascript">
