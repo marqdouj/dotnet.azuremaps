@@ -66,6 +66,7 @@ namespace Sandbox.Components.Pages.Maps
                  GetDefaultControl(MapControlType.Compass),
                  GetDefaultControl(MapControlType.Style),
                  GetDefaultControl(MapControlType.Traffic),
+                 GetDefaultControl(MapControlType.TrafficLegend),
                  GetDefaultControl(MapControlType.Scale)
             };
 
@@ -90,6 +91,7 @@ namespace Sandbox.Components.Pages.Maps
                 MapControlType.Scale => new ScaleControl(MapControlPosition.Bottom_Right),
                 MapControlType.Style => new StyleControl(MapControlPosition.Top_Right),
                 MapControlType.Traffic => new TrafficControl(MapControlPosition.Top_Right),
+                MapControlType.TrafficLegend => new TrafficLegendControl(MapControlPosition.Bottom_Left),
                 MapControlType.Zoom => new ZoomControl(MapControlPosition.Top_Right),
                 _ => throw new ArgumentOutOfRangeException(nameof(controlType)),
             };

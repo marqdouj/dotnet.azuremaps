@@ -18,7 +18,7 @@ interface JsInteropControl extends JsInteropDef {
 }
 
 interface MapControlDef extends JsInteropDef {
-    type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'traffic' | 'zoom';
+    type: 'compass' | 'fullscreen' | 'pitch' | 'scale' | 'style' | 'traffic' | 'trafficLegend' | 'zoom';
     position: atlas.ControlPosition;
     options: atlas.CompassControlOptions
     | atlas.FullscreenControlOptions

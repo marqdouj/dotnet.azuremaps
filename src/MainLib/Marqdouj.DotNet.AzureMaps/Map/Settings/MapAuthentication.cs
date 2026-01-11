@@ -31,6 +31,12 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Settings
         public string? SubscriptionKey { get; set; }
 
         /// <summary>
+        /// The URL for the Shared Access Signature (SAS) token for your Azure Maps Account.
+        /// If Mode = SasToken and this value is set, it will override the getAuthTokenCallback configured in App.Razor.
+        /// </summary>
+        public string? SasTokenUrl { get; set; }
+
+        /// <summary>
         /// The Azure AD registered app ID. This is the app ID of an app registered in your Azure AD tenant.
         /// Must be specified for AAD authentication type.
         /// </summary>

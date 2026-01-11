@@ -11,26 +11,13 @@
 ### [MapSetup.cs](../src/MainLib/Sandbox/MapSetup.cs)
 `MapSetup.cs` contains examples of all the supported authentication methods.
 
+NOTE: For SasToken authentication, you can provide a SasTokenUrl instead
+of configuring the GetSasToken callback in App.Razor.
+
 ### [Program.cs](../src/MainLib/Sandbox/Program.cs)
 This is where you configure the authentication and global map settings.
 ```csharp
 //Using MapSetup.cs
 builder.Services.AddMapConfiguration(builder.Configuration);
-```
-
-If you only need to support 'SubscriptionKey' you don't need `MapSetup.cs`, just configure it directly in `Program.cs`:
-```csharp
-using Marqdouj.DotNet.AzureMaps;
-using Marqdouj.DotNet.AzureMaps.Map.Settings;
-using Marqdouj.DotNet.AzureMaps.Map.Configuration;
-
-builder.Services.AddMarqdoujAzureMaps(config =>
-{
-    config.Authentication.Mode = MapAuthenticationMode.SubscriptionKey;
-    config.Authentication.SubscriptionKey = builder.Configuration["AzureMaps:SubscriptionKey"];
-    //Optional
-    config.Options = new MapOptions { Style = new StyleOptions { Language = "auto" } };
-    //You can override the global MapOptions by setting the AzureMap.Options parameter.
-});
 ```
 

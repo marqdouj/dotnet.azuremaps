@@ -24,6 +24,13 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.7.1
+- `Authentication`. 
+  - `SasTokenUrl`. When Mode = SasToken you can provide a url to get the token.
+    If the url is set, you do not need to configure the GetSasToken callback in App.Razor.
+- `Controls`.
+  - `TrafficLegendControl`. Added support for this control.
+
 ### 10.7.0
 - `Authentication`. Added support for `SasToken` authentication.
 

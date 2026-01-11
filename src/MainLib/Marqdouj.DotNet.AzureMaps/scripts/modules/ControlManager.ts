@@ -33,6 +33,9 @@ export class ControlManager {
                 case "traffic":
                     control = new atlas.control.TrafficControl(mapControl.options as atlas.TrafficControlOptions);
                     break;
+                case "trafficlegend":
+                    control = new atlas.control.TrafficLegendControl();
+                    break;
                 case "zoom":
                     control = new atlas.control.ZoomControl(mapControl.options as atlas.ZoomControlOptions);
                     break;

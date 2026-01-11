@@ -5,6 +5,7 @@ import { MapEventDef, MapControlDef, IMapReference } from "./typings";
 import { EventManager, EventNotification } from "./EventManager";
 import { ControlManager } from "./ControlManager";
 import { EventsHelper } from "./events/EventsHelper";
+import { Helpers } from "./common/Helpers";
 
 export class MapFactory {
     static #azmaps: Map<string, MapReference> = new Map<string, MapReference>();
@@ -24,7 +25,7 @@ export class MapFactory {
             return;
         }
 
-        const options = this.#buildMapOptions(settings.authOptions, settings.options);
+        const options = this.#buildMapOptions(mapId, settings.authOptions, settings.options);
         const azmap = new atlas.Map(mapId, options);
         const mapReference = new MapReference(dotNetRef, mapId, azmap);
         this.#azmaps.set(mapId, mapReference);
@@ -61,7 +62,7 @@ export class MapFactory {
         }
     }
 
-    static #buildMapOptions(authOptions: atlas.AuthenticationOptions, mapOptions?: MapOptions): TBuildMapOptions {
+    static #buildMapOptions(mapId: string, authOptions: atlas.AuthenticationOptions, mapOptions?: MapOptions): TBuildMapOptions {
         let options: TBuildMapOptions = {};
 
         if (mapOptions) {
@@ -86,7 +87,16 @@ export class MapFactory {
         }
 
         options.authOptions = authOptions;
-        options.authOptions.getToken = this.getAuthTokenCallback;
+        const sasTokenUrl = (authOptions as any).sasTokenUrl;
+        if (Helpers.isNotEmptyOrNull(sasTokenUrl)) {
+            Logger.logMessage(mapId, LogLevel.Trace, "buildMapOptions with SasTokenUrl:", sasTokenUrl);
+            options.authOptions.getToken = function (resolve, reject, map) {
+                fetch(sasTokenUrl).then(r => r.text()).then(token => resolve(token));
+            }
+        }
+        else {
+            options.authOptions.getToken = this.getAuthTokenCallback;
+        }
 
         return options;
     }

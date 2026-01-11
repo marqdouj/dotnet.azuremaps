@@ -117,6 +117,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Controls
         Traffic,
 
         /// <summary>
+        /// A control for displaying traffic legend on the map.
+        /// </summary>
+        TrafficLegend,
+
+        /// <summary>
         /// A control for changing the zoom of the map.
         /// </summary>
         Zoom,
