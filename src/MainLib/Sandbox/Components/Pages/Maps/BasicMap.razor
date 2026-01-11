@@ -33,10 +33,8 @@
     </FluentToolbar>
 
     <AzureMap OnCreateMapError="@OnCreatMapError"
-              OnMapEventMouse="@OnMapEventMouse"
               OnMapReady="@OnMapReady"
               Controls="@MapHelpers.GetDefaultControls()"
-              Events="@events.Items"
               Options="@MapHelpers.GetDefaultCreateMapOptions()" />
 </FluentLayout>
 
@@ -52,26 +50,11 @@
     private bool overlay;
     private bool disabled => overlay || mapContainer == null;
     private MapLayerDef? layerDef;
-    private readonly EnumList<MapEventType> events = new(new List<MapEventType> {MapEventType.MouseMove});
     private IAzureMapContainer? mapContainer;
 
     private async Task OnCreatMapError(Exception ex)
     {
         ToastService.Error($"Error creating the map: {ex.Message}");
-    }
-
-    private async Task OnMapEventMouse(MapEventMouseArgs e)
-    {
-        try
-        {
-            await Task.CompletedTask;
-            Logger.LogInformation($"MouseMove: {e.Payload}");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, null);
-            ToastService.Error(ex);
-        }
     }
 
     private async Task OnMapReady(IAzureMapContainer mapContainer)

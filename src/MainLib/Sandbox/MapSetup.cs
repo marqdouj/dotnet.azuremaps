@@ -2,6 +2,7 @@
 //using Microsoft.Identity.Client;
 using Marqdouj.DotNet.AzureMaps;
 using Marqdouj.DotNet.AzureMaps.Map.Settings;
+using Microsoft.JSInterop;
 
 namespace Sandbox
 {
@@ -11,6 +12,7 @@ namespace Sandbox
         //private static string clientSecret = "";
         //private static readonly string authorityFormat = "https://login.microsoftonline.com/{0}/oauth2/v2.0";
         //private static readonly string graphScope = "https://atlas.microsoft.com/.default";
+        //private static string? sasToken; //Used only for demo purposes; do not do this in production.
 
         public static IServiceCollection AddMapConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
@@ -27,6 +29,7 @@ namespace Sandbox
             mapConfiguration = services.AddMarqdoujAzureMaps(config =>
             {
                 ConfigureForSubscriptionKey(configuration, config);
+                //ConfigureForSasToken(configuration, config);
                 //ConfigureForAad(configuration, config);
                 //ConfigureForAnonymous(configuration, config);
             });
@@ -42,6 +45,29 @@ namespace Sandbox
             //Optional settings:
             config.LogLevel = LogLevel.Trace;
         }
+
+        //private static void ConfigureForSasToken(IConfiguration configuration, MapConfiguration config)
+        //{
+        //    config.Authentication.Mode = MapAuthenticationMode.Sas;
+        //    sasToken = configuration["AzureMaps:SasToken"];
+
+        //    //Optional settings:
+        //    config.LogLevel = LogLevel.Trace;
+        //}
+
+        /// <summary>
+        /// Only used for SasToken authentication.
+        /// Requires token callback be configured in App.razor.
+        /// </summary>
+        /// <returns></returns>
+        //[JSInvokable]
+        //public static async Task<string?> GetSasToken()
+        //{
+        //    //TODO: Implement logic to generate SasToken.
+        //    // For the purpose of testing, I manually generate SasToken (via Azure Maps Account/Shared Access Signature)
+        //    // and add it to my User Secrets.
+        //    return sasToken;
+        //}
 
         //private static void ConfigureForAad(IConfiguration configuration, MapConfiguration config)
         //{
@@ -69,7 +95,7 @@ namespace Sandbox
         //[JSInvokable]
         //public static async Task<string> GetAccessToken()
         //{
-        //    var auth = mapConfiguration!.AuthOptions;
+        //    var auth = mapConfiguration!.Authentication;
 
         //    IConfidentialClientApplication daemonClient;
         //    daemonClient = ConfidentialClientApplicationBuilder.Create(auth.AadAppId)

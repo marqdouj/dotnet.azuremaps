@@ -7,6 +7,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Settings
         SubscriptionKey,
         Aad,
         Anonymous,
+        Sas,
     }
 
     /// <summary>
@@ -55,6 +56,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Settings
             return Mode switch
             {
                 MapAuthenticationMode.SubscriptionKey => !string.IsNullOrWhiteSpace(SubscriptionKey),
+                MapAuthenticationMode.Sas => true, //Requires configuring JSInvokable GetSasToken method in App.Razor
                 MapAuthenticationMode.Aad => !string.IsNullOrWhiteSpace(AadAppId) && !string.IsNullOrWhiteSpace(AadTenant),
                 MapAuthenticationMode.Anonymous => !string.IsNullOrWhiteSpace(ClientId),
                 _ => false
@@ -70,6 +72,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Settings
                 MapAuthenticationMode.SubscriptionKey => string.IsNullOrWhiteSpace(SubscriptionKey)
                     ? "SubscriptionKey is required when authentication Mode is SubscriptionKey."
                     : "",
+                MapAuthenticationMode.Sas => "", //Requires configuring JSInvokable GetSasToken method in App.Razor
                 MapAuthenticationMode.Aad => string.IsNullOrWhiteSpace(AadAppId) || string.IsNullOrWhiteSpace(AadTenant)
                     ? "AadAppId and AadTenant are required when authentication Mode is Aad."
                     : "",
