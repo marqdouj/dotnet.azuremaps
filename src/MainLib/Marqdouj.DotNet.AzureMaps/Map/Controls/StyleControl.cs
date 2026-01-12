@@ -72,7 +72,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Controls
 
         [JsonInclude]
         [JsonPropertyName("mapStyles")]
-        internal List<string>? MapStylesJs { get => MapStyles?.EnumToJson(); set => MapStyles = value.JsonToEnum<MapStyle>(); }
+        internal List<string>? MapStylesJs { get => MapStyles?.EnumToJson("_"); set => MapStyles = value.JsonToEnum<MapStyle>(); }
 
         /// <summary>
         /// The style of the control.

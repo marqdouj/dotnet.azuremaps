@@ -89,12 +89,20 @@ namespace Sandbox.Components.Pages.Maps
                 MapControlType.Fullscreen => new FullscreenControl(MapControlPosition.Top_Right),
                 MapControlType.Pitch => new PitchControl(MapControlPosition.Top_Right),
                 MapControlType.Scale => new ScaleControl(MapControlPosition.Bottom_Right),
-                MapControlType.Style => new StyleControl(MapControlPosition.Top_Right),
+                MapControlType.Style => new StyleControl(MapControlPosition.Top_Right) { Options = GetStyleControlOptions() },
                 MapControlType.Traffic => new TrafficControl(MapControlPosition.Top_Right),
                 MapControlType.TrafficLegend => new TrafficLegendControl(MapControlPosition.Bottom_Left),
                 MapControlType.Zoom => new ZoomControl(MapControlPosition.Top_Right),
                 _ => throw new ArgumentOutOfRangeException(nameof(controlType)),
             };
+        }
+
+        private static StyleControlOptions GetStyleControlOptions()
+        {
+            List<MapStyle> styles = [.. Enum.GetValues<MapStyle>()];
+            styles.Remove(MapStyle.Blank);
+            styles.Remove(MapStyle.Blank_Accessible);
+            return new StyleControlOptions { MapStyles = styles };
         }
     }
 }

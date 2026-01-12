@@ -87,18 +87,18 @@ namespace Marqdouj.DotNet.AzureMaps.Map
             }
         }
 
-        internal static string EnumToJson<T>(this T value) where T : Enum
+        internal static string EnumToJson<T>(this T value, string underscoreReplacement = "-") where T : Enum
         {
-            return value.ToString().ToLower().Replace("_", "-");
+            return value.ToString().ToLower().Replace("_", underscoreReplacement);
         }
 
-        internal static string? EnumToJsonN<T>(this T? value) where T : struct, Enum
+        internal static string? EnumToJsonN<T>(this T? value, string underscoreReplacement = "-") where T : struct, Enum
         {
-            return value?.ToString().ToLower().Replace("_", "-");
+            return value?.ToString().ToLower().Replace("_", underscoreReplacement);
         }
 
-        internal static List<string> EnumToJson<T>(this IEnumerable<T>? items) where T : Enum
-            => items?.Select(e => e.EnumToJson()).Distinct().OrderBy(e => e).ToList() ?? [];
+        internal static List<string> EnumToJson<T>(this IEnumerable<T>? items, string underscoreReplacement = "-") where T : Enum
+            => items?.Select(e => e.EnumToJson(underscoreReplacement)).Distinct().OrderBy(e => e).ToList() ?? [];
 
         internal static T JsonToEnum<T>(this string? value, T defaultValue = default!) where T : Enum
         {
