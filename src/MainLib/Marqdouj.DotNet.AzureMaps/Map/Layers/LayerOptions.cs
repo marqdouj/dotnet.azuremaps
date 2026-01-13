@@ -6,6 +6,12 @@
     public class LayerOptions
     {
         /// <summary>
+        /// An expression specifying conditions on source features.
+        /// Only features that match the filter are displayed.
+        /// </summary>
+        public object? Filter { get; set; }
+
+        /// <summary>
         /// An integer specifying the minimum zoom level to render the layer at.
         /// This value is inclusive, i.e. the layer will be visible at 'maxZoom > zoom >= minZoom'.
         /// Default '0'.
