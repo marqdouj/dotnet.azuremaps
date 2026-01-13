@@ -2,6 +2,7 @@
 using Marqdouj.DotNet.AzureMaps.Map.Configuration;
 using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.Events;
+using Marqdouj.DotNet.AzureMaps.Map.Geolocation;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Interop
@@ -42,6 +43,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// </summary>
         Task<List<MapControl>> GetControls();
         Task<List<MapEventShape>> GetDataSourceShapes(string sourceId);
+        Task<GeolocationResult> GetGeolocation(PositionOptions? options = null);
         Task<TrafficOptions> GetTraffic();
 
         /// <summary>

@@ -21,6 +21,8 @@
 
 	<FluentToolbar>
         <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="8" />
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.GlobeSearch())" Title="Get Current Location" OnClick="@GetCurrentPosition" />
         <FluentSpacer Width="8"/>
         @{
             foreach (var layerType in Enum.GetValues<MapLayerType>().Where(e => e != MapLayerType.Unknown))
@@ -51,6 +53,7 @@
     private bool disabled => overlay || mapContainer == null;
     private MapLayerDef? layerDef;
     private IAzureMapContainer? mapContainer;
+    private readonly GeolocationManager geolocationManager = new();
 
     private async Task OnCreatMapError(Exception ex)
     {
@@ -79,7 +82,7 @@
 
             overlay = true;
 
-			await ResetMap();
+            await ResetMap();
 
             layerDef = await mapContainer.AddBasicMapLayer(DataService, layerType);
             ToastService.Info($"{layerType} layer added to the map.");
@@ -101,6 +104,8 @@
         {
             if (mapContainer == null) return;
 
+            await geolocationManager.RemoveLayers(mapContainer);
+
             if (layerDef != null)
             {
                 await mapContainer.Layers.RemoveLayer(layerDef);
@@ -113,6 +118,53 @@
         {
             Logger.LogError(ex, null);
             ToastService.Error(ex);
+        }
+    }
+
+    private async Task GetCurrentPosition()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            overlay = true;
+
+            var geolocation = await mapContainer.Maps.GetGeolocation(new PositionOptions { EnableHighAccuracy = true });
+
+            if (geolocation != null)
+            {
+                if (geolocation.IsSuccess)
+                {
+                    var coordinates = geolocation.Position!.Coords!;
+                    var position = new Position(coordinates.Longitude, coordinates.Latitude) { Accuracy = geolocation.Position.Coords?.Accuracy };
+                    if (!geolocationManager.LayersAdded)
+                        await geolocationManager.AddLayers(mapContainer);
+                    await geolocationManager.Clear(mapContainer);
+                    await geolocationManager.AddPosition(mapContainer, position);
+                    await mapContainer.Configuration.ZoomTo(position, 15);
+                }
+                else
+                {
+                    var errMsg = $"Geolocation service failed. {geolocation.Error?.Message}";
+                    Logger?.LogError(errMsg);
+                    ToastService?.Error(errMsg);
+                }
+            }
+            else
+            {
+                var warnMsg = $"Geolocation service returned null.";
+                Logger?.LogWarning(warnMsg);
+                ToastService?.Warning(warnMsg);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
         }
     }
 }
