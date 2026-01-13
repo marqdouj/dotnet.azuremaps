@@ -24,6 +24,14 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.7.3
+- `Layers`.
+  - `GeolocationManager`. Added new class to manage geolocation positions (with optional accurracy circles) to the map.
+    See the demo app for a working example.
+  - `Options.Filter`. Added new property. See the `GeolocationManager` for an example on using this.
+- `GeoJson.Position`.
+  - `Accuracy`. Added new property; normally used for geolocations.
+
 ### 10.7.2
 - `StyleControl`. Fixed issue converting Options.MapStyles to Json.
 

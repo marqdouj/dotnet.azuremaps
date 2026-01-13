@@ -65,6 +65,12 @@ namespace Marqdouj.DotNet.AzureMaps.Map.GeoJson
         }
 
         /// <summary>
+        /// Accuracy of the postion; normally used for Geolocations.
+        /// Not part of the GeoJSON spec.
+        /// </summary>
+        public double? Accuracy { get; set; }
+
+        /// <summary>
         /// Checks if list has the minimum required elements (Lon, Lat); if not adds them
         /// </summary>
         internal void Verify()
