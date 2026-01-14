@@ -2,6 +2,7 @@
 using Marqdouj.DotNet.AzureMaps.Map.Configuration;
 using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.Events;
+using Marqdouj.DotNet.AzureMaps.Map.Geolocation;
 using Marqdouj.DotNet.AzureMaps.Map.Interop;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
 
@@ -54,6 +55,21 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
         public async Task<List<MapEventShape>> GetDataSourceShapes(string sourceId)
         {
             return await mapJsInterop.Maps.Sources.GetShapes(sourceId);
+        }
+
+        public async Task<GeolocationResult> GetGeolocation(PositionOptions? options = null)
+        {
+            return await mapJsInterop.Maps.Geolocation.GetLocation(options);
+        }
+
+        public async Task<int?> WatchGeolocation(PositionOptions? options = null)
+        {
+            return await mapJsInterop.Maps.Geolocation.WatchPosition(options);
+        }
+
+        public async Task ClearWatchGeolocation(int id)
+        {
+            await mapJsInterop.Maps.Geolocation.ClearWatch(id);
         }
 
         public async Task<TrafficOptions> GetTraffic()

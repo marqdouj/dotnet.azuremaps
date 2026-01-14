@@ -260,5 +260,10 @@
     [JSInvokable]
     public async Task NotifyMapEventWheel(MapEventWheelArgs e) { await OnMapEventWheel.InvokeAsync(e); await OnMapEventAny.InvokeAsync(e); }
 
+    [Parameter]
+    public EventCallback<GeolocationEventArgs> OnGeolocationWatch { get; set; }
+
+    [JSInvokable]
+    public async Task NotifyGeolocationWatch(GeolocationResult e) { await OnGeolocationWatch.InvokeAsync(new GeolocationEventArgs(e)); }
     #endregion
 }
