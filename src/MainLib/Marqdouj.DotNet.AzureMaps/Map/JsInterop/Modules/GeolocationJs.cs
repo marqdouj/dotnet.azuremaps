@@ -15,6 +15,16 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules
             return await JsRuntime.InvokeAsync<GeolocationResult>(GetJsInteropMethod(), options);
         }
 
+        public async Task<int?> WatchPosition(PositionOptions? options)
+        {
+            return await JsRuntime.InvokeAsync<int?>(GetJsInteropMethod(), mapReference.DotNetRef, nameof(AzureMap.NotifyGeolocationWatch), options);
+        }
+
+        public async Task ClearWatch(int id)
+        {
+            await JsRuntime.InvokeVoidAsync(GetJsInteropMethod(), id);
+        }
+
         private static string GetJsInteropMethod([CallerMemberName] string name = "")
             => MapExtensions.GetJsModuleMethod(JsModule.Geolocation, name);
     }
