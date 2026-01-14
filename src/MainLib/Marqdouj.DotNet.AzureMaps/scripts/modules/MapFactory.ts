@@ -6,6 +6,7 @@ import { EventManager, EventNotification } from "./EventManager";
 import { ControlManager } from "./ControlManager";
 import { EventsHelper } from "./events/EventsHelper";
 import { Helpers } from "./common/Helpers";
+import { GeolocationManager } from "./GeolocationManager"
 
 export class MapFactory {
     static #azmaps: Map<string, MapReference> = new Map<string, MapReference>();
@@ -55,6 +56,8 @@ export class MapFactory {
         const mapReference = this.#azmaps.get(mapId);
 
         if (mapReference) {
+            GeolocationManager.clearWatch(mapId);
+
             if (this.#azmaps.delete(mapId)) {
                 mapReference.clear();
                 Logger.logMessage(mapId, LogLevel.Debug, "was removed");

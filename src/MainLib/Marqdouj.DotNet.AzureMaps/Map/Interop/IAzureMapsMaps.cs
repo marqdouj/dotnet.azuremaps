@@ -31,7 +31,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// </summary>
         /// <param name="sourceId">The identifier of the data source to remove. Cannot be null or empty.</param>
         Task ClearDatasource(string sourceId);
-        Task ClearWatchGeolocation(int id);
+        Task ClearWatchGeolocation();
 
         /// <summary>
         /// Creates a new data source on the map using the specified definition.
@@ -68,6 +68,6 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         Task RemoveMarkers(IEnumerable<HtmlMarkerDef> markers);
         Task RemovePopups(IEnumerable<PopupDef> Popups);
         Task SetTraffic(TrafficOptions? options);
-        Task<int?> WatchGeolocation(PositionOptions? options = null);
+        Task WatchGeolocation(PositionOptions? options = null);
     }
 }

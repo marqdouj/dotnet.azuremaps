@@ -1,10 +1,11 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Geolocation;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using System.Runtime.CompilerServices;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules
 {
-    internal class GeolocationJs(AzureMapDotNetRef mapReference)
+    internal class GeolocationManagerJs(AzureMapDotNetRef mapReference)
     {
         private readonly AzureMapDotNetRef mapReference = mapReference;
         private string MapId => mapReference.MapId;
@@ -17,12 +18,17 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules
 
         public async Task<int?> WatchPosition(PositionOptions? options)
         {
-            return await JsRuntime.InvokeAsync<int?>(GetJsInteropMethod(), mapReference.DotNetRef, nameof(AzureMap.NotifyGeolocationWatch), options);
+            return await JsRuntime.InvokeAsync<int?>(GetJsInteropMethod(), mapReference.DotNetRef, MapId, nameof(AzureMap.NotifyGeolocationWatch), options);
         }
 
-        public async Task ClearWatch(int id)
+        public async Task ClearWatch()
         {
-            await JsRuntime.InvokeVoidAsync(GetJsInteropMethod(), id);
+            await JsRuntime.InvokeVoidAsync(GetJsInteropMethod(), MapId);
+        }
+
+        public async Task<bool> IsWatched()
+        {
+            return await JsRuntime.InvokeAsync<bool>(GetJsInteropMethod(), MapId);
         }
 
         private static string GetJsInteropMethod([CallerMemberName] string name = "")

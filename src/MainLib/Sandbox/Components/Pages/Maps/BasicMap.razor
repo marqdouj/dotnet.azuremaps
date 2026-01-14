@@ -1,5 +1,6 @@
 ﻿@page "/map-basic"
 @rendermode InteractiveServer
+@implements IAsyncDisposable
 @inject ILogger<BasicMap> Logger
 @inject IToastService ToastService
 @inject IMapDataService DataService
@@ -58,8 +59,7 @@
     private MapLayerDef? layerDef;
     private IAzureMapContainer? mapContainer;
     private readonly GeolocationManager geolocationManager = new();
-    private int? watchId;
-    private bool isWatching => watchId != null;
+    private bool isWatching;
     private bool isNotWatching => !isWatching;
     private bool disabledWatching => disabled || isWatching;
     private bool disabledNotWatching => disabled || isNotWatching;
@@ -142,17 +142,13 @@
             if (watch)
             {
                 await geolocationManager.Clear(mapContainer);
-                watchId = await mapContainer.Maps.WatchGeolocation();
+                await mapContainer.Maps.WatchGeolocation();
+                isWatching = true;
                 ToastService.Info("Waiting for first Geolocation Watch event...");
             }
             else
             {
-                if (watchId != null)
-                {
-                    await mapContainer.Maps.ClearWatchGeolocation(watchId.Value);
-                    watchId = null;
-                    await geolocationManager.Clear(mapContainer);
-                }
+                await RemoveWatch();
             }
         }
         catch (Exception ex)
@@ -223,5 +219,28 @@
         await geolocationManager.Clear(mapContainer);
         await geolocationManager.AddPosition(mapContainer, position);
         await mapContainer.Configuration.ZoomTo(position, 15);
+    }
+
+    private async Task RemoveWatch()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+            if (isWatching)
+            {
+                await mapContainer.Maps.ClearWatchGeolocation();
+                isWatching = false;
+                await geolocationManager.Clear(mapContainer);
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Task.CompletedTask;
+        //await RemoveWatch();
     }
 }

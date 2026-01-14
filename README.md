@@ -24,13 +24,16 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
-### 10.7.4
+### 10.7.5
 - `IAzureMapContainer.Maps`.
   - `GetGeolocation`. Added new method to get the current geolocation.
   - `WatchGeolocation`. Added new method to watch the current geolocation.
   - `ClearWatchGeolocation`. Added new method to clear the geolocation watch.
 - `AzureMap`.
   - `OnGeolocationWatch`. Added new callback event parameter to support `WatchGeolocation`.
+
+### 10.7.4
+- Depreciated.
 
 ### 10.7.3
 - `Layers`.

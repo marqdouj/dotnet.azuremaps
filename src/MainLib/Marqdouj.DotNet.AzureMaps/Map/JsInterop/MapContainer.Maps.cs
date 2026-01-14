@@ -62,14 +62,14 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
             return await mapJsInterop.Maps.Geolocation.GetLocation(options);
         }
 
-        public async Task<int?> WatchGeolocation(PositionOptions? options = null)
+        public async Task WatchGeolocation(PositionOptions? options = null)
         {
-            return await mapJsInterop.Maps.Geolocation.WatchPosition(options);
+            await mapJsInterop.Maps.Geolocation.WatchPosition(options);
         }
 
-        public async Task ClearWatchGeolocation(int id)
+        public async Task ClearWatchGeolocation()
         {
-            await mapJsInterop.Maps.Geolocation.ClearWatch(id);
+            await mapJsInterop.Maps.Geolocation.ClearWatch();
         }
 
         public async Task<TrafficOptions> GetTraffic()

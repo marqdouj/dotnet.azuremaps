@@ -16,7 +16,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Core
         public EventManagerJs Events { get; } = new EventManagerJs(mapReference);
         public FeatureManagerJs Features { get; } = new FeatureManagerJs(mapReference);
         public LayerManagerJs Layers { get; } = new LayerManagerJs(mapReference);
-        public GeolocationJs Geolocation { get; } = new GeolocationJs(mapReference);
+        public GeolocationManagerJs Geolocation { get; } = new GeolocationManagerJs(mapReference);
         public MarkerManagerJs Markers { get; } = new MarkerManagerJs(mapReference);
         public PopupManagerJs Popups { get; } = new PopupManagerJs(mapReference);
         public SourceManagerJs Sources { get; } = new SourceManagerJs(mapReference);

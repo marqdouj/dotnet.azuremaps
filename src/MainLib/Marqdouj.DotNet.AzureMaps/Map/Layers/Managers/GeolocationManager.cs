@@ -127,7 +127,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Layers.Managers
         /// <returns></returns>
         public async Task Clear(IAzureMapContainer mapContainer) 
         { 
-            await mapContainer.Maps.ClearDatasource(dataSourceDef.Id!);
+            if (LayersAdded)
+                await mapContainer.Maps.ClearDatasource(dataSourceDef.Id!);
         }
     }
 }
