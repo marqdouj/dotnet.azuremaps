@@ -1,0 +1,95 @@
+﻿@page "/design"
+@using System.Text
+@rendermode InteractiveServer
+@inject ILogger<DesignBox> Logger
+@inject IToastService ToastService
+@inject IMapDataService DataService
+
+<PageTitle>Design</PageTitle>
+
+<FluentLayout>
+    <FluentToolbar>
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+        <FluentSpacer Width="8" />
+        <FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.DesignIdeas())" Title="Design Test" OnClick="@DesignTest" />
+    </FluentToolbar>
+
+    <AzureMap OnMapReady="@OnMapReady"
+              Options="@MapHelpers.GetDefaultCreateMapOptions()" />
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+               Transparent="false">
+    <FluentProgressRing />
+</FluentOverlay>
+
+@code {
+    private bool overlay;
+    private bool disabled => overlay || mapContainer == null;
+    private IAzureMapContainer? mapContainer;
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+            await mapContainer.Configuration.SetMapOptions(MapHelpers.GetDefaultSetMapOptions());
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private async Task DesignTest()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+            overlay = true;
+
+            var data = await DataService.GetBubbleLayerData();
+            var fromPosition = await mapContainer.Maps.Data.Mercator.FromPosition(data[0]);
+            var fromPositions = await mapContainer.Maps.Data.Mercator.FromPositions(data);
+            var toPosition = await mapContainer.Maps.Data.Mercator.ToPosition(fromPosition);
+            var toPositions = await mapContainer.Maps.Data.Mercator.ToPositions(fromPositions);
+            var mercatorScale = await mapContainer.Maps.Data.Mercator.MercatorScale(data[0].Latitude);
+            var meterInMercatorUnits = await mapContainer.Maps.Data.Mercator.MeterInMercatorUnits(data[0].Latitude);
+            var toFloat32Array = await mapContainer.Maps.Data.Mercator.ToFloat32Array(data);
+
+            Logger.LogInformation($"Position: {data[0]}");
+            Logger.LogInformation($"FromPosition: {fromPosition}");
+            Logger.LogInformation($"FromPositions: {fromPositions[0]}");
+            Logger.LogInformation($"ToPosition: {toPosition}");
+            Logger.LogInformation($"ToPositions: {toPositions[0]}");
+            Logger.LogInformation($"MercatorScale: Latitude:{data[0].Latitude} Scale:{mercatorScale}");
+            Logger.LogInformation($"MeterInMercatorUnits: Latitude:{data[0].Latitude} Units:{meterInMercatorUnits}");
+            Logger.LogInformation($"toFloat32Array: {toFloat32Array[0]}");
+
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+        }
+    }
+}

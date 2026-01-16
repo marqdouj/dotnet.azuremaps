@@ -9,6 +9,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map
         MapFactory,
         Maps,
         Controls,
+        Mercator,
         Events,
         Features,
         Geolocation,
@@ -22,7 +23,10 @@ namespace Marqdouj.DotNet.AzureMaps.Map
     {
         internal const string LIBRARY_NAME = "marqdoujAzureMaps";
 
-        private static string GetNamespace(this JsModule jsModule) => jsModule.ToString();
+        private static string GetNamespace(this JsModule jsModule)
+        {
+            return jsModule.ToString().Replace("_", ".");
+        }
 
         internal static string GetJsModuleMethod(JsModule module, [CallerMemberName] string name = "")
             => $"{LIBRARY_NAME}.{module.GetNamespace()}.{name.ToJsonName()}";

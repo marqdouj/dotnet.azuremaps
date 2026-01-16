@@ -4,6 +4,7 @@ using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.Events;
 using Marqdouj.DotNet.AzureMaps.Map.Geolocation;
 using Marqdouj.DotNet.AzureMaps.Map.Interop;
+using Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
@@ -11,6 +12,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
     internal class MapContainerMaps(AzureMapJsInterop mapJsInterop) : IAzureMapsMaps
     {
         private readonly AzureMapJsInterop mapJsInterop = mapJsInterop;
+
+        public IAzureMapsData Data => mapJsInterop.Maps.Data;
 
         public async Task AddControls(IEnumerable<MapControl> controls)
         {

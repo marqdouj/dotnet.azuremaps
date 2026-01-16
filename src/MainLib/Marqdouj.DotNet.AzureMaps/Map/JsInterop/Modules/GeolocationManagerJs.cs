@@ -1,5 +1,4 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Geolocation;
-using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using System.Runtime.CompilerServices;
 

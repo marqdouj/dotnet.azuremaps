@@ -3,12 +3,15 @@ using Marqdouj.DotNet.AzureMaps.Map.Configuration;
 using Marqdouj.DotNet.AzureMaps.Map.Controls;
 using Marqdouj.DotNet.AzureMaps.Map.Events;
 using Marqdouj.DotNet.AzureMaps.Map.Geolocation;
+using Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules;
 using Marqdouj.DotNet.AzureMaps.Map.Layers;
 
 namespace Marqdouj.DotNet.AzureMaps.Map.Interop
 {
     public interface IAzureMapsMaps
     {
+        IAzureMapsData Data { get; }
+
         /// <summary>
         /// Adds the specified collection of map controls to the map.
         /// </summary>
