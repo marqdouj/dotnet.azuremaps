@@ -26,6 +26,7 @@ An example of one of the methods to do this is in the demo.
 ## Release Notes
 ### 10.7.7
 - `IAzureMapContainer.Maps.ImageSprite`. Added support for `ImageSprite`.
+  - See an example in the `Pizza Delivery` page in the demo app.
 
 ### 10.7.6
 - `IAzureMapContainer.Maps.Data.Mercator`. Added support for 
