@@ -11,6 +11,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
     public interface IAzureMapsMaps
     {
         IAzureMapsData Data { get; }
+        IAzureMapsImageSprite ImageSprite { get; }
 
         /// <summary>
         /// Adds the specified collection of map controls to the map.

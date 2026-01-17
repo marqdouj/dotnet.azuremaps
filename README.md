@@ -24,6 +24,9 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.7.7
+- `IAzureMapContainer.Maps.ImageSprite`. Added support for `ImageSprite`.
+
 ### 10.7.6
 - `IAzureMapContainer.Maps.Data.Mercator`. Added support for 
   [`MercatorPoint`](https://learn.microsoft.com/en-us/javascript/api/azure-maps-control/atlas.data.mercatorpoint?view=azure-maps-typescript-latest).
