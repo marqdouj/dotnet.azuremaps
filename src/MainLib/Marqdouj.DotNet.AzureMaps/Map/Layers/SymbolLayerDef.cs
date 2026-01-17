@@ -1,4 +1,5 @@
 ﻿using Marqdouj.DotNet.AzureMaps.Map.Common;
+using Marqdouj.DotNet.AzureMaps.Map.Images;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -176,6 +177,11 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Layers
         [JsonInclude]
         [JsonPropertyName("image")]
         internal string? ImageJs { get => Image.EnumToJsonN(); set => Image = value.JsonToEnumN<IconImage>(); }
+
+        /// <summary>
+        /// Override <see cref="Image"/> and use an id associated with a custom image template <see cref="ImageTemplateDef"/>.
+        /// </summary>
+        public string? ImageId { get; set; }
 
         /// <summary>
         /// Specifies an offset distance of the icon from its anchor in pixels.

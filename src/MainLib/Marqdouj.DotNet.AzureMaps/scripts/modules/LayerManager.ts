@@ -76,6 +76,10 @@ export class LayerManager {
                 layer = new atlas.layer.PolygonExtrusionLayer(src, layerId, layerOptions);
                 break;
             case 'Symbol':
+                const imageId = layerOptions.iconOptions?.imageId;
+                if (Helpers.isNotEmptyOrNull(imageId)) {
+                    layerOptions.iconOptions.image = imageId;
+                }
                 layer = new atlas.layer.SymbolLayer(src, layerId, layerOptions);
                 break;
             case 'Tile':

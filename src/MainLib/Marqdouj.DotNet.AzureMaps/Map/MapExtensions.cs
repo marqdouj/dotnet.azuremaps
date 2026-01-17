@@ -13,6 +13,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map
         Events,
         Features,
         Geolocation,
+        ImageSprite,
         Layers,
         Markers,
         Popups,

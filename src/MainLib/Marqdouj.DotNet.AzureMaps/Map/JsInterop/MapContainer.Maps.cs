@@ -15,6 +15,8 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
 
         public IAzureMapsData Data => mapJsInterop.Maps.Data;
 
+        public IAzureMapsImageSprite ImageSprite => mapJsInterop.Maps.ImageSprite;
+
         public async Task AddControls(IEnumerable<MapControl> controls)
         {
             await mapJsInterop.Maps.Controls.Add(controls.OrderBy(c => c.SortOrder));
