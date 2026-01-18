@@ -1,6 +1,22 @@
 import * as atlas from "azure-maps-control"
 
 export class Helpers {
+    static safeStringify(obj: any) {
+        const seen = new WeakSet();
+        return JSON.stringify(obj, (key, value) => {
+            if (typeof value === "object" && value !== null) {
+                if (seen.has(value)) return;
+                seen.add(value);
+            }
+            return value;
+        });
+    }
+
+    static parseJsonString(jsonString: string) {
+        const obj = JSON.parse(jsonString);
+        return obj;
+    }
+
     static isEmptyOrNull(str: string | null | undefined): boolean {
         return str === null || str === undefined || str.trim() === "";
     }

@@ -76,10 +76,7 @@ export class LayerManager {
                 layer = new atlas.layer.PolygonExtrusionLayer(src, layerId, layerOptions);
                 break;
             case 'Symbol':
-                const imageId = layerOptions.iconOptions?.imageId;
-                if (Helpers.isNotEmptyOrNull(imageId)) {
-                    layerOptions.iconOptions.image = imageId;
-                }
+                this.#resolveSymbolLayerOptions(layerOptions);
                 layer = new atlas.layer.SymbolLayer(src, layerId, layerOptions);
                 break;
             case 'Tile':
@@ -145,6 +142,59 @@ export class LayerManager {
                 Logger.logMessage(mapId, LogLevel.Warn, `${eventName}: layer with id '${id}' was not found.`);
             }
         });
+    }
+
+    public static getOptions(mapId: string, id: string) {
+        const mapRef = MapFactory.getMapReference(mapId);
+        if (!mapRef)
+            return;
+
+        const lyr = mapRef.map.layers.getLayerById(id);
+
+        if (!lyr) {
+            Logger.logMessage(mapId, LogLevel.Error, `LayerManager.getOptions: layer does not exist where layer ID=${id}`);
+            return;
+        }
+
+        let options = lyr.getOptions();
+        options.source = null; //get rid of circular references
+
+        return options;
+    }
+
+    public static setOptions(mapId: string, json: any): void {
+        const mapRef = MapFactory.getMapReference(mapId);
+        if (!mapRef)
+            return;
+
+        const layerDef = Helpers.parseJsonString(json);
+        const lyr = mapRef.map.layers.getLayerById(layerDef.id);
+
+        if (!lyr) {
+            Logger.logMessage(mapId, LogLevel.Error, `LayerManager.setOptions: layer does not exist where layer ID=${layerDef.id}`, layerDef);
+            return;
+        }
+
+        let layerOptions = (layerDef.options || {}) as any;
+
+        switch (layerDef.type) {
+            case "Symbol":
+                this.#resolveSymbolLayerOptions(layerOptions);
+                break;
+            default:
+        }
+
+        let options = lyr.getOptions();
+        options = { ...options, ...layerOptions};
+
+        lyr.setOptions(options);
+    }
+
+    static #resolveSymbolLayerOptions(layerOptions: atlas.SymbolLayerOptions) {
+        const imageId = layerOptions.iconOptions?.imageId;
+        if (Helpers.isNotEmptyOrNull(imageId)) {
+            layerOptions.iconOptions.image = imageId;
+        }
     }
 }
 

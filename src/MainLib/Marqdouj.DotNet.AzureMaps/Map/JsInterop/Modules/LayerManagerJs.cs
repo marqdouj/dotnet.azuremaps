@@ -27,6 +27,28 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules
             await JsRuntime.InvokeVoidAsync(GetJsInteropMethod(), MapId, layers);
         }
 
+        public async Task<LayerOptions?> GetOptions(MapLayerDef layerDef)
+        {
+            return layerDef.LayerType switch
+            {
+                MapLayerType.Bubble => await JsRuntime.InvokeAsync<BubbleLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.HeatMap => await JsRuntime.InvokeAsync<HeatMapLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.Image => await JsRuntime.InvokeAsync<ImageLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.Line => await JsRuntime.InvokeAsync<LineLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.Polygon => await JsRuntime.InvokeAsync<PolygonLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.PolygonExtrusion => await JsRuntime.InvokeAsync<PolygonExtLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.Symbol => await JsRuntime.InvokeAsync<SymbolLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                MapLayerType.Tile => await JsRuntime.InvokeAsync<TileLayerOptions>(GetJsInteropMethod(), MapId, layerDef.Id),
+                _ => null,
+            };
+        }
+
+        public async Task SetOptions(MapLayerDef layerDef)
+        {
+            var json = layerDef.SerializeToJson();
+            await JsRuntime.InvokeVoidAsync(GetJsInteropMethod(), MapId, json);
+        }
+
         private static string GetJsInteropMethod([CallerMemberName] string name = "")
             => MapExtensions.GetJsModuleMethod(JsModule.Layers, name);
 

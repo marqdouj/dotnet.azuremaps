@@ -1,0 +1,299 @@
+﻿@page "/map-demos-pizza-delivery"
+@using Marqdouj.DotNet.AzureMaps.Map.Images
+@using Marqdouj.DotNet.Web.Components.Css
+@rendermode InteractiveServer
+@implements IDisposable
+@inject ILogger<PizzaDelivery> Logger
+@inject IToastService ToastService
+@inject IMapDataService DataService
+
+<PageTitle>Pizza Delivery</PageTitle>
+
+<FluentLayout>
+	<MapPageHeader Header="Pizza Delivery" HRefCode="@hRefSource">
+		<FluentLabel>
+			This example demonstrates using a custom image template. The 'car' template is used.
+			<br />
+			The template is used for a simulation of tracking a pizza delivery.
+		</FluentLabel>
+	</MapPageHeader>
+
+	<FluentToolbar>
+		<FluentButton Disabled="@disabled" IconStart="@(new Icons.Regular.Size20.ArrowReset())" Title="Reset Map" OnClick="@ResetMap" />
+		<FluentSpacer Width="8" />
+		<FluentButton Disabled="@disabledStart" IconStart="@(new Icons.Regular.Size20.VehicleCar())" Title="Start Demo" OnClick="@StartDemo" />
+		<FluentButton Disabled="@disabledStop" IconStart="@(new Icons.Regular.Size20.Stop())" Title="Stop Demo" OnClick="@StopDemo" />
+	</FluentToolbar>
+
+	<AzureMap Height="@mapHeight"
+			  Width="@mapWidth"
+			  Controls="@MapHelpers.GetDefaultControls()"
+			  OnMapReady="@OnMapReady"
+			  Options="@mapOptions" />
+</FluentLayout>
+
+<FluentOverlay @bind-Visible="@overlay"
+			   Transparent="false">
+	<FluentProgressRing />
+</FluentOverlay>
+
+@code {
+    private bool overlay;
+    private bool showNarrative = true;
+    private bool showNarrativeFirstTime = true;
+    private string hRefSource => HRefCodeSource.Sandbox.CodeUrl("Demos/PizzaDelivery.razor");
+    private string mapHeight = "400px";
+    private string mapWidth = "100%";
+    private SymbolLayerDef symbolLayerDef = new();
+    private LineLayerDef lineLayerDef = new();
+    private bool disabled => overlay || mapContainer == null;
+    private bool disabledStart => disabled || isRunning;
+    private bool disabledStop => disabled || !isRunning;
+    private IAzureMapContainer? mapContainer;
+    private MapOptions mapOptions = new();
+    private MapOptionsSet options = new();
+    private readonly PeriodicTimer periodicTimer = new(TimeSpan.FromSeconds(1.5));
+    private bool isRunning;
+    private int currentCar =-1;
+    private int maxCar => carLocations.Count - 1;
+    private readonly List<CarLocation> carLocations = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await DataService.GetSymbolLayerData();
+        mapOptions = MapHelpers.GetDefaultCreateMapOptions(data[9], 11.5);
+        options = MapHelpers.GetDefaultSetMapOptions(data[9], 11.5);
+
+        var max = data.Count - 1;
+        for (int i = 0; i < data.Count; i++)
+        {
+            Position? next = (i < max) ? data[i + 1] : null;
+            carLocations.Add(new CarLocation(data[i], next));
+        }
+    }
+
+    private async Task OnMapReady(IAzureMapContainer mapContainer)
+    {
+        try
+        {
+            await Task.CompletedTask;
+            this.mapContainer = mapContainer;
+            await AddMapLayer();
+            await RunTimer();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+    }
+
+    private void UpdateShowNarrative()
+    {
+        if (showNarrativeFirstTime)
+        {
+            showNarrativeFirstTime = false;
+            showNarrative = false;
+        }
+    }
+
+    private async Task AddMapLayer()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            overlay = true;
+
+            lineLayerDef = (LineLayerDef)await MapLayerType.Line.GetDefaultLayerDef(DataService);
+            lineLayerDef.Options!.StrokeColor = HtmlColorName.Orchid.ToString();
+
+            symbolLayerDef = (SymbolLayerDef)await MapLayerType.Symbol.GetDefaultLayerDef(DataService);
+
+
+            var imageDef = new ImageTemplateDef(ImageTemplateName.car)
+			{
+				Color = HtmlColorName.DodgerBlue.ToString(),
+				SecondaryColor = HtmlColorName.Orange.ToString(),
+			};
+            await mapContainer.Maps.ImageSprite.CreateFromTemplate(imageDef);
+
+            var iconOptions = symbolLayerDef.Options!.IconOptions!;
+            iconOptions.ImageId = imageDef.Id;
+            iconOptions.AllowOverlap = true;
+            iconOptions.Anchor = PositionAnchor.Center;
+            iconOptions.IgnorePlacement = true;
+            iconOptions.Rotation = 90;
+
+            await mapContainer.Layers.CreateLayer(symbolLayerDef);
+            await mapContainer.Layers.CreateLayer(lineLayerDef);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StartDemo()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await ResetMap();
+
+            var line = carLocations.Select(e => e.Position).ToList();
+            var feature = new MapFeatureDef(new LineString(line))
+			{
+				Properties = new Properties
+				{
+					{ "title", "Pizza Delivery Route" },
+					{ "demo", true },
+				}
+			};
+
+            await mapContainer.Layers.AddMapFeature(feature, lineLayerDef.DataSource.Id!);
+
+            await AddCar();
+            isRunning = true;
+
+            UpdateShowNarrative();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+        }
+    }
+
+    private async Task StopDemo()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+
+            await ResetMap();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+        }
+    }
+
+    private async Task RunTimer()
+    {
+        while (await periodicTimer.WaitForNextTickAsync())
+        {
+            if (isRunning)
+            {
+                await AddCar();
+            }
+        }
+    }
+
+    private async Task AddCar()
+    {
+        if (mapContainer == null) return;
+        if (currentCar >= maxCar) return;
+
+        //Normally you would get the next data point (car location) from an API that is monitoring the car location.
+        //i.e. nextCar = await myApi.GetCarLocation(carId);
+
+        currentCar++;
+
+        var nextCar = carLocations[currentCar];
+        symbolLayerDef.Options!.IconOptions!.Rotation = nextCar.Bearing;
+
+        await mapContainer.Maps.ClearDatasource(symbolLayerDef.DataSource.Id!);
+        await mapContainer.Layers.SetOptions(symbolLayerDef);
+
+        var feature = new MapFeatureDef(new Point(nextCar.Position))
+		{
+			Properties = new Properties
+					{
+						{ "title", "Pizza Delivery Car" },
+						{ "demo", true },
+					}
+		};
+        await mapContainer.Layers.AddMapFeature(feature, symbolLayerDef.DataSource.Id!);
+
+        if (currentCar == 0)
+        {
+            ToastService.Info("Pizza is on it's way!");
+            return;
+        }
+
+        if (currentCar == maxCar - 1)
+        {
+            ToastService.Info("Pizza is about to arrive!");
+            return;
+        }
+
+        if (currentCar == maxCar)
+        {
+            isRunning = false;
+            ToastService.Info("Pizza has arrived!");
+            return;
+        }
+    }
+
+    private async Task ResetMap()
+    {
+        try
+        {
+            if (mapContainer == null) return;
+            overlay = true;
+
+            isRunning = false;
+            currentCar = -1;
+            await mapContainer.Maps.ClearDatasource(symbolLayerDef.DataSource.Id!);
+            await mapContainer.Maps.ClearDatasource(lineLayerDef.DataSource.Id!);
+            await mapContainer.Configuration.SetMapOptions(options);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, null);
+            ToastService.Error(ex);
+        }
+        finally
+        {
+            overlay = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        periodicTimer?.Dispose();
+    }
+
+    private class CarLocation
+    {
+        public CarLocation(Position position, Position? next)
+        {
+            Position = position;
+            if (next != null)
+            {
+                Bearing = Gps.CalculateBearing(position.Latitude, position.Longitude, next.Latitude, next.Longitude);
+            }
+        }
+
+        public Position Position { get; }
+
+        public double Bearing { get; } = 90;
+    }
+}
