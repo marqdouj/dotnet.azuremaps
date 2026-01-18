@@ -24,6 +24,16 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.7.8
+- `IAzureMapContainer.Layers`.
+  - `GetOptions`. Added new method to get the layer options.
+  - `SetOptions`. Added new method to set the layer options.
+- `Common.Gps`. Added Gps extensions. Initial methods are used to calculate bearings.
+  - `CalculateBearing`. Calculates the bearing between two lat/lon points.
+  - `ToDegrees`. Converts radians to degrees.
+  - `ToRadians`. Converts degrees to radians.
+  - See an example in the `Pizza Delivery` page in the demo app.
+
 ### 10.7.7
 - `IAzureMapContainer.Maps.ImageSprite`. Added support for `ImageSprite`.
   - See an example in the `Pizza Delivery` page in the demo app.

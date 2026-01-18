@@ -23,6 +23,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// TargetId is not required; it will be resolved when creating the layer</param>
         Task CreateLayer(MapLayerDef layerDef, IEnumerable<MapEventDef>? events = null);
         Task CreateLayers(IEnumerable<MapLayerDef> layerDefs, IEnumerable<MapEventDef>? events = null);
+        Task<LayerOptions?> GetOptions(MapLayerDef layerDef);
 
         /// <summary>
         /// Removes the specified layer from the map.
@@ -37,6 +38,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Interop
         /// <returns></returns>
         Task RemoveLayer(MapLayerDef layerDef);
         Task RemoveLayers(IEnumerable<MapLayerDef> layerDefS);
+        Task SetOptions(MapLayerDef layerDef);
         Task UpdateMapFeature(MapFeatureDef feature, string datasourceId);
         Task UpdateMapFeatures(List<MapFeatureDef> features, string datasourceId);
     }

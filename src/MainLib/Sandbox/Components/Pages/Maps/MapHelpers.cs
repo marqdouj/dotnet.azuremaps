@@ -24,21 +24,21 @@ namespace Sandbox.Components.Pages.Maps
             return parameters;
         }
 
-        public static MapOptions GetDefaultCreateMapOptions()
+        public static MapOptions GetDefaultCreateMapOptions(Position? center = null, double zoomLevel = 10.5)
         {
             // Initialize map options with a specific camera position
             return new MapOptions
             {
                 Camera = new CameraOptions
                 {
-                    Center = new Position(-122.33, 47.6), // (Seattle, WA)
-                    Zoom = 10.5,
+                    Center = center ?? new Position(-122.33, 47.6), // (Seattle, WA)
+                    Zoom = zoomLevel,
                     Pitch = 0,
                 }
             };
         }
 
-        public static MapOptionsSet GetDefaultSetMapOptions()
+        public static MapOptionsSet GetDefaultSetMapOptions(Position? center = null, double zoomLevel = 10.5)
         {
             // Initialize map options with a specific camera position
             return new MapOptionsSet
@@ -47,14 +47,17 @@ namespace Sandbox.Components.Pages.Maps
                 {
                     Camera = new CameraOptions
                     {
-                        Center = new Position(-122.33, 47.6), // (Seattle, WA)
-                        Zoom = 10.5,
+                        Center = center ?? new Position(-122.33, 47.6), // (Seattle, WA)
+                        Zoom = zoomLevel,
                         Pitch = 0,
                     },
                 },
+                Service = new(),
                 Style = new(),
+                UserInteraction = new()
             };
         }
+
 
         public static List<MapControl> GetDefaultControls()
         {

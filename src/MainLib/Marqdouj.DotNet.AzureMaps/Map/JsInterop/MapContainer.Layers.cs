@@ -43,6 +43,16 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
             await mapJsInterop.Maps.Layers.Remove(layerDefS);
         }
 
+        public async Task<LayerOptions?> GetOptions(MapLayerDef layerDef)
+        {
+            return await mapJsInterop.Maps.Layers.GetOptions(layerDef);
+        }
+
+        public async Task SetOptions(MapLayerDef layerDef)
+        {
+            await mapJsInterop.Maps.Layers.SetOptions(layerDef);
+        }
+
         public async Task UpdateMapFeature(MapFeatureDef feature, string datasourceId)
         {
             await mapJsInterop.Maps.Features.Add(feature, datasourceId);
