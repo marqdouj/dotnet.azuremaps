@@ -57,6 +57,15 @@
     private int currentCar =-1;
     private int maxCar => carLocations.Count - 1;
     private readonly List<CarLocation> carLocations = [];
+    private readonly MapFeatureDef car = new MapFeatureDef(new Point(new Position(0, 0)))
+    {
+        Properties = new Properties
+            {
+                { "title", "Pizza Delivery Car" },
+                { "demo", true },
+            },
+        AsShape = true,
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -222,15 +231,17 @@
         await mapContainer.Maps.ClearDatasource(symbolLayerDef.DataSource.Id!);
         await mapContainer.Layers.SetOptions(symbolLayerDef);
 
-        var feature = new MapFeatureDef(new Point(nextCar.Position))
-		{
-			Properties = new Properties
-					{
-						{ "title", "Pizza Delivery Car" },
-						{ "demo", true },
-					}
-		};
-        await mapContainer.Layers.AddMapFeature(feature, symbolLayerDef.DataSource.Id!);
+        var geom = (Point)car!.Geometry;
+        geom.Coordinates = nextCar.Position;
+
+        if (currentCar == 0)
+        {
+            await mapContainer.Layers.AddMapFeature(car, symbolLayerDef.DataSource.Id!);
+        }
+        else
+        {
+            await mapContainer.Layers.UpdateMapFeature(car!, symbolLayerDef.DataSource.Id!);
+        }
 
         if (currentCar == 0)
         {
