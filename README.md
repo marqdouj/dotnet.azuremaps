@@ -24,6 +24,10 @@ An example of one of the methods to do this is in the demo.
 - See the [Configuration](docs/Configuration.md) section in the docs.
 
 ## Release Notes
+### 10.7.9
+- `IAzureMapContainer.Layers`.
+  - 'UpdateMapFeature/UpdateMapFeatures'. These methods implemented Add instead of Update; this issue has been fixed.
+
 ### 10.7.8
 - `IAzureMapContainer.Layers`.
   - `GetOptions`. Added new method to get the layer options.

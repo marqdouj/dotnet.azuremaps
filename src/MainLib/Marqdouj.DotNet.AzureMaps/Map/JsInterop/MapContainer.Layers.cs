@@ -55,12 +55,12 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
 
         public async Task UpdateMapFeature(MapFeatureDef feature, string datasourceId)
         {
-            await mapJsInterop.Maps.Features.Add(feature, datasourceId);
+            await mapJsInterop.Maps.Features.Update(feature, datasourceId);
         }
 
         public async Task UpdateMapFeatures(List<MapFeatureDef> features, string datasourceId)
         {
-            await mapJsInterop.Maps.Features.Add(features, datasourceId);
+            await mapJsInterop.Maps.Features.Update(features, datasourceId);
         }
     }
 }
