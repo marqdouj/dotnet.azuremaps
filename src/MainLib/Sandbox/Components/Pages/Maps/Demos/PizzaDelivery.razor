@@ -54,7 +54,7 @@
     private MapOptionsSet options = new();
     private readonly PeriodicTimer periodicTimer = new(TimeSpan.FromSeconds(1.5));
     private bool isRunning;
-    private int currentCar =-1;
+    private int currentCar = -1;
     private int maxCar => carLocations.Count - 1;
     private readonly List<CarLocation> carLocations = [];
     private readonly MapFeatureDef car = new MapFeatureDef(new Point(new Position(0, 0)))
@@ -121,10 +121,10 @@
 
 
             var imageDef = new ImageTemplateDef(ImageTemplateName.car)
-			{
-				Color = HtmlColorName.DodgerBlue.ToString(),
-				SecondaryColor = HtmlColorName.Orange.ToString(),
-			};
+            {
+                Color = HtmlColorName.DodgerBlue.ToString(),
+                SecondaryColor = HtmlColorName.Orange.ToString(),
+            };
             await mapContainer.Maps.ImageSprite.CreateFromTemplate(imageDef);
 
             var iconOptions = symbolLayerDef.Options!.IconOptions!;
@@ -159,13 +159,13 @@
 
             var line = carLocations.Select(e => e.Position).ToList();
             var feature = new MapFeatureDef(new LineString(line))
-			{
-				Properties = new Properties
-				{
-					{ "title", "Pizza Delivery Route" },
-					{ "demo", true },
-				}
-			};
+            {
+                Properties = new Properties
+                {
+                    { "title", "Pizza Delivery Route" },
+                    { "demo", true },
+                }
+            };
 
             await mapContainer.Layers.AddMapFeature(feature, lineLayerDef.DataSource.Id!);
 
@@ -228,7 +228,6 @@
         var nextCar = carLocations[currentCar];
         symbolLayerDef.Options!.IconOptions!.Rotation = nextCar.Bearing;
 
-        await mapContainer.Maps.ClearDatasource(symbolLayerDef.DataSource.Id!);
         await mapContainer.Layers.SetOptions(symbolLayerDef);
 
         var geom = (Point)car!.Geometry;
