@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "azure-maps-control": "^3.7.2",
+    "azure-maps-animations": "^0.0.1",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1"
   }

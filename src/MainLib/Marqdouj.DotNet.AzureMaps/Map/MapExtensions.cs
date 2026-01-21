@@ -8,6 +8,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map
     {
         MapFactory,
         Maps,
+        Animations,
         Controls,
         Mercator,
         Events,

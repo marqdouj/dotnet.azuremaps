@@ -13,7 +13,9 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
     {
         private readonly AzureMapJsInterop mapJsInterop = mapJsInterop;
 
+        public IAzureMapsAnimations Animations => mapJsInterop.Maps.Animations;
         public IAzureMapsData Data => mapJsInterop.Maps.Data;
+        public IAzureMapsFeatures Features => mapJsInterop.Maps.Features;
 
         public IAzureMapsImageSprite ImageSprite => mapJsInterop.Maps.ImageSprite;
 

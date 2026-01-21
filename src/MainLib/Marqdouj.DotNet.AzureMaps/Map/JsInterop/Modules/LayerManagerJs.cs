@@ -45,7 +45,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Modules
 
         public async Task SetOptions(MapLayerDef layerDef)
         {
-            var json = layerDef.SerializeToJson();
+            var json = layerDef.SerializeToJsInteropJson();
             await JsRuntime.InvokeVoidAsync(GetJsInteropMethod(), MapId, json);
         }
 

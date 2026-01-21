@@ -12,6 +12,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop.Core
         private string MapId => mapReference.MapId;
         private IJSRuntime JsRuntime => mapReference.JsRuntime;
 
+        public AnimationsJs Animations { get; } = new AnimationsJs(mapReference);
         public ControlManagerJs Controls { get; } = new ControlManagerJs(mapReference);
         public DataJs Data { get; } = new DataJs(mapReference);
         public EventManagerJs Events { get; } = new EventManagerJs(mapReference);

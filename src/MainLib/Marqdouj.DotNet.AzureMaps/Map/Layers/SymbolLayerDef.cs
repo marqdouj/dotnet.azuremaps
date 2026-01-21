@@ -227,6 +227,13 @@ namespace Marqdouj.DotNet.AzureMaps.Map.Layers
         public double? Rotation { get; set; }
 
         /// <summary>
+        /// Rotation specification applied to the object.
+        /// Represents DataDrivenPropertyValueSpecification[number].
+        /// Overrides <see cref="Rotation"/>
+        /// </summary>
+        public object? RotationSpecification { get; set; }
+
+        /// <summary>
         /// In combination with the placement property of a SymbolLayerOptions
         /// this determines the rotation behavior of icons.
         /// "auto": When placement is "point" this is equivalent to "viewport".

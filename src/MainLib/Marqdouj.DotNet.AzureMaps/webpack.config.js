@@ -9,6 +9,7 @@ module.exports = {
         library: 'marqdoujAzureMaps',
     },
     externals: {
-        "azure-maps-control": "atlas"
+        "azure-maps-control": "atlas",
+        "azure-maps-animations": "atlas"
     }
 };

@@ -76,7 +76,7 @@ export class LayerManager {
                 layer = new atlas.layer.PolygonExtrusionLayer(src, layerId, layerOptions);
                 break;
             case 'Symbol':
-                this.#resolveSymbolLayerOptions(layerOptions);
+                this.#resolveSymbolLayerOptions(mapRef.mapId, layerOptions);
                 layer = new atlas.layer.SymbolLayer(src, layerId, layerOptions);
                 break;
             case 'Tile':
@@ -179,7 +179,7 @@ export class LayerManager {
 
         switch (layerDef.type) {
             case "Symbol":
-                this.#resolveSymbolLayerOptions(layerOptions);
+                this.#resolveSymbolLayerOptions(mapId, layerOptions);
                 break;
             default:
         }
@@ -190,11 +190,22 @@ export class LayerManager {
         lyr.setOptions(options);
     }
 
-    static #resolveSymbolLayerOptions(layerOptions: atlas.SymbolLayerOptions) {
-        const imageId = layerOptions.iconOptions?.imageId;
+    static #resolveSymbolLayerOptions(mapId: string, layerOptions: atlas.SymbolLayerOptions) {
+        const iconOptions = layerOptions.iconOptions;
+
+        if (!iconOptions) return;
+
+        const imageId = iconOptions.imageId;
         if (Helpers.isNotEmptyOrNull(imageId)) {
-            layerOptions.iconOptions.image = imageId;
+            iconOptions.image = imageId;
         }
+
+        const rotationSpec = iconOptions.rotationSpecification
+        if (rotationSpec) {
+            iconOptions.rotation = ['get', 'heading'];// rotationSpec;
+        }
+
+        Logger.logMessage(mapId, LogLevel.Trace, "resolveSymbolLayerOptions:", layerOptions);
     }
 }
 

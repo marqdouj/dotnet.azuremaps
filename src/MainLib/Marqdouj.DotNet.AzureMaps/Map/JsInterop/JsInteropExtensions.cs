@@ -11,7 +11,7 @@ namespace Marqdouj.DotNet.AzureMaps.Map.JsInterop
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
-        public static string SerializeToJson(this object model)
+        public static string SerializeToJsInteropJson(this object model)
         {
             var json = JsonSerializer.Serialize(model, serializerOptions);
             return json;

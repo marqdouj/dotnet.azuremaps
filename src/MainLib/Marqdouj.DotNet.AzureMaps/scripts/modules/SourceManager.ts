@@ -175,6 +175,21 @@ export class SourceHelper {
         return source;
     }
 
+    static getDataSource(mapRef: IMapReference, datasourceId: string, logLevelFail: LogLevel = LogLevel.Error): atlas.source.DataSource | undefined {
+        const ds = this.getSource(mapRef, datasourceId);
+
+        if (!ds) {
+            return undefined;
+        }
+
+        if (!this.isDataSource(ds)) {
+            Logger.logMessage(mapRef.mapId, logLevelFail, `getDataSource: source with ID '${datasourceId}' is not a DataSource`);
+            return undefined;
+        }
+
+        return ds;
+    }
+
     static isDataSource(obj: any): obj is atlas.source.DataSource {
         return obj && (obj instanceof atlas.source.DataSource);
     }
