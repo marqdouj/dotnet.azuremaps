@@ -25,8 +25,8 @@ An example of one of the methods to do this is in the demo.
 
 ## Release Notes
 ### 10.8.0
-- `IAzureMapContainer.Features`. Added new interface to manage map features.
-- `IAzureMapContainer.Animmations`. Added new interface to manage map animations.
+- `IAzureMapContainer.Maps.Features`. Added new interface to manage map features.
+- `IAzureMapContainer.Maps.Animations`. Added new interface to manage map animations.
   - Currently only supports animating Shape coordinate changes.
     See the `PizzaDelivery` page in the [demo](https://github.com/marqdouj/dotnet.demo)
 
