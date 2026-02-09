@@ -1,5 +1,10 @@
 # DotNet.AzureMaps
 
+# <span style='color: red;'>NOTICE:</span>
+This library has been superceded by the
+[Marqdouj.DotNet.AzureMaps.Blazor](https://www.nuget.org/packages/Marqdouj.DotNet.AzureMaps.Blazor) NuGet package
+and has been archived.
+
 ## Summary
 A Blazor implementation of the Azure Maps Web SDK. 
 It provides a set of components and services to easily integrate Azure Maps into Blazor applications.
